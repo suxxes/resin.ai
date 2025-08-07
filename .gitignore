@@ -1,0 +1,12 @@
+# Ignore everything by default
+*
+
+# Allow only agents, commands and CLAUDE.md
+!agents/
+!agents/**
+!commands/
+!commands/**
+!README.md
+!CLAUDE.md
+!.gitignore
+!settings.json
