@@ -14,13 +14,13 @@ Orchestrates complete epic implementation from story planning through task execu
 ## Multi-Stage, 4-Agent State Machine Flow:
 
 ```
-PM_BOOTSTRAP ---→ FL_PLAN ------→ DEV_IMPLEMENT -----→ QUALITY_ASSURANCE_VALIDATE ---→ FL_FINAL ------→ PM_COMPLETE
-   (Agent 1)     (Agent 2)          (Agent 3)               (Agent 4)                  (Agent 2)         (Agent 1)
-                     ↑                ↓  ↑                  ↓       ↑                     ↓
-                     └────────────────┘  └──────────────────┘       └─────────────────────┘
-                     (FL fails,           (Quality Assurance fails,                    (PM fails,
-                      return to            return to                                    return to
-                      FL_PLAN)             DEV_IMPLEMENT)                               FL_FINAL)
+PM_BOOTSTRAP ------→ FL_PLAN ------→ DEV_IMPLEMENT ------→ QUALITY_ASSURANCE ------→ FL_FINAL ------→ PM_COMPLETE
+   (Agent 1)        (Agent 2)          (Agent 3)               (Agent 4)             (Agent 2)         (Agent 1)
+                         ↑               ↓  ↑                    ↓  ↑                  ↓  ↑              ↓
+                         └───────────────┘  └────────────────────┘  └──────────────────┘  └──────────────┘
+                          (FL fails,         (QA fails,              (FL fails,              (PM fails,
+                           return to          return to               return to               return to
+                           FL_PLAN)           DEV_IMPLEMENT)          QUALITY_ASSURANCE)      FL_FINAL)
 ```
 
 ## State Definitions (Multiple Stages, 4 Agents):
@@ -28,26 +28,26 @@ PM_BOOTSTRAP ---→ FL_PLAN ------→ DEV_IMPLEMENT -----→ QUALITY_ASSURANCE_V
 1. **PM_BOOTSTRAP** (Agent 1 - Project Manager): Analyzes epic and creates story breakdown
 2. **FL_PLAN** (Agent 2 - Feature Lead): Creates task implementation plans for all stories
 3. **DEV_IMPLEMENT** (Agent 3 - Developer): Implements all tasks with BASE quality standards
-4. **QUALITY_ASSURANCE_VALIDATE** (Agent 4 - Quality Assurance): Validates with ENHANCED quality standards (through-the-roof)
+4. **QUALITY_ASSURANCE** (Agent 4 - Quality Assurance): Validates with ENHANCED quality standards (through-the-roof)
 5. **FL_FINAL** (Agent 2 - Feature Lead): Final validation with MAXIMUM business standards
 6. **PM_COMPLETE** (Agent 1 - Project Manager): Completes epic and updates all documentation
 
 ## Multi-Agent Sub-Agent Architecture:
 
-- **Agent 1 - agents/project-manager.md**: Project Manager (Strategic planning & completion)
-- **Agent 2 - agents/feature-lead.md**: Feature Lead (Business planning & validation)
-- **Agent 3 - Dynamic Developer Discovery**: Automatically discovered from available `developer-*` agents based on project tech stack and agent expertise
-  - **Fully Dynamic**: Scans at runtime for all `developer-*` agents
-  - **Self-Describing**: Each agent's capabilities determined from their description and expertise
-  - **Extensible**: Additional developer agents can be added without modifying orchestrator logic
-- **Agent 4 - agents/quality-assurance.md**: Quality Assurance (Enhanced quality assurance - through-the-roof standards)
+- **Agent 1 - project-manager**: Project Manager (Strategic planning & completion)
+- **Agent 2 - feature-lead**: Feature Lead (Business planning & validation)
+- **Agent 3 - Self-Reflection Developer Discovery**: Automatically selected from known `developer-*` agents based on project tech stack and agent expertise
+  - **Self-Reflection Based**: Uses internal knowledge of available developer agents and their capabilities
+  - **Known Agent Inventory**: Maintains internal catalogue of developer agent specializations
+  - **Extensible**: Additional developer agents can be added by updating the internal knowledge base
+- **Agent 4 - quality-assurance**: Quality Assurance (Enhanced quality assurance - through-the-roof standards)
 
 ## State Persistence:
 
 All state tracking happens in the existing `docs/DEVELOPMENT_PLAN_AND_PROGRESS.md` file with additional agentic state tracking:
 ```markdown
 ## Epic Implementation State
-- Current Phase: QUALITY_ASSURANCE_VALIDATE
+- Current Phase: QUALITY_ASSURANCE
 - Current Agent: Quality Assurance Specialist
 - Epic: 0003 - User Authentication
 - Story Progress: 3/4 stories completed
@@ -61,7 +61,7 @@ All state tracking happens in the existing `docs/DEVELOPMENT_PLAN_AND_PROGRESS.m
 - ✅ PM_BOOTSTRAP (Project Manager) - 2025-08-05 09:00 - Epic broken into 4 stories, 11 total tasks
 - ✅ FL_PLAN (Feature Lead) - 2025-08-05 09:30 - All task implementation checklists created
 - ✅ DEV_IMPLEMENT (Developer) - Stories 0003.01-0003.03 completed - 2025-08-05 14:20
-- 🔄 QUALITY_ASSURANCE_VALIDATE (Quality Assurance Specialist) - Story 0003.04 validation - Iteration 1 - 2025-08-05 15:45
+- 🔄 QUALITY_ASSURANCE (Quality Assurance Specialist) - Story 0003.04 validation - Iteration 1 - 2025-08-05 15:45
 - ⏸ FL_FINAL (pending)
 - ⏸ PM_COMPLETE (pending)
 
@@ -123,8 +123,14 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
    - **All exist**: Continue with implementation/validation phases
 5. **Invoke Sub-Agent** using Task tool with complete file hierarchy context - MAINTAIN MODE LOCK
 6. **Process Return Code** and agent's file hierarchy assessment - NO AUTONOMOUS INTERPRETATION
-7. **Update State** across complete task tree based on agent feedback
-8. **Continue Loop** until ALL 6 phases completed OR agent explicitly returns specific error code requiring orchestrator intervention - NEVER EXIT MODE AUTONOMOUSLY
+7. **State Transition Reporting** - Use **STATE-TRANSITION** template (see Templates section) for all phase transitions
+8. **Update State** across complete task tree based on agent feedback
+9. **Git Commit Processing** - Create commits at key milestones:
+   - After successful task completion (DEV_IMPLEMENT → QUALITY_ASSURANCE)
+   - After successful story completion (all tasks in story completed)
+   - After successful epic completion (PM_COMPLETE phase)
+   - Include meaningful commit messages with phase, task/story/epic identifiers, and brief description
+10. **Continue Loop** until ALL 6 phases completed OR agent explicitly returns specific error code requiring orchestrator intervention - NEVER EXIT MODE AUTONOMOUSLY
 
 ### State Transitions:
 
@@ -157,36 +163,33 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 - Failure → Return to PM_BOOTSTRAP with planning issues
 
 **DEV_IMPLEMENT Phase:**
-- **DYNAMIC DEVELOPER DISCOVERY**: Automatically discover and select appropriate developer agent:
-  - **Scan Available Developer Agents**: Search for all available `developer-*` agents, their description and expertise
-  - **Read Agent Descriptions**: Parse each agent's description and expertise
-  - **REPORT DISCOVERED AGENTS**: List all found developer agents with their specializations
-  - **Analyze Project Tech Stack**:
-    - Scan project files for technology indicators
-    - Identify frameworks, languages, and platforms in use
-    - Extract task-specific technology requirements from task file
-    - **REPORT DETECTED TECHNOLOGIES**: List detected project technologies and frameworks
-  - **Agent Matching Algorithm**:
-    - Score each developer agent based on description match with detected tech stack
-    - Consider agent expertise keywords against project technologies
-    - Factor in task-specific requirements and technology needs
-    - **REPORT SELECTION RATIONALE**: Explain why specific agent was chosen with scoring details
-    - Select agent with highest compatibility score
-  - **Fallback Logic**: If no clear match, select first available developer agent with explanation
+- **SELF-REFLECTION DEVELOPER DISCOVERY**: Use the **SELF-REFLECTION-DEVELOPER-DISCOVERY** template (see Templates section)
+  - List ALL discovered developer agents, marking irrelevant ones as "(not relevant)"
+  - Show scoring algorithm with specific compatibility reasoning
+  - Clearly state final selection with percentage match
 - **Invoke Discovered Developer Agent** with "implement_task" mode
 - Context: Specific task (EEEE.SS.TT) implementation checklist, technical specifications, detected tech stack
 - Apply: BASE technical standards (standard implementation and testing)
 - **Task-Specific Implementation**: Focus on single task completion with full interface contracts
 - **MANDATORY**: Agent MUST complete implementation fully - NO early exits or shortcuts
-- Success (`SUCCESS_TO_QUALITY_ASSURANCE`) → Transition to QUALITY_ASSURANCE_VALIDATE for specific task
+- Success (`SUCCESS_TO_QUALITY_ASSURANCE`) → Transition to QUALITY_ASSURANCE for specific task
 - Failure (`FAILURE_CONTINUE`) → Stay in DEV_IMPLEMENT, increment iteration
 - **Update Task Tree**: Update task file progress and parent story/epic status
+- **Task Completion Processing**: Use **TASK-COMPLETION** template (see Templates section) to:
+  - Report task completion with progress statistics
+  - Determine next action (task → task, task → story, task → epic)
+  - Invoke appropriate next phase based on completion status
 
-**QUALITY_ASSURANCE_VALIDATE Phase:**
+**QUALITY_ASSURANCE Phase:**
 - Invoke: `@agent-quality-assurance` with "enhanced_validation" mode
 - Context: Completed implementation, Feature Lead feedback (if any)
 - Apply: **ENHANCED quality standards** (through-the-roof validation)
 - Standards: Far exceed Developer standards, comprehensive testing
+- **CRITICAL VALIDATION REQUIREMENTS**:
+  - **Code formatting and linting MUST pass** without any errors
+  - **All tests MUST pass** without exception
+  - **NEVER fix any errors** - only test and validate
+  - **Return to DEV_IMPLEMENT immediately** if formatting, linting, or tests fail
 - **MANDATORY**: Agent MUST complete full enhanced validation - NO skipping to demonstration phases
 - Success (`SUCCESS_TO_FL_FINAL`) → Transition to FL_FINAL
 - Failure (`FAILURE_TO_DEV`) → Return to DEV_IMPLEMENT with enhanced Quality Assurance feedback
@@ -197,7 +200,7 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 - Context: Quality Assurance-validated implementation, business requirements
 - Apply: MAXIMUM business standards (ruthless business validation)
 - Success (`SUCCESS_TO_PM_COMPLETE`) → Transition to PM_COMPLETE
-- Failure (`FAILURE_TO_QUALITY_ASSURANCE`) → Return to QUALITY_ASSURANCE_VALIDATE with business feedback
+- Failure (`FAILURE_TO_QUALITY_ASSURANCE`) → Return to QUALITY_ASSURANCE with business feedback
 - Critical Failure → Escalate to Project Manager
 
 **PM_COMPLETE Phase:**
@@ -209,7 +212,7 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 
 ## Return Codes:
 
-### project-manager.md:
+### project-manager:
 - `SUCCESS_TO_FL_PLAN` - Epic/Stories complete, ready for task planning
 - `SUCCESS_TO_DEV_IMPLEMENT` - All files exist, ready for implementation
 - `SUCCESS_COMPLETE` - Epic implementation validated at strategic level
@@ -218,7 +221,7 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 - `FAILURE_SCOPE_UNCLEAR` - Cannot determine what to bootstrap, need clearer requirements
 - `CRITICAL_FAILURE` - Major strategic issues, requires stakeholder input
 
-### feature-lead.md:
+### feature-lead:
 - `SUCCESS_TO_DEV_IMPLEMENT` - All task files complete, ready for implementation
 - `SUCCESS_TO_PM_COMPLETE` - Business validation passed, ready for strategic completion
 - `MISSING_STORY_FILES` - Story file missing, return to orchestrator for PM_BOOTSTRAP
@@ -227,7 +230,7 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 - `FAILURE_TO_QUALITY_ASSURANCE` - Business issues found, return to Quality Assurance with feedback
 - `CRITICAL_FAILURE` - Major business issues, escalate to Project Manager
 
-### developer-* (Dynamic Discovery):
+### developer-* (Self-Reflection Discovery):
 All developer agents follow standardized return codes:
 - `SUCCESS_TO_QUALITY_ASSURANCE` - Implementation complete, ready for enhanced Quality Assurance validation
 - `FAILURE_CONTINUE` - Implementation issues, continuing development iteration
@@ -235,11 +238,12 @@ All developer agents follow standardized return codes:
 - `TIMEOUT_CONTINUE` - Progress update, continuing development
 - `MISSING_TASK_FILES` - Task file missing, return to orchestrator for FL_PLAN
 
-**Developer Agents** (Dynamically Discovered):
-- All `developer-*` agents are discovered at runtime from available list of agents
-- Agent capabilities and specializations determined from agent descriptions and expertise
+**Developer Agents** (Self-Reflection Discovery):
+- All developer agents are discovered through self-reflection and internal knowledge
+- Agent capabilities and specializations determined through self-reflection on agent descriptions and expertise
+- Available agents discovered dynamically through internal contemplation
 
-### quality-assurance.md:
+### quality-assurance:
 - `SUCCESS_TO_FL_FINAL` - Enhanced quality validation passed, ready for business validation
 - `FAILURE_TO_DEV` - Quality issues found, return to development with enhanced feedback
 - `ENHANCEMENT_REQUIRED` - Quality standards not met, specific improvements needed
@@ -380,6 +384,7 @@ All agents receive comprehensive project context:
 - **Agent Coordination**: Manages transitions between agents and handles return codes
 - **File Tree Consistency**: Ensures all Epic/Story/Task files remain synchronized
 - **Completion Processing**: Handles task completion, next task discovery, and workflow continuation
+- **Automatic Git Commits**: Creates commits at key milestones and task completions
 
 **Developer Agent Domain Separation**: Developer focuses ONLY on technical implementation - no git operations, no progress tracking, no file tree updates.
 
@@ -453,7 +458,9 @@ All agents receive comprehensive project context:
 - [ ] Code formatting and linting pass
 - [ ] Basic functionality demonstrated
 
-### QUALITY_ASSURANCE_VALIDATE Gate (ENHANCED Standards):
+### QUALITY_ASSURANCE Gate (ENHANCED Standards):
+- [ ] **Code formatting and linting pass** (zero errors - CRITICAL REQUIREMENT)
+- [ ] **All tests pass** (100% success rate - CRITICAL REQUIREMENT)
 - [ ] **Integration testing passed** (all components work together)
 - [ ] **Performance benchmarks met** (realistic load conditions)
 - [ ] **Security vulnerabilities resolved** (zero security issues)
@@ -466,11 +473,9 @@ All agents receive comprehensive project context:
 - [ ] **User experience tested** (intuitive and user-friendly)
 
 ### FL_FINAL Gate (MAXIMUM Standards):
-- [ ] **Business value confirmed** (measurable impact delivered)
 - [ ] **User journeys validated** (complete workflows function perfectly)
 - [ ] **Stakeholder acceptance achieved** (all requirements satisfied)
 - [ ] **Competitive analysis passed** (meets/exceeds market standards)
-- [ ] **ROI validated** (clear return on investment)
 - [ ] **Brand consistency verified** (perfect brand alignment)
 - [ ] **Legal compliance confirmed** (all regulatory requirements met)
 
@@ -506,3 +511,161 @@ Epic implementation is complete when:
 - [ ] Strategic objectives achieved
 - [ ] Complete documentation and knowledge transfer
 - [ ] All agents provide explicit sign-off approval
+
+## Templates:
+
+### SELF-REFLECTION-DEVELOPER-DISCOVERY:
+
+```template
+SELF-REFLECTION DEVELOPER DISCOVERY
+
+Let me analyze the project tech stack and discover appropriate developer agents:
+
+Detected Technologies (from project analysis):
+- [TECHNOLOGY_1] [VERSION] ([DESCRIPTION])
+- [TECHNOLOGY_2] [VERSION] ([DESCRIPTION])
+- [TECHNOLOGY_N] [VERSION] ([DESCRIPTION])
+
+Developer Agent Discovery (self-reflection):
+Available developer agents I know about:
+- [agent-name-1]: [Agent description and specialization]
+- [agent-name-2]: [Agent description and specialization]
+- [agent-name-3]: [Agent description and specialization] (not relevant)
+- [agent-name-N]: [Agent description and specialization] (not relevant)
+
+Agent Matching Algorithm:
+- [agent-name-1]: Score [XX]% ([Compatibility reasoning])
+- [agent-name-N]: Score [XX]% ([Compatibility reasoning])
+
+SELECTION: [selected-agent] (highest compatibility - [XX]% match)
+
+TARGET: [Task/Story/Epic identifier] - [Task/Story/Epic name]
+AGENT: [selected-agent] with "[mode]" mode and [QUALITY_STANDARD] standards
+```
+
+### STATE-TRANSITION:
+
+```template
+PHASE [N]: ORCHESTRATION - [FROM_AGENT] TO [TO_AGENT] ([RESULT_TYPE])
+
+STATE: [FROM_PHASE] -> ([RETURN_CODE]) → [TO_PHASE]
+
+[Brief description of what was accomplished in the previous phase and what the next phase will handle. Include any key context or feedback being passed forward.]
+```
+
+### TASK-COMPLETION:
+
+```template
+TASK [EEEE.SS.TT] COMPLETED - [TASK_NAME] ✅
+STORY PROGRESS: [COMPLETED_TASKS]/[TOTAL_TASKS] tasks completed ([PERCENTAGE]%)
+EPIC PROGRESS: [COMPLETED_STORIES]/[TOTAL_STORIES] stories completed ([EPIC_PERCENTAGE]%)
+
+[NEXT_ACTION_TYPE]: [NEXT_IDENTIFIER] - [NEXT_NAME]
+
+[NEXT_PHASE_INVOCATION]
+```
+
+**Next Action Types:**
+- `CONTINUING TO NEXT STORY TASK` - More tasks remain in current story
+- `STORY [EEEE.SS] COMPLETED - CONTINUING TO NEXT STORY` - Current story finished, next story available
+- `EPIC [EEEE] COMPLETED - ALL STORIES FINISHED` - Entire epic completed
+
+**Task Completion Examples:**
+
+Task → Task Transition:
+```
+TASK 0001.02.05 COMPLETED - Cross-Platform Compatibility Testing ✅
+STORY PROGRESS: 5/6 tasks completed (83.3%)
+EPIC PROGRESS: 1/4 stories completed (25.0%)
+
+CONTINUING TO NEXT STORY TASK: 0001.02.06 - Performance Optimization and Validation
+
+INVOKING DEV_IMPLEMENT PHASE for Task 0001.02.06 (Final Story 0001.02 Task)
+```
+
+Task → Story Transition:
+```
+TASK 0001.02.06 COMPLETED - Performance Optimization and Validation ✅
+STORY PROGRESS: 6/6 tasks completed (100.0%)
+EPIC PROGRESS: 2/4 stories completed (50.0%)
+
+STORY 0001.02 COMPLETED - CONTINUING TO NEXT STORY: 0001.03 - User Interface Enhancement
+
+INVOKING FL_PLAN PHASE for Story 0001.03 (Epic 0001 Story 3/4)
+```
+
+Task → Epic Completion:
+```
+TASK 0001.04.03 COMPLETED - Final Integration Testing ✅
+STORY PROGRESS: 3/3 tasks completed (100.0%)
+EPIC PROGRESS: 4/4 stories completed (100.0%)
+
+EPIC 0001 COMPLETED - ALL STORIES FINISHED: User Authentication System
+
+INVOKING PM_COMPLETE PHASE for Epic 0001 (Strategic Completion)
+```
+
+**Usage Examples:**
+
+Forward Transition:
+```
+PHASE 3: ORCHESTRATION - DEVELOPER TO QUALITY ASSURANCE (SUCCESS)
+
+STATE: DEV_IMPLEMENT -> (SUCCESS_TO_QUALITY_ASSURANCE) → QUALITY_ASSURANCE
+
+Developer completed task implementation with BASE standards. All unit tests passing and code formatting applied. Quality Assurance will now perform ENHANCED validation with through-the-roof standards.
+```
+
+Same-State Transition (Retry):
+```
+PHASE 3: ORCHESTRATION - QUALITY ASSURANCE TO DEVELOPER (FAILURE)
+
+STATE: QUALITY_ASSURANCE -> (FAILURE_TO_DEV) → DEV_IMPLEMENT
+
+Quality Assurance found integration issues and performance problems. Developer will address the enhanced feedback and continue implementation iteration 2.
+```
+
+Same-Agent Continuation:
+```
+PHASE 3: ORCHESTRATION - DEVELOPER CONTINUATION (PROGRESS)
+
+STATE: DEV_IMPLEMENT -> (PARTIAL_SUCCESS) → DEV_IMPLEMENT
+
+Developer completed 2 of 3 tasks in current story. Continuing with remaining task implementation while maintaining BASE technical standards.
+```
+
+## Template Usage Guidelines:
+
+### General Template Requirements:
+- **Replace all bracketed placeholders** with actual discovered values
+- **Always show detected technologies** with versions and descriptions
+- **Include target identifier** and selected agent with mode
+- **Use consistent formatting** and structure throughout all templates
+- **Provide clear rationale** for all decisions and selections made
+
+### SELF-REFLECTION-DEVELOPER-DISCOVERY Requirements:
+- **List ALL discovered developer agents**, marking irrelevant ones as "(not relevant)"
+- **Show scoring algorithm** with specific compatibility reasoning
+- **Clearly state final selection** with percentage match
+
+### STATE-TRANSITION Requirements:
+- **Use sequential phase numbering** (1-6) to track orchestration progress
+- **Show exact agent names** for clear responsibility tracking
+- **Include precise return codes** from previous agent for audit trail
+- **Provide transition context** explaining what was accomplished and what's next
+- **Maintain consistent STATE format**: FROM_PHASE -> (RETURN_CODE) → TO_PHASE
+- **Handle same-state transitions**: When FROM_PHASE equals TO_PHASE, use appropriate descriptions:
+  - Same-Agent Continuation: "[AGENT] CONTINUATION (PROGRESS)"
+  - Retry after failure: "[FROM_AGENT] TO [TO_AGENT] (FAILURE)"
+  - Same phase, different iteration: Include iteration numbers in description
+
+### TASK-COMPLETION Requirements:
+- **Calculate accurate progress percentages** for both story and epic completion tracking
+- **Use task completion checkmark** (✅) for visual confirmation
+- **Show dual progress tracking**: Story progress and Epic progress percentages
+- **Determine correct next action type** based on remaining work:
+  - Task → Task: More tasks in current story
+  - Task → Story: Current story complete, more stories in epic
+  - Task → Epic: All stories complete, epic finished
+- **Include proper phase invocation** for next step in workflow
+- **Maintain hierarchical context** with Epic/Story/Task relationships

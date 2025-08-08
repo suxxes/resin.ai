@@ -8,38 +8,15 @@ This project implements a sophisticated 4-agent orchestration system for complet
 **Purpose**: Multi-agent workflow orchestration for software development with progressive quality standards
 
 ### Core Architecture:
-- **Multi-Agent System**: Project Manager, Feature Lead, Dynamic Developer Discovery, Quality Assurance
+- **Multi-Agent System**: Project Manager, Feature Lead, Self-Reflection Developer Discovery, Quality Assurance
 - **Multi-Stage State Machine**: PM_BOOTSTRAP → FL_PLAN → DEV_IMPLEMENT → QUALITY_ASSURANCE_VALIDATE → FL_FINAL → PM_COMPLETE
-- **Dynamic Agent Discovery**: Automatically discovers and selects appropriate developer agent based on agent descriptions and project tech stack
+- **Self-Reflection Agent Discovery**: Automatically selects appropriate developer agent based on internal knowledge of agent capabilities and project tech stack
 - **Progressive Quality Standards**: BASE → ENHANCED → MAXIMUM → STRATEGIC
 - **Hierarchical Task Management**: Epic → Story → Task with unique identifiers (EEEE.SS.TT)
 
-### Technical Stacks (Developer Agents):
+### Technical Stacks:
 
-#### General TypeScript Developer Agent:
-- **Core**: TypeScript, JavaScript (framework-agnostic)
-- **Adaptation**: Learns project tooling (build systems, testing, deployment)
-- **Frameworks**: Adapts to React, Vue, Angular, Node.js, Express, etc.
-- **Package Managers**: npm, yarn, pnpm (respects project choice)
-- **Testing**: Adapts to Vitest, Jest, Mocha, Playwright, Cypress, etc.
-- **Build Tools**: Webpack, Vite, ESBuild, Parcel, Rollup, etc.
-
-#### Next.js Specialist Developer Agent:
-- **Core**: Next.js, React, TypeScript (Next.js focused)
-- **Backend**: Prisma, ZenStack for database operations
-- **Validation**: Zod for schema validation
-- **Monorepo**: Turbo for workspace management
-- **State**: Zustand + TanStack React Query
-- **Testing**: Vitest, React Testing Library, Playwright
-- **i18n**: i18next, react-i18next
-
-#### Swift Developer Agent:
-- **Core**: Swift, SwiftUI, UIKit
-- **Platform**: iOS, macOS, iPadOS, watchOS
-- **Backend**: URLSession, Combine, async/await
-- **Data**: Core Data, CloudKit, UserDefaults
-- **Testing**: XCTest framework
-- **Development**: Xcode, Swift Package Manager
+Developer agents are discovered through self-reflection based on project technology requirements. Each discovered agent adapts to the specific technical stack and tooling of the current project, providing specialized expertise for optimal implementation quality.
 
 ---
 
@@ -167,19 +144,16 @@ This section documents the specialized sub-agents used by the `/develop` orchest
   - Final business validation with ruthless business standards
   - User journey validation and stakeholder acceptance
 
-### Agent 3: Developer (Dynamic Discovery)
-- **Role**: Dynamically discovered based on project tech stack and agent expertise
+### Agent 3: Developer (Self-Reflection Discovery)
+- **Role**: Self-reflection based discovery and selection of developer agents based on project tech stack and agent expertise
 - **Phases**: DEV_IMPLEMENT (All project types)
 - **Quality Standards**: BASE technical standards
 - **Discovery Process**: 
-  - Scans `agents/developer-*` files for available specialists
-  - Matches agent descriptions against project technology requirements
-  - Selects highest compatibility score agent
-- **Current Available Specialists**:
-  - **General TypeScript** (`developer-typescript.md`): Adapts to any TypeScript project by learning tooling
-  - **Next.js Specialist** (`developer-nextjs.md`): Next.js/React full-stack web applications
-  - **Swift Specialist** (`developer-swift.md`): Native app development specialist for Apple platforms
-- **Extensible**: New developer agents automatically discovered when added to `agents/` directory
+  - Uses self-reflection to discover available developer agent capabilities
+  - Matches discovered agent descriptions against project technology requirements
+  - Selects highest compatibility score agent through internal contemplation
+- **Dynamic Discovery**: Available developer agents discovered through self-reflection and internal knowledge
+- **Extensible**: New developer agents automatically discoverable through enhanced self-reflection
 
 ### Agent 4: Quality Assurance (`quality-assurance.md`)
 - **Role**: Enhanced quality validation specialist
