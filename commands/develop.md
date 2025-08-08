@@ -10,6 +10,7 @@ Orchestrates complete epic implementation from story planning through task execu
 - `/develop 0003.02` - Work on Story 0003.02 (bootstrap Epic/Story if missing → Tasks as needed)
 - `/develop 0003.02.01` - Work on Task 0003.02.01 (bootstrap Epic/Story/Task if missing)
 - `/develop current` - Continue current work from last state
+- `/develop [FEATURE_DESCRIPTION]` - Natural language feature description that starts from planning phase
 
 ## Multi-Stage, 4-Agent State Machine Flow:
 
@@ -112,6 +113,7 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
    - **EEEE.SS** (e.g., 0003.02) = Story scope
    - **EEEE.SS.TT** (e.g., 0003.02.01) = Task scope
    - **No input** = Auto-discover next unfinished work
+   - **Feature Description** (natural language) = Create new epic from feature description
 3. **Analyze Planning File Hierarchy** - check what exists in `docs/DEVELOPMENT_PLAN_AND_PROGRESS/`:
    - **Epic file**: `EEEE - Epic Name.md` exists?
    - **Story files**: `EEEE.SS - Epic Name - Story Name.md` exist for all stories?
@@ -120,6 +122,7 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
    - **Missing Epic**: PM_BOOTSTRAP phase (create Epic + Stories)
    - **Missing Stories**: PM_BOOTSTRAP phase (create missing Stories for Epic)
    - **Missing Tasks**: FL_PLAN phase (create missing Tasks for Story)
+   - **Feature Description**: PM_BOOTSTRAP phase (create new Epic from feature description)
    - **All exist**: Continue with implementation/validation phases
 5. **Invoke Sub-Agent** using Task tool with complete file hierarchy context - MAINTAIN MODE LOCK
 6. **Process Return Code** and agent's file hierarchy assessment - NO AUTONOMOUS INTERPRETATION
@@ -136,7 +139,7 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 
 **PM_BOOTSTRAP Phase:**
 - Invoke: `@agent-project-manager` with "hierarchical_bootstrap" mode
-- Context: Target identifier (EEEE/EEEE.SS/EEEE.SS.TT), complete file hierarchy analysis, project strategy
+- Context: Target identifier (EEEE/EEEE.SS/EEEE.SS.TT/Feature Description), complete file hierarchy analysis, project strategy
 - **Agent Must Analyze File Hierarchy** and determine what's missing:
   - Check existence of `docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE - Epic Name.md`
   - Check existence of all `docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS - Epic Name - Story Name.md` files
@@ -425,8 +428,13 @@ All agents receive comprehensive project context:
 # Continue current work from last state
 /develop current
 
+# Create new epic from feature description (starts from planning phase)
+/develop "Add user authentication with OAuth2 and role-based permissions"
+/develop "Implement real-time chat feature with message history"
+/develop "Build responsive dashboard with data visualization charts"
+
 # The orchestrator will:
-# 1. Parse input identifier to determine scope (Epic/Story/Task)
+# 1. Parse input identifier to determine scope (Epic/Story/Task/Feature Description)
 # 2. Analyze complete planning file hierarchy in docs/DEVELOPMENT_PLAN_AND_PROGRESS/:
 #    - Epic file: EEEE - Epic Name.md
 #    - Story files: EEEE.SS - Epic Name - Story Name.md
