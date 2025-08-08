@@ -1,42 +1,45 @@
 # Develop - State-Machine Orchestrator for Complete Epic Implementation
 
-**CRITICAL**: When this command is invoked, Claude enters **Agentic State-Machine Orchestrator mode** and MUST remain in this mode until explicitly requested to exit by the user. No autonomous mode switching, early exits, or demonstration shortcuts are permitted.
+**CRITICAL**: When this command is invoked, Claude enters **Agentic State-Machine Orchestrator mode** and MUST remain in this mode until explicitly requested to exit by the user. No autonomous mode switching, early exits, demonstration shortcuts, or meta-commentary about the orchestration process are permitted.
 
-Orchestrates complete epic implementation from story planning through task execution using 4 specialized sub-agents in a 6-stage controlled state-machine flow with escalating quality standards.
+Orchestrates complete epic implementation from story planning through task execution using specialized sub-agents in a multi-stage controlled state-machine flow with escalating quality standards.
 
 ## Usage:
 - `/develop` - Auto-select next unfinished work and bootstrap missing files as needed
 - `/develop 0003` - Work on Epic 0003 (bootstrap Epic → Stories → Tasks as needed)
-- `/develop 0003.02` - Work on Story 0003.02 (bootstrap Epic/Story if missing → Tasks as needed)  
+- `/develop 0003.02` - Work on Story 0003.02 (bootstrap Epic/Story if missing → Tasks as needed)
 - `/develop 0003.02.01` - Work on Task 0003.02.01 (bootstrap Epic/Story/Task if missing)
 - `/develop current` - Continue current work from last state
 
-## 6-Stage, 4-Agent State Machine Flow:
+## Multi-Stage, 4-Agent State Machine Flow:
 
 ```
-PM_BOOTSTRAP → FL_PLAN → DEV_IMPLEMENT → QUALITY_ASSURANCE_VALIDATE → FL_FINAL → PM_COMPLETE
-   (Agent 1)    (Agent 2)    (Agent 3)      (Agent 4)     (Agent 2)   (Agent 1)
-                    ↑           ↓  ↑             ↓  ↑          ↓
-                    └───────────┘  └─────────────┘  └──────────┘
-                    (FL fails,     (Quality Assurance fails,       (PM fails,
-                     return to      return to        return to
-                     FL_PLAN)       DEV_IMPLEMENT)   FL_FINAL)
+PM_BOOTSTRAP ---→ FL_PLAN ------→ DEV_IMPLEMENT -----→ QUALITY_ASSURANCE_VALIDATE ---→ FL_FINAL ------→ PM_COMPLETE
+   (Agent 1)     (Agent 2)          (Agent 3)               (Agent 4)                  (Agent 2)         (Agent 1)
+                     ↑                ↓  ↑                  ↓       ↑                     ↓
+                     └────────────────┘  └──────────────────┘       └─────────────────────┘
+                     (FL fails,           (Quality Assurance fails,                    (PM fails,
+                      return to            return to                                    return to
+                      FL_PLAN)             DEV_IMPLEMENT)                               FL_FINAL)
 ```
 
-## State Definitions (6 Stages, 4 Agents):
+## State Definitions (Multiple Stages, 4 Agents):
 
 1. **PM_BOOTSTRAP** (Agent 1 - Project Manager): Analyzes epic and creates story breakdown
-2. **FL_PLAN** (Agent 2 - Feature Lead): Creates task implementation plans for all stories  
+2. **FL_PLAN** (Agent 2 - Feature Lead): Creates task implementation plans for all stories
 3. **DEV_IMPLEMENT** (Agent 3 - Developer): Implements all tasks with BASE quality standards
 4. **QUALITY_ASSURANCE_VALIDATE** (Agent 4 - Quality Assurance): Validates with ENHANCED quality standards (through-the-roof)
 5. **FL_FINAL** (Agent 2 - Feature Lead): Final validation with MAXIMUM business standards
 6. **PM_COMPLETE** (Agent 1 - Project Manager): Completes epic and updates all documentation
 
-## 4-Agent Sub-Agent Architecture:
+## Multi-Agent Sub-Agent Architecture:
 
 - **Agent 1 - agents/project-manager.md**: Project Manager (Strategic planning & completion)
-- **Agent 2 - agents/feature-lead.md**: Feature Lead (Business planning & validation) 
-- **Agent 3 - agents/developer.md**: Developer (Technical implementation)
+- **Agent 2 - agents/feature-lead.md**: Feature Lead (Business planning & validation)
+- **Agent 3 - Dynamic Developer Discovery**: Automatically discovered from available `developer-*` agents based on project tech stack and agent expertise
+  - **Fully Dynamic**: Scans at runtime for all `developer-*` agents
+  - **Self-Describing**: Each agent's capabilities determined from their description and expertise
+  - **Extensible**: Additional developer agents can be added without modifying orchestrator logic
 - **Agent 4 - agents/quality-assurance.md**: Quality Assurance (Enhanced quality assurance - through-the-roof standards)
 
 ## State Persistence:
@@ -82,20 +85,31 @@ All state tracking happens in the existing `docs/DEVELOPMENT_PLAN_AND_PROGRESS.m
 - **STRICT RETURN CODE ADHERENCE**: Only use documented return codes, never create ad-hoc exit reasons
 
 ### Prohibited Behaviors in Agentic State-Machine Orchestrator Mode:
-- ❌ "Given the iterative nature... let me move forward to show the complete workflow" 
-- ❌ "This is a demonstration of orchestrator capabilities, let me transition to FL_FINAL"
-- ❌ "Let me switch modes to explain the system" or any mode switching
-- ❌ Autonomous exits from Agentic State-Machine Orchestrator mode
-- ❌ Skipping implementation phases to demonstrate business validation
-- ❌ Making autonomous decisions about workflow progression  
-- ❌ Transitioning phases without completing current phase requirements
-- ❌ Ending orchestration early for any reason except user request or completion
+
+## Mode Exit Protocol (**CRITICAL AND IMPORTANT SECTION!!!**)
+
+Claude remains in **Agentic State-Machine Orchestrator mode** until:
+
+### Permitted Exits:
+- **User explicitly requests exit**: "Exit orchestrator mode", "Stop develop", etc.
+- **Complete epic implementation**: All phases successfully completed through PM_COMPLETE
+- **Critical system failure**: Agent returns CRITICAL_FAILURE requiring user intervention
+
+### Prohibited Autonomous Exits:
+- **Demonstration purposes**: "Let me show the complete workflow"
+- **Iterative reasoning**: "Given the iterative nature..."
+- **Mode switching**: Switching to explanation, tutorial, or any other mode
+- **Self-termination**: Any autonomous decision to end orchestration
+- **Phase skipping**: Jumping ahead to demonstrate later phases without completing current phase requirements
+- Autonomous exits from Agentic State-Machine Orchestrator mode
+- Skipping implementation phases to demonstrate business validation
+- Ending orchestration early for any reason except user request or completion
 
 ### Main Loop (Agentic State-Machine Orchestrator Mode):
 1. **CONFIRM MODE LOCK**: Verify Claude is in Agentic State-Machine Orchestrator mode - NO MODE SWITCHING ALLOWED
 2. **Parse Input Identifier** - determine scope from user input:
    - **EEEE** (e.g., 0003) = Epic scope
-   - **EEEE.SS** (e.g., 0003.02) = Story scope  
+   - **EEEE.SS** (e.g., 0003.02) = Story scope
    - **EEEE.SS.TT** (e.g., 0003.02.01) = Task scope
    - **No input** = Auto-discover next unfinished work
 3. **Analyze Planning File Hierarchy** - check what exists in `docs/DEVELOPMENT_PLAN_AND_PROGRESS/`:
@@ -122,14 +136,14 @@ All state tracking happens in the existing `docs/DEVELOPMENT_PLAN_AND_PROGRESS.m
   - Check existence of all `docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS - Epic Name - Story Name.md` files
   - **Return Codes Based on Analysis**:
     - `SUCCESS_TO_FL_PLAN` - Epic/Stories complete, ready for task planning
-    - `SUCCESS_TO_DEV_IMPLEMENT` - All files exist, ready for implementation  
+    - `SUCCESS_TO_DEV_IMPLEMENT` - All files exist, ready for implementation
     - `MISSING_EPIC_FILES` - Created Epic/Stories, return to orchestrator for next phase
     - `FAILURE_SCOPE_UNCLEAR` - Cannot determine what to bootstrap, need clearer requirements
 - Success → Transition based on what was accomplished and what remains
 - Failure → Retry PM_BOOTSTRAP with refined requirements
 
 **FL_PLAN Phase:**
-- Invoke: `@agent-feature-lead` with "hierarchical_task_planning" mode  
+- Invoke: `@agent-feature-lead` with "hierarchical_task_planning" mode
 - Context: Target identifier (EEEE/EEEE.SS/EEEE.SS.TT), story context, business requirements
 - **Agent Must Analyze Task File Hierarchy** and determine what's missing:
   - Load story from `docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS - Epic Name - Story Name.md`
@@ -139,12 +153,28 @@ All state tracking happens in the existing `docs/DEVELOPMENT_PLAN_AND_PROGRESS.m
     - `MISSING_STORY_FILES` - Story file missing, return to orchestrator for PM_BOOTSTRAP
     - `MISSING_TASK_FILES` - Created missing task files, return to orchestrator for next phase
     - `FAILURE_TO_PM` - Planning issues, return to PM_BOOTSTRAP
-- Success → Transition based on what was accomplished and what remains  
+- Success → Transition based on what was accomplished and what remains
 - Failure → Return to PM_BOOTSTRAP with planning issues
 
 **DEV_IMPLEMENT Phase:**
-- Invoke: `@agent-developer` with "implement_task" mode
-- Context: Specific task (EEEE.SS.TT) implementation checklist, technical specifications
+- **DYNAMIC DEVELOPER DISCOVERY**: Automatically discover and select appropriate developer agent:
+  - **Scan Available Developer Agents**: Search for all available `developer-*` agents, their description and expertise
+  - **Read Agent Descriptions**: Parse each agent's description and expertise
+  - **REPORT DISCOVERED AGENTS**: List all found developer agents with their specializations
+  - **Analyze Project Tech Stack**:
+    - Scan project files for technology indicators
+    - Identify frameworks, languages, and platforms in use
+    - Extract task-specific technology requirements from task file
+    - **REPORT DETECTED TECHNOLOGIES**: List detected project technologies and frameworks
+  - **Agent Matching Algorithm**:
+    - Score each developer agent based on description match with detected tech stack
+    - Consider agent expertise keywords against project technologies
+    - Factor in task-specific requirements and technology needs
+    - **REPORT SELECTION RATIONALE**: Explain why specific agent was chosen with scoring details
+    - Select agent with highest compatibility score
+  - **Fallback Logic**: If no clear match, select first available developer agent with explanation
+- **Invoke Discovered Developer Agent** with "implement_task" mode
+- Context: Specific task (EEEE.SS.TT) implementation checklist, technical specifications, detected tech stack
 - Apply: BASE technical standards (standard implementation and testing)
 - **Task-Specific Implementation**: Focus on single task completion with full interface contracts
 - **MANDATORY**: Agent MUST complete implementation fully - NO early exits or shortcuts
@@ -197,11 +227,17 @@ All state tracking happens in the existing `docs/DEVELOPMENT_PLAN_AND_PROGRESS.m
 - `FAILURE_TO_QUALITY_ASSURANCE` - Business issues found, return to Quality Assurance with feedback
 - `CRITICAL_FAILURE` - Major business issues, escalate to Project Manager
 
-### developer.md:
+### developer-* (Dynamic Discovery):
+All developer agents follow standardized return codes:
 - `SUCCESS_TO_QUALITY_ASSURANCE` - Implementation complete, ready for enhanced Quality Assurance validation
 - `FAILURE_CONTINUE` - Implementation issues, continuing development iteration
 - `PARTIAL_SUCCESS` - Some tasks complete, continuing with remaining work
 - `TIMEOUT_CONTINUE` - Progress update, continuing development
+- `MISSING_TASK_FILES` - Task file missing, return to orchestrator for FL_PLAN
+
+**Developer Agents** (Dynamically Discovered):
+- All `developer-*` agents are discovered at runtime from available list of agents
+- Agent capabilities and specializations determined from agent descriptions and expertise
 
 ### quality-assurance.md:
 - `SUCCESS_TO_FL_FINAL` - Enhanced quality validation passed, ready for business validation
@@ -296,7 +332,7 @@ When agents return failure codes, feedback is accumulated and passed through the
 All agents receive comprehensive project context:
 - **docs/ folder**: Project-specific context, documentation, and requirements
 - **Project Tooling**: Existing run scripts, testing commands, validation tools, and project standards
-- **Epic Definition**: Business objectives and success criteria  
+- **Epic Definition**: Business objectives and success criteria
 - **Story Context**: Individual story goals and acceptance criteria
 - **Task Details**: Specific implementation requirements
 - **Quality Standards**: Progressive quality expectations by role
@@ -322,7 +358,7 @@ All agents receive comprehensive project context:
 
 **CRITICAL REQUIREMENT**: All agents MUST update the complete task tree during execution:
 - **Epic File** (`docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE - Epic Name.md`): Updated with story progress, epic-level decisions, and completion status
-- **Story Files** (`docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS - Epic Name - Story Name.md`): Updated with task progress, story-level outcomes, and completion status  
+- **Story Files** (`docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS - Epic Name - Story Name.md`): Updated with task progress, story-level outcomes, and completion status
 - **Task Files** (`docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS.TT - Epic Name - Story Name - Task Name.md`): Updated with implementation details, progress, and completion status
 - **Main Progress** (`docs/DEVELOPMENT_PLAN_AND_PROGRESS.md`): Updated with overall epic progress and state transitions
 
@@ -375,7 +411,7 @@ All agents receive comprehensive project context:
 # Work on entire Epic 0003 (bootstrap Epic → Stories → Tasks as needed)
 /develop 0003
 
-# Work on Story 0003.02 (bootstrap Epic/Story if missing → Tasks as needed)  
+# Work on Story 0003.02 (bootstrap Epic/Story if missing → Tasks as needed)
 /develop 0003.02
 
 # Work on specific Task 0003.02.01 (bootstrap Epic/Story/Task if missing)
@@ -388,7 +424,7 @@ All agents receive comprehensive project context:
 # 1. Parse input identifier to determine scope (Epic/Story/Task)
 # 2. Analyze complete planning file hierarchy in docs/DEVELOPMENT_PLAN_AND_PROGRESS/:
 #    - Epic file: EEEE - Epic Name.md
-#    - Story files: EEEE.SS - Epic Name - Story Name.md  
+#    - Story files: EEEE.SS - Epic Name - Story Name.md
 #    - Task files: EEEE.SS.TT - Epic Name - Story Name - Task Name.md
 # 3. Invoke agents who analyze hierarchy and report what's missing
 # 4. Agents return to orchestrator with file hierarchy status codes
@@ -450,7 +486,7 @@ All agents receive comprehensive project context:
 
 Real-time progress tracking through COMPLETE TASK TREE file updates with:
 - **MAIN PROGRESS**: `docs/DEVELOPMENT_PLAN_AND_PROGRESS.md` agentic state section tracking current phase and responsible agent
-- **EPIC FILES**: `docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE - Epic Name.md` updated with story completion progress and epic-level status  
+- **EPIC FILES**: `docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE - Epic Name.md` updated with story completion progress and epic-level status
 - **STORY FILES**: `docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS - Epic Name - Story Name.md` updated with task completion progress and story-level status
 - **TASK FILES**: `docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS.TT - Epic Name - Story Name - Task Name.md` updated with implementation progress and completion status
 - Iteration counts with failure reasons across all affected files
@@ -470,21 +506,3 @@ Epic implementation is complete when:
 - [ ] Strategic objectives achieved
 - [ ] Complete documentation and knowledge transfer
 - [ ] All agents provide explicit sign-off approval
-
-## Mode Exit Protocol
-
-Claude remains in **Agentic State-Machine Orchestrator mode** until:
-
-### Permitted Exits:
-- ✅ **User explicitly requests exit**: "Exit orchestrator mode", "Stop develop", etc.
-- ✅ **Complete epic implementation**: All 6 phases successfully completed through PM_COMPLETE
-- ✅ **Critical system failure**: Agent returns CRITICAL_FAILURE requiring user intervention
-
-### Prohibited Autonomous Exits:
-- ❌ **Demonstration purposes**: "Let me show the complete workflow"
-- ❌ **Iterative reasoning**: "Given the iterative nature..."
-- ❌ **Mode switching**: Switching to explanation, tutorial, or any other mode
-- ❌ **Self-termination**: Any autonomous decision to end orchestration
-- ❌ **Phase skipping**: Jumping ahead to demonstrate later phases
-
-**REMEMBER**: The orchestrator MUST maintain mode discipline and complete all phases unless explicitly instructed otherwise by the user.

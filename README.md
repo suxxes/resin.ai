@@ -8,19 +8,38 @@ This project implements a sophisticated 4-agent orchestration system for complet
 **Purpose**: Multi-agent workflow orchestration for software development with progressive quality standards
 
 ### Core Architecture:
-- **4-Agent System**: Project Manager, Feature Lead, Developer (Backend Specialist), Quality Assurance
-- **6-Stage State Machine**: PM_BOOTSTRAP → FL_PLAN → DEV_IMPLEMENT → QUALITY_ASSURANCE_VALIDATE → FL_FINAL → PM_COMPLETE
+- **Multi-Agent System**: Project Manager, Feature Lead, Dynamic Developer Discovery, Quality Assurance
+- **Multi-Stage State Machine**: PM_BOOTSTRAP → FL_PLAN → DEV_IMPLEMENT → QUALITY_ASSURANCE_VALIDATE → FL_FINAL → PM_COMPLETE
+- **Dynamic Agent Discovery**: Automatically discovers and selects appropriate developer agent based on agent descriptions and project tech stack
 - **Progressive Quality Standards**: BASE → ENHANCED → MAXIMUM → STRATEGIC
 - **Hierarchical Task Management**: Epic → Story → Task with unique identifiers (EEEE.SS.TT)
 
-### Technical Stack (Developer Agent):
-- **Core**: TypeScript, React, Next.js (App Router focus)
+### Technical Stacks (Developer Agents):
+
+#### General TypeScript Developer Agent:
+- **Core**: TypeScript, JavaScript (framework-agnostic)
+- **Adaptation**: Learns project tooling (build systems, testing, deployment)
+- **Frameworks**: Adapts to React, Vue, Angular, Node.js, Express, etc.
+- **Package Managers**: npm, yarn, pnpm (respects project choice)
+- **Testing**: Adapts to Vitest, Jest, Mocha, Playwright, Cypress, etc.
+- **Build Tools**: Webpack, Vite, ESBuild, Parcel, Rollup, etc.
+
+#### Next.js Specialist Developer Agent:
+- **Core**: Next.js, React, TypeScript (Next.js focused)
 - **Backend**: Prisma, ZenStack for database operations
 - **Validation**: Zod for schema validation
 - **Monorepo**: Turbo for workspace management
 - **State**: Zustand + TanStack React Query
 - **Testing**: Vitest, React Testing Library, Playwright
 - **i18n**: i18next, react-i18next
+
+#### Swift Developer Agent:
+- **Core**: Swift, SwiftUI, UIKit
+- **Platform**: iOS, macOS, iPadOS, watchOS
+- **Backend**: URLSession, Combine, async/await
+- **Data**: Core Data, CloudKit, UserDefaults
+- **Testing**: XCTest framework
+- **Development**: Xcode, Swift Package Manager
 
 ---
 
@@ -34,7 +53,7 @@ This section contains Claude Code custom slash commands for development workflow
 **Agentic State-Machine Orchestrator for complete epic implementation**
 
 - **Mode**: Enters **Agentic State-Machine Orchestrator mode** - locked until user exit or completion
-- **Purpose**: Orchestrates 4-agent, 6-stage state machine for epic → story → task implementation
+- **Purpose**: Orchestrates multi-agent, multi-stage state machine for epic → story → task implementation
 - **Architecture**: PM_BOOTSTRAP → FL_PLAN → DEV_IMPLEMENT → QUALITY_ASSURANCE_VALIDATE → FL_FINAL → PM_COMPLETE
 - **Progressive Quality**: BASE → ENHANCED → MAXIMUM → STRATEGIC standards
 - **Mode Lock**: Prevents autonomous exits, phase skipping, and demonstration shortcuts
@@ -86,8 +105,8 @@ This section contains Claude Code custom slash commands for development workflow
 The `/develop` command operates in **Agentic State-Machine Orchestrator mode**:
 - **Mode Lock**: Claude locked in orchestrator mode until user exit or completion
 - **Single Command**: Handles Epic → Story → Task hierarchy
-- **4-Agent Quality Progression**: Project Manager → Feature Lead → Developer → Quality Assurance
-- **6-Stage State Machine**: Complete workflow from planning to strategic completion
+- **Multi-Agent Quality Progression**: Project Manager → Feature Lead → Developer → Quality Assurance
+- **Multi-Stage State Machine**: Complete workflow from planning to strategic completion
 - **Progressive Quality Standards**: Each phase applies increasingly strict standards
 - **Anti-Early-Exit**: Prevents autonomous phase skipping and demonstration shortcuts
 - **Hierarchical Identifier Support**: Works with EPIC, STORY, or TASK identifiers
@@ -124,9 +143,9 @@ All commands maintain state in:
 
 # Agents Directory
 
-This section documents the 4 specialized sub-agents used by the `/develop` orchestrator command for complete epic implementation with progressive quality standards.
+This section documents the specialized sub-agents used by the `/develop` orchestrator command for complete epic implementation with progressive quality standards and intelligent tech stack detection.
 
-## 4-Agent Architecture
+## Multi-Agent Architecture
 
 ### Agent 1: Project Manager (`project-manager.md`)
 - **Role**: Strategic planning and completion specialist
@@ -148,15 +167,19 @@ This section documents the 4 specialized sub-agents used by the `/develop` orche
   - Final business validation with ruthless business standards
   - User journey validation and stakeholder acceptance
 
-### Agent 3: Developer (`developer.md`)
-- **Role**: Backend specialist focusing on full-stack Next.js development
-- **Phases**: DEV_IMPLEMENT
+### Agent 3: Developer (Dynamic Discovery)
+- **Role**: Dynamically discovered based on project tech stack and agent expertise
+- **Phases**: DEV_IMPLEMENT (All project types)
 - **Quality Standards**: BASE technical standards
-- **Expertise**: TypeScript, React, Next.js, Prisma, ZenStack, Zod, Turbo, Zustand, TanStack React Query
-- **Responsibilities**:
-  - Production-ready backend and frontend code implementation
-  - Comprehensive testing with Vitest, React Testing Library, Playwright
-  - Full-stack architecture with Next.js App Router and Server Actions
+- **Discovery Process**: 
+  - Scans `agents/developer-*` files for available specialists
+  - Matches agent descriptions against project technology requirements
+  - Selects highest compatibility score agent
+- **Current Available Specialists**:
+  - **General TypeScript** (`developer-typescript.md`): Adapts to any TypeScript project by learning tooling
+  - **Next.js Specialist** (`developer-nextjs.md`): Next.js/React full-stack web applications
+  - **Swift Specialist** (`developer-swift.md`): Native app development specialist for Apple platforms
+- **Extensible**: New developer agents automatically discovered when added to `agents/` directory
 
 ### Agent 4: Quality Assurance (`quality-assurance.md`)
 - **Role**: Enhanced quality validation specialist
@@ -168,7 +191,7 @@ This section documents the 4 specialized sub-agents used by the `/develop` orche
   - Integration testing, security scanning, accessibility compliance
   - Performance benchmarking and regression testing
 
-## 6-Stage State Machine Flow
+## Multi-Stage State Machine Flow
 
 ```
 PM_BOOTSTRAP → FL_PLAN → DEV_IMPLEMENT → QUALITY_ASSURANCE_VALIDATE → FL_FINAL → PM_COMPLETE
