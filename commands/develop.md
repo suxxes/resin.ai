@@ -554,9 +554,13 @@ AGENT: [selected-agent] with "[mode]" mode and [QUALITY_STANDARD] standards
 ### STATE-TRANSITION:
 
 ```template
-PHASE [N]: ORCHESTRATION - [FROM_AGENT] TO [TO_AGENT] ([RESULT_TYPE])
+PHASE [N]: ORCHESTRATION
 
 STATE: [FROM_PHASE] -> ([RETURN_CODE]) → [TO_PHASE]
+
+EPIC: [EPIC_NAME]
+STORY: [STORY_NAME]
+TASK: [TASK_NAME]
 
 [Brief description of what was accomplished in the previous phase and what the next phase will handle. Include any key context or feedback being passed forward.]
 ```
@@ -578,7 +582,9 @@ EPIC PROGRESS: [COMPLETED_STORIES]/[TOTAL_STORIES] stories completed ([EPIC_PERC
 - `STORY [EEEE.SS] COMPLETED - CONTINUING TO NEXT STORY` - Current story finished, next story available
 - `EPIC [EEEE] COMPLETED - ALL STORIES FINISHED` - Entire epic completed
 
-**Task Completion Examples:**
+## Template Usage Examples:
+
+### Task Completion
 
 Task → Task Transition:
 ```
@@ -613,31 +619,43 @@ EPIC 0001 COMPLETED - ALL STORIES FINISHED: User Authentication System
 INVOKING PM_COMPLETE PHASE for Epic 0001 (Strategic Completion)
 ```
 
-**Usage Examples:**
+### State Transition
 
 Forward Transition:
 ```
-PHASE 3: ORCHESTRATION - DEVELOPER TO QUALITY ASSURANCE (SUCCESS)
+PHASE 3: ORCHESTRATION
 
 STATE: DEV_IMPLEMENT -> (SUCCESS_TO_QUALITY_ASSURANCE) → QUALITY_ASSURANCE
+
+EPIC: 0001 - User Authentication System
+STORY: 0001.02 - Login Implementation
+TASK: 0001.02.03 - Password Validation Logic
 
 Developer completed task implementation with BASE standards. All unit tests passing and code formatting applied. Quality Assurance will now perform ENHANCED validation with through-the-roof standards.
 ```
 
 Same-State Transition (Retry):
 ```
-PHASE 3: ORCHESTRATION - QUALITY ASSURANCE TO DEVELOPER (FAILURE)
+PHASE 3: ORCHESTRATION
 
 STATE: QUALITY_ASSURANCE -> (FAILURE_TO_DEV) → DEV_IMPLEMENT
+
+EPIC: 0001 - User Authentication System
+STORY: 0001.02 - Login Implementation
+TASK: 0001.02.03 - Password Validation Logic
 
 Quality Assurance found integration issues and performance problems. Developer will address the enhanced feedback and continue implementation iteration 2.
 ```
 
 Same-Agent Continuation:
 ```
-PHASE 3: ORCHESTRATION - DEVELOPER CONTINUATION (PROGRESS)
+PHASE 3: ORCHESTRATION
 
 STATE: DEV_IMPLEMENT -> (PARTIAL_SUCCESS) → DEV_IMPLEMENT
+
+EPIC: 0001 - User Authentication System
+STORY: 0001.02 - Login Implementation
+TASK: 0001.02.02 - Email Validation Logic
 
 Developer completed 2 of 3 tasks in current story. Continuing with remaining task implementation while maintaining BASE technical standards.
 ```
@@ -658,14 +676,12 @@ Developer completed 2 of 3 tasks in current story. Continuing with remaining tas
 
 ### STATE-TRANSITION Requirements:
 - **Use sequential phase numbering** (1-6) to track orchestration progress
-- **Show exact agent names** for clear responsibility tracking
+- **Include hierarchical context**: Show Epic name, Story name, and Task name for full context
 - **Include precise return codes** from previous agent for audit trail
 - **Provide transition context** explaining what was accomplished and what's next
 - **Maintain consistent STATE format**: FROM_PHASE -> (RETURN_CODE) → TO_PHASE
-- **Handle same-state transitions**: When FROM_PHASE equals TO_PHASE, use appropriate descriptions:
-  - Same-Agent Continuation: "[AGENT] CONTINUATION (PROGRESS)"
-  - Retry after failure: "[FROM_AGENT] TO [TO_AGENT] (FAILURE)"
-  - Same phase, different iteration: Include iteration numbers in description
+- **Handle different scope levels**: Epic-level, Story-level, or Task-level context as appropriate
+- **Handle same-state transitions**: When FROM_PHASE equals TO_PHASE, provide clear iteration context
 
 ### TASK-COMPLETION Requirements:
 - **Calculate accurate progress percentages** for both story and epic completion tracking

@@ -355,9 +355,9 @@ The orchestrator uses three main templates for consistent operation:
 - **Requirements**: List all agents, show scoring, clear selection reasoning
 
 ### STATE-TRANSITION  
-- **Purpose**: Consistent phase transition reporting
-- **Features**: Agent transitions, return codes, context passing
-- **Supports**: Forward transitions, same-state retries, agent continuation
+- **Purpose**: Consistent phase transition reporting with hierarchical context
+- **Features**: Epic/Story/Task context, return codes, transition descriptions
+- **Supports**: Forward transitions, same-state retries, agent continuation, full hierarchy tracking
 
 ### TASK-COMPLETION
 - **Purpose**: Task completion reporting with progress tracking
