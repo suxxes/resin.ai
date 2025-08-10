@@ -279,11 +279,9 @@ All developer agents follow standardized return codes:
 - **User Experience Testing**: Interface is intuitive and user-friendly
 
 ### Feature Lead (MAXIMUM Standards):
-- **Business Value Confirmation**: Measurable business impact delivered
 - **User Journey Validation**: Complete user workflows function perfectly
 - **Stakeholder Acceptance**: All business requirements fully satisfied
 - **Competitive Analysis**: Implementation meets or exceeds market standards
-- **ROI Validation**: Clear return on investment demonstrated
 - **Brand Consistency**: Perfect alignment with brand guidelines
 - **Legal Compliance**: All regulatory requirements satisfied
 
@@ -461,7 +459,7 @@ git branch -d feature/TASK-0001.02.03-password-validation-logic
 Then creates milestone commits using `/commit` slash command:
 ```
 /commit  # Story completion: feat(0001.02): complete login implementation story with 6 tasks
-/commit  # Epic completion: feat(0001): complete user authentication system epic  
+/commit  # Epic completion: feat(0001): complete user authentication system epic
 ```
 
 ### Branch Naming Conventions:
