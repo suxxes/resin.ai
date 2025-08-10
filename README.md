@@ -14,7 +14,7 @@ This project implements a sophisticated multi-agent orchestration system for com
 - **Progressive Quality Standards**: BASE → ENHANCED → MAXIMUM → STRATEGIC
 - **Hierarchical Task Management**: Epic → Story → Task with unique identifiers (EEEE.SS.TT)
 - **Standardized Templates**: Consistent reporting and transition handling across all orchestration phases
-- **Feature Branch Workflow**: Complete git workflow with `/branch` and `/commit` command integration
+- **Feature Branch Workflow**: Complete git workflow with `/branch` and `/commit` Claude Code slash command integration
 - **Task-Based Branching**: Automatic feature branch creation using `feature/TASK-EEEE.SS.TT-description` pattern
 - **Conventional Commits**: Automated commits with `type(EEEE.SS.TT): description` format for precise tracking
 
@@ -162,9 +162,9 @@ This section contains Claude Code custom slash commands for development workflow
 - **Self-Reflection Discovery**: Uses internal knowledge for developer agent selection
 - **Standardized Templates**: SELF-REFLECTION-DEVELOPER-DISCOVERY, STATE-TRANSITION, TASK-COMPLETION
 - **Critical Quality Gates**: Mandatory code formatting, linting, and test validation
-- **Feature Branch Workflow**: Orchestrator manages branch lifecycle, developer handles development commits
+- **Feature Branch Workflow**: Orchestrator uses `/branch` slash command, developer uses `/commit` slash command
 - **Task-Based Branching**: Creates feature branches using `feature/TASK-EEEE.SS.TT-description` naming  
-- **Conventional Commits**: Developer commits code, orchestrator commits documentation and handles merging
+- **Conventional Commits**: Both use Claude Code `/commit` slash command for auto-generated conventional commits
 - **Mode Lock**: Prevents autonomous exits, phase skipping, and demonstration shortcuts
 - **Usage**:
   ```bash
@@ -448,11 +448,11 @@ Each agent file contains:
 # Claude now locked in orchestrator mode until completion or user exit
 
 # Git workflow automatically handled:
-# - Orchestrator creates feature branch before each task (feature/TASK-0003.01.02-user-registration-form)
-# - Developer commits code during implementation (feat(0003.01.02): add registration form validation)
-# - Orchestrator commits final documentation (docs(0003.01.02): update task completion status)
-# - Orchestrator merges feature branch into main after validation
-# - Story/Epic milestone commits (feat(0003.01): complete user onboarding story)
+# - Orchestrator uses /branch slash command to create feature branch before each task
+# - Developer uses /commit slash command during implementation (auto-generates conventional commits)
+# - Orchestrator uses /commit slash command for final documentation updates
+# - Orchestrator merges feature branch into main using standard git merge commands
+# - Story/Epic milestone commits using /commit slash command
 ```
 
 ### Project Setup
