@@ -296,7 +296,7 @@ This section documents the specialized sub-agents used by the `/develop` orchest
   - Selects highest compatibility score agent through internal contemplation
   - Uses SELF-REFLECTION-DEVELOPER-DISCOVERY template for consistent reporting
 - **Dynamic Discovery**: Available developer agents discovered through self-reflection and internal knowledge
-- **Specialized Agents**: Includes Tauri desktop application specialist, TypeScript generalist, and other technology-specific experts
+- **Specialized Agents**: Includes Tauri desktop and mobile application specialist, TypeScript generalist, and other technology-specific experts
 - **Task Completion**: Uses TASK-COMPLETION template for progress reporting with dual story/epic tracking
 - **Extensible**: New developer agents automatically discoverable through enhanced self-reflection
 - **Return Codes**: SUCCESS_TO_QUALITY_ASSURANCE, FAILURE_CONTINUE, PARTIAL_SUCCESS, TIMEOUT_CONTINUE
