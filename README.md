@@ -14,7 +14,9 @@ This project implements a sophisticated multi-agent orchestration system for com
 - **Progressive Quality Standards**: BASE → ENHANCED → MAXIMUM → STRATEGIC
 - **Hierarchical Task Management**: Epic → Story → Task with unique identifiers (EEEE.SS.TT)
 - **Standardized Templates**: Consistent reporting and transition handling across all orchestration phases
-- **Automatic Git Integration**: Commits at key milestones with meaningful messages
+- **Feature Branch Workflow**: Complete git workflow with `/branch` and `/commit` command integration
+- **Task-Based Branching**: Automatic feature branch creation using `feature/TASK-EEEE.SS.TT-description` pattern
+- **Conventional Commits**: Automated commits with `type(EEEE.SS.TT): description` format for precise tracking
 
 ### Technical Stacks:
 
@@ -92,8 +94,10 @@ flowchart TD
     F -->|No Clear Match| H[Select General TypeScript Agent]
     G --> I[Report Selection Rationale]
     H --> I
-    I --> J[Invoke Selected Developer Agent]
-    J --> K[Task Implementation]
+    I --> J[Create Feature Branch]
+    J --> K[Invoke Selected Developer Agent]
+    K --> L[Task Implementation]
+    L --> M[Commit Task Completion]
 ```
 
 ### Quality Assurance Decision Tree
@@ -158,7 +162,9 @@ This section contains Claude Code custom slash commands for development workflow
 - **Self-Reflection Discovery**: Uses internal knowledge for developer agent selection
 - **Standardized Templates**: SELF-REFLECTION-DEVELOPER-DISCOVERY, STATE-TRANSITION, TASK-COMPLETION
 - **Critical Quality Gates**: Mandatory code formatting, linting, and test validation
-- **Auto Git Integration**: Creates commits at task, story, and epic milestones
+- **Feature Branch Workflow**: Complete git integration with `/branch` and `/commit` command patterns
+- **Task-Based Branching**: Creates feature branches using `feature/TASK-EEEE.SS.TT-description` naming
+- **Conventional Commits**: Uses `type(EEEE.SS.TT): description` format for precise task tracking
 - **Mode Lock**: Prevents autonomous exits, phase skipping, and demonstration shortcuts
 - **Usage**:
   ```bash
@@ -440,8 +446,12 @@ Each agent file contains:
 /prime                              # Load project context
 /develop 0003                       # Enter orchestrator mode for Epic 0003
 # Claude now locked in orchestrator mode until completion or user exit
-# Automatic commits created at task, story, and epic milestones
-# Final commit: "feat: epic 0003 complete" created automatically
+
+# Git workflow automatically handled:
+# - Before each task: Create feature branch (feature/TASK-0003.01.02-user-registration-form)
+# - After each task: Commit with scope (feat(0003.01.02): implement user registration form)
+# - Story milestones: Story completion commits (feat(0003.01): complete user onboarding story)
+# - Epic completion: Final commit (feat(0003): complete user management system epic)
 ```
 
 ### Project Setup

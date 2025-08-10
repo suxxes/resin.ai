@@ -128,11 +128,11 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 6. **Process Return Code** and agent's file hierarchy assessment - NO AUTONOMOUS INTERPRETATION
 7. **State Transition Reporting** - Use **STATE-TRANSITION** template (see Templates section) for all phase transitions
 8. **Update State** across complete task tree based on agent feedback
-9. **Git Commit Processing** - Create commits at key milestones:
-   - After successful task completion (DEV_IMPLEMENT → QUALITY_ASSURANCE)
-   - After successful story completion (all tasks in story completed)
-   - After successful epic completion (PM_COMPLETE phase)
-   - Include meaningful commit messages with phase, task/story/epic identifiers, and brief description
+9. **Git Workflow Integration** - Manage complete feature branch lifecycle:
+   - **Before DEV_IMPLEMENT**: Create task feature branch using `/branch feature TASK-EEEE.SS.TT task-description`
+   - **During DEV_IMPLEMENT**: All development happens on task-specific feature branch
+   - **After Task Completion**: Create commit using `/commit` with conventional format `type(EEEE.SS.TT): description`
+   - **Story/Epic Milestones**: Additional milestone commits for story completion and epic completion
 10. **Continue Loop** until ALL 6 phases completed OR agent explicitly returns specific error code requiring orchestrator intervention - NEVER EXIT MODE AUTONOMOUSLY
 
 ### State Transitions:
@@ -166,6 +166,11 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 - Failure → Return to PM_BOOTSTRAP with planning issues
 
 **DEV_IMPLEMENT Phase:**
+- **FEATURE BRANCH WORKFLOW**: Use integrated `/branch` command patterns for task-based development:
+  - **Branch Creation**: Create feature branch using pattern `feature/TASK-EEEE.SS.TT-task-description` 
+  - **Branch Naming**: Convert task identifier and name to compliant branch format
+  - **Example**: Task `0001.02.03 - Password Validation Logic` → `feature/TASK-0001.02.03-password-validation-logic`
+  - **Base Branch**: Always branch from current main/develop branch
 - **SELF-REFLECTION DEVELOPER DISCOVERY**: Use the **SELF-REFLECTION-DEVELOPER-DISCOVERY** template (see Templates section)
   - List ALL discovered developer agents, marking irrelevant ones as "(not relevant)"
   - Show scoring algorithm with specific compatibility reasoning
@@ -178,6 +183,11 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 - Success (`SUCCESS_TO_QUALITY_ASSURANCE`) → Transition to QUALITY_ASSURANCE for specific task
 - Failure (`FAILURE_CONTINUE`) → Stay in DEV_IMPLEMENT, increment iteration
 - **Update Task Tree**: Update task file progress and parent story/epic status
+- **TASK COMPLETION COMMIT**: Use integrated `/commit` command patterns for task completion:
+  - **Commit Type**: `feat` for new functionality, `fix` for bug fixes, `refactor` for code improvements
+  - **Commit Scope**: Use task identifier `EEEE.SS.TT` as scope
+  - **Commit Message**: `type(EEEE.SS.TT): brief task description`
+  - **Example**: `feat(0001.02.03): implement password validation logic with security requirements`
 - **Task Completion Processing**: Use **TASK-COMPLETION** template (see Templates section) to:
   - Report task completion with progress statistics
   - Determine next action (task → task, task → story, task → epic)
@@ -381,13 +391,18 @@ All agents receive comprehensive project context:
 ## Orchestrator Responsibilities:
 
 **CRITICAL**: The develop orchestrator handles these responsibilities that agents do NOT:
-- **Git Workflow Management**: All branch creation, commits, merges, and branch cleanup
+- **Git Workflow Management**: Complete feature branch lifecycle management
+  - **Branch Creation**: Uses `/branch` command patterns to create task-specific feature branches
+  - **Branch Naming**: Enforces `feature/TASK-EEEE.SS.TT-task-description` naming convention
+  - **Branch Lifecycle**: Creates branch before DEV_IMPLEMENT, commits on completion, manages branch cleanup
+  - **Commit Integration**: Uses `/commit` command patterns with conventional commit messages
+  - **Commit Scoping**: Task identifier as scope: `type(EEEE.SS.TT): description`
 - **Progress Coordination**: Coordinates progress updates across all task tree files
 - **State Management**: Maintains agentic state section in `docs/DEVELOPMENT_PLAN_AND_PROGRESS.md`
 - **Agent Coordination**: Manages transitions between agents and handles return codes
 - **File Tree Consistency**: Ensures all Epic/Story/Task files remain synchronized
 - **Completion Processing**: Handles task completion, next task discovery, and workflow continuation
-- **Automatic Git Commits**: Creates commits at key milestones and task completions
+- **Automatic Git Commits**: Creates commits at key milestones and task completions using `/commit` patterns
 
 **Developer Agent Domain Separation**: Developer focuses ONLY on technical implementation - no git operations, no progress tracking, no file tree updates.
 
@@ -400,6 +415,70 @@ All agents receive comprehensive project context:
 - **Quality Gate Failures**: Automatic return to previous phase with enhanced feedback
 - **Epic Scope Changes**: Automatic escalation to Project Manager for strategic decisions
 
+## Git Workflow Integration:
+
+### Feature Branch Lifecycle:
+The orchestrator enforces a complete feature branch workflow for every task:
+
+**1. Branch Creation (Before DEV_IMPLEMENT)**:
+```bash
+/branch feature TASK-0001.02.03 password-validation-logic
+# Creates: feature/TASK-0001.02.03-password-validation-logic
+```
+
+**2. Development (During DEV_IMPLEMENT)**:
+- All development work happens on the task-specific feature branch
+- Multiple commits allowed during development iterations
+- Branch remains active until task completion
+
+**3. Task Completion (After DEV_IMPLEMENT → QUALITY_ASSURANCE)**:
+```bash
+/commit
+# Creates commit: feat(0001.02.03): implement password validation logic with security requirements
+```
+
+**4. Quality Validation (During QUALITY_ASSURANCE)**:
+- Quality checks run on feature branch
+- No additional commits during QA validation
+- Branch ready for integration after QA success
+
+**5. Story/Epic Milestones (After Task Completion)**:
+```bash
+# Story completion milestone
+/commit
+# Creates: feat(0001.02): complete login implementation story with 6 tasks
+
+# Epic completion milestone  
+/commit
+# Creates: feat(0001): complete user authentication system epic
+```
+
+### Branch Naming Conventions:
+- **Task Branches**: `feature/TASK-EEEE.SS.TT-task-description`
+- **Epic Context**: Always includes full task identifier for traceability
+- **Description**: Task name converted to kebab-case
+- **Examples**:
+  - `feature/TASK-0001.02.03-password-validation-logic`
+  - `feature/TASK-0001.04.01-integration-testing-setup`
+  - `feature/TASK-0002.01.05-oauth-provider-configuration`
+
+### Commit Message Conventions:
+- **Format**: `type(EEEE.SS.TT): description`
+- **Scoping**: Task identifier as scope for precise tracking
+- **Types**: `feat`, `fix`, `refactor`, `test`, `docs`, `style`, `perf`
+- **Examples**:
+  - `feat(0001.02.03): implement password validation logic with security requirements`
+  - `fix(0001.02.03): resolve password validation edge case for special characters`
+  - `refactor(0001.02.03): optimize password validation performance`
+  - `test(0001.02.03): add comprehensive password validation test coverage`
+
+### Orchestrator Git Responsibilities:
+- **Branch Management**: Create, checkout, and manage feature branches
+- **Commit Creation**: Use `/commit` command with proper conventional format
+- **Branch Cleanup**: Merge and clean up completed feature branches
+- **Milestone Tracking**: Create milestone commits for story/epic completion
+- **Agent Separation**: Developer agents never handle git operations directly
+
 ## Integration:
 
 - Uses existing epic and story file structures from epic:bootstrap
@@ -407,7 +486,7 @@ All agents receive comprehensive project context:
 - Maintains all progress tracking and documentation standards
 - Compatible with existing `docs/DEVELOPMENT_PLAN_AND_PROGRESS/` structure
 - Uses correct file naming: Epic files (`EEEE - Epic Name.md`), Story files (`EEEE.SS - Epic Name - Story Name.md`), Task files (`EEEE.SS.TT - Epic Name - Story Name - Task Name.md`)
-- Preserves git workflow and branch management practices
+- **Enhanced Git Integration**: Complete feature branch workflow with `/branch` and `/commit` command patterns
 - Integrates with existing quality gates and testing requirements
 
 ## Execution Examples:
@@ -442,8 +521,13 @@ All agents receive comprehensive project context:
 # 3. Invoke agents who analyze hierarchy and report what's missing
 # 4. Agents return to orchestrator with file hierarchy status codes
 # 5. Orchestrator determines next phase based on agent assessments
-# 6. Continue until scope completion with progressive quality standards
-# 7. Update complete task tree with results throughout process
+# 6. **Git Workflow Integration**:
+#    - Before DEV_IMPLEMENT: Create feature branch (feature/TASK-0001.02.03-password-validation)
+#    - During DEV_IMPLEMENT: All development on task-specific feature branch
+#    - After task completion: Commit with scope (feat(0001.02.03): implement password validation)
+#    - Story/Epic milestones: Additional commits for story/epic completion
+# 7. Continue until scope completion with progressive quality standards
+# 8. Update complete task tree with results throughout process
 ```
 
 ## Quality Gates by Phase:
