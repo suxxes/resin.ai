@@ -162,9 +162,9 @@ This section contains Claude Code custom slash commands for development workflow
 - **Self-Reflection Discovery**: Uses internal knowledge for developer agent selection
 - **Standardized Templates**: SELF-REFLECTION-DEVELOPER-DISCOVERY, STATE-TRANSITION, TASK-COMPLETION
 - **Critical Quality Gates**: Mandatory code formatting, linting, and test validation
-- **Feature Branch Workflow**: Complete git integration with `/branch` and `/commit` command patterns
-- **Task-Based Branching**: Creates feature branches using `feature/TASK-EEEE.SS.TT-description` naming
-- **Conventional Commits**: Uses `type(EEEE.SS.TT): description` format for precise task tracking
+- **Feature Branch Workflow**: Orchestrator manages branch lifecycle, developer handles development commits
+- **Task-Based Branching**: Creates feature branches using `feature/TASK-EEEE.SS.TT-description` naming  
+- **Conventional Commits**: Developer commits code, orchestrator commits documentation and handles merging
 - **Mode Lock**: Prevents autonomous exits, phase skipping, and demonstration shortcuts
 - **Usage**:
   ```bash
@@ -448,10 +448,11 @@ Each agent file contains:
 # Claude now locked in orchestrator mode until completion or user exit
 
 # Git workflow automatically handled:
-# - Before each task: Create feature branch (feature/TASK-0003.01.02-user-registration-form)
-# - After each task: Commit with scope (feat(0003.01.02): implement user registration form)
-# - Story milestones: Story completion commits (feat(0003.01): complete user onboarding story)
-# - Epic completion: Final commit (feat(0003): complete user management system epic)
+# - Orchestrator creates feature branch before each task (feature/TASK-0003.01.02-user-registration-form)
+# - Developer commits code during implementation (feat(0003.01.02): add registration form validation)
+# - Orchestrator commits final documentation (docs(0003.01.02): update task completion status)
+# - Orchestrator merges feature branch into main after validation
+# - Story/Epic milestone commits (feat(0003.01): complete user onboarding story)
 ```
 
 ### Project Setup
