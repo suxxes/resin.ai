@@ -6,6 +6,8 @@
 !agents/**
 !commands/
 !commands/**
+!templates/
+!templates/**
 !README.md
 !CLAUDE.md
 !.gitignore

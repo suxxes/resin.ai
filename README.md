@@ -498,15 +498,18 @@ Each agent file contains:
 # Complete implementation with progressive quality standards
 ```
 
-## Command Development
+## Development Templates
 
-New commands should follow the established patterns:
-- Clear purpose and scope definition
-- Integration with file hierarchy system
-- Proper state persistence and tracking
-- Progressive quality standard enforcement
-- Agentic State-Machine Orchestrator mode compliance
-- Anti-early-exit behavioral controls with mode lock enforcement
-- Standardized template usage for consistent reporting
-- Critical validation checkpoint implementation
-- Automatic git integration for milestone tracking
+The [`templates/`](templates/) folder contains meta-templates for creating and updating agents and commands:
+
+### Available Templates
+- **[AGENT-STRUCTURE.md](templates/AGENT-STRUCTURE.md)**: Complete structural template for agent instructions
+- **[COMMAND-STRUCTURE.md](templates/COMMAND-STRUCTURE.md)**: Complete structural template for command instructions
+
+### Template Usage
+- **For Agent Development**: Use AGENT-STRUCTURE.md to ensure consistent agent structure and workflow organization
+- **For Command Development**: Use COMMAND-STRUCTURE.md for consistent command structure and functionality
+- **Internal Templates**: Agents and commands include their own internal templates within their instructions
+- **Naming Convention**: Use CAPITAL_CASE for internal template names
+
+See [templates/README.md](templates/README.md) for comprehensive development guidelines and standards.
