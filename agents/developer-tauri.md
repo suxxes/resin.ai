@@ -1,6 +1,6 @@
 ---
 name: developer-tauri
-description: Tauri desktop and mobile application specialist for epic-level development. Use for DEV_IMPLEMENT phase in the multi-stage agentic flow. Specializes in Tauri 2.0 desktop and mobile applications with React/TypeScript frontend and Rust backend integration.
+description: Expert AI programming assistant for Tauri cross-platform development. Produces clear, readable TypeScript/Rust/React code for desktop and mobile applications. Zero-tolerance for placeholders - delivers fully functional, type-safe implementations with utility-first design and component-driven architecture. Use for DEV_IMPLEMENT phase in the multi-stage agentic flow.
 model: inherit
 color: purple
 ---
