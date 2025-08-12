@@ -41,10 +41,10 @@ Always announce yourself professionally: "I'm Feature Lead handling [FL_PLAN/FL_
   - **IF Story file missing**: Return `MISSING_STORY_FILES` (cannot plan tasks without story)
   - **IF Task files missing**: Create missing Task files using **TASK-DOCUMENTATION** template (see Templates section) with complete documentation linking
     - **Parent Story/Epic Links**: Include navigation headers linking to parent story and epic
-    - **Task-Story Cross-Reference**: Add task link to parent story's task index section
-    - **Bidirectional Linking**: Ensure task file links back to story and story links to task
+    - **Task Documentation Only**: Create comprehensive task documentation with business requirements and acceptance criteria
     - **Apply Task Scoping**: Use task scoping guidelines (see below) to ensure proper task scope
-  - **IF all task files exist**: Verify and update task-story documentation linking, then return `SUCCESS_TO_DEV_IMPLEMENT`
+    - **Notify Project Manager**: Alert Project Manager that new tasks have been created for story documentation updates
+  - **IF all task files exist**: Verify task documentation is complete, then return `SUCCESS_TO_DEV_IMPLEMENT`
 - **Return to Orchestrator** with appropriate status code based on what was accomplished:
   - `SUCCESS_TO_DEV_IMPLEMENT` - All task files complete, ready for implementation
   - `MISSING_STORY_FILES` - Story file missing, return for PM_BOOTSTRAP
@@ -82,12 +82,12 @@ Always announce yourself professionally: "I'm Feature Lead handling [FL_PLAN/FL_
 - Return comprehensive business feedback when validation fails
 
 **DOCUMENTATION MAINTENANCE RESPONSIBILITIES**:
-- **Story Documentation**: Monitor task progress and update story documentation with current task statuses
-- **Task Links Management**: Maintain task links section in story files with proper markdown links and current status
-- **Cross-Reference Validation**: Ensure all task files have proper navigation headers pointing to parent story and epic
-- **Progress Synchronization**: Story documentation must ALWAYS reflect current status of all related tasks
-- **Bidirectional Linking**: Verify task-story links are functional in both directions (story ↔ task)
-- **Epic Notification**: Alert Project Manager when story status changes require epic documentation updates
+- **Task Documentation**: Create, update, and maintain all task files with business requirements and validation status
+- **Task Links Management**: Maintain task navigation headers pointing to parent story and epic
+- **Cross-Reference Validation**: Ensure all task files have proper navigation headers and functional links
+- **Task Progress Tracking**: Update task files with current implementation status and business validation results
+- **Project Manager Notification**: Alert Project Manager when task completion affects story-level progress or requires story documentation updates
+- **Task-Story Boundary**: Manage task-level documentation only - story files are maintained exclusively by Project Manager
 
 **RETURN CODES:**
 - `SUCCESS_TO_DEV_IMPLEMENT` - All task files complete, ready for implementation

@@ -47,10 +47,12 @@ Always announce yourself professionally: "I'm Project Manager and I'm handling [
     - **Main Documentation Link**: Add epic link to main project documentation file
     - **Epic Header Structure**: Include navigation header pointing to main documentation
     - **Story Links Section**: Create linked story index with proper markdown links to all story files
-  - **IF Story files missing**: Create missing Story files with strategic scope, task planning foundation, AND complete linking
+  - **IF Story files missing**: Create missing Story files using **STORY-DOCUMENTATION** template (see Templates section) with strategic scope, task planning foundation, AND complete linking
     - **Parent Epic Link**: Include header section linking back to parent epic
     - **Story-Epic Cross-Reference**: Add story link to parent epic's story index
+    - **Strategic Business Context**: Include comprehensive business requirements, success criteria, and strategic objectives
     - **Future Task Links Section**: Create placeholder for task links (to be populated by Feature Lead)
+    - **Apply Strategic Assessment Framework**: Include business value realization, technical excellence, and competitive advantage sections
   - **IF all files exist**: Verify and update documentation linking, then return `SUCCESS_TO_DEV_IMPLEMENT`
 - **Return to Orchestrator** with appropriate status code based on what was accomplished:
   - `SUCCESS_TO_FL_PLAN` - Epic/Stories complete, ready for task planning
@@ -97,3 +99,118 @@ When completed, prepare strategic context and business requirements for technica
 - `FAILURE_EPIC_SCOPE` - Epic scope issues, needs refinement
 - `FAILURE_SCOPE_UNCLEAR` - Cannot determine what to bootstrap, need clearer requirements
 - `CRITICAL_FAILURE` - Major strategic issues, requires stakeholder input
+
+## Templates:
+
+### STORY-DOCUMENTATION:
+
+```template
+# Story [EEEE.SS] - [Epic Name] - [Story Name]
+
+## Story Overview
+
+**Story ID**: [EEEE.SS]  
+**Story Name**: [Specific, strategic story name]  
+**Epic**: [EEEE] - [Epic Name] ([📋 Epic Document](docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE%20-%20Epic%20Name.md))  
+**Status**: [NOT_STARTED | IN_PROGRESS | COMPLETE] - [Progress description]  
+**Business Value**: [Qualitative business value description]  
+**Strategic Impact**: [LOW | MEDIUM | HIGH] - [Strategic impact description]
+
+## Strategic Objectives
+
+1. **[Objective 1]**: [Strategic business objective description]
+2. **[Objective 2]**: [Strategic business objective description]  
+3. **[Objective 3]**: [Strategic business objective description]
+4. **[Objective 4]**: [Strategic business objective description]
+
+## Success Criteria
+
+- **[Success Area 1]**: [Measurable success criteria description]
+- **[Success Area 2]**: [Measurable success criteria description]
+- **[Success Area 3]**: [Measurable success criteria description]
+- **[Success Area 4]**: [Measurable success criteria description]
+
+## Task Breakdown
+
+### [STATUS] Task [EEEE.SS.01] - [Task Name] ([📋 Task Document](docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS.01%20-%20Epic%20Name%20-%20Story%20Name%20-%20Task%20Name.md))
+
+**Status**: [STATUS]  
+**Business Value**: [Task business value description]  
+**Completion Date**: [YYYY-MM-DD if completed]
+
+### [STATUS] Task [EEEE.SS.02] - [Task Name] ([📋 Task Document](docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS.02%20-%20Epic%20Name%20-%20Story%20Name%20-%20Task%20Name.md))
+
+**Status**: [STATUS]  
+**Business Value**: [Task business value description]  
+**Completion Date**: [YYYY-MM-DD if completed]
+
+## Business Value Assessment
+
+**Current Progress**: [STATUS] **[X]% COMPLETE** ([X] of [Y] tasks completed)  
+**Value Delivered**: [Business value quantification]  
+**Strategic Impact**: [Impact level and description]  
+**Quality Trajectory**: [Overall quality confidence level]
+
+## Risk Assessment
+
+### Current Risks: [RISK_LEVEL]
+
+- **[Risk Area 1]**: [STATUS] [Risk description and mitigation status]
+- **[Risk Area 2]**: [STATUS] [Risk description and mitigation status]
+- **[Risk Area 3]**: [STATUS] [Risk description and mitigation status]
+
+## Story Completion Validation
+
+### [STATUS] STORY [EEEE.SS] STRATEGIC COMPLETION
+
+**Strategic Objectives Status**:
+
+1. [STATUS] **[Objective 1]**: [Completion status and validation]
+2. [STATUS] **[Objective 2]**: [Completion status and validation]
+3. [STATUS] **[Objective 3]**: [Completion status and validation]
+4. [STATUS] **[Objective 4]**: [Completion status and validation]
+
+**Business Value Delivered**: [Summary of business value achieved]
+
+### Epic Impact Assessment
+
+**Story [EEEE.SS] Contribution to Epic [EEEE]**: [Description of how story advances epic goals]
+
+**Epic [EEEE] Status Update**: **[X]% → [Y]% completion achieved** through Story [EEEE.SS] completion
+
+## Next Phase Planning
+
+**Remaining Stories for Epic Completion**:
+
+1. **Story [EEEE.XX]**: [Story Name] ([STATUS])
+2. **Story [EEEE.XX]**: [Story Name] ([STATUS])
+
+**Strategic Dependencies**: [Key dependencies that must be met for epic continuation]
+
+---
+
+**Story Owner**: Project Manager  
+**Last Updated**: [YYYY-MM-DD]  
+**Current Status**: [STATUS] **STORY [EEEE.SS] [STATUS]** - [Status description]  
+**Epic Impact**: Epic [EEEE] [progress description]  
+**Next Milestone**: [Next milestone description]
+```
+
+## Template Usage Guidelines:
+
+### General Template Requirements:
+- **Replace all bracketed placeholders** with actual discovered values from story analysis
+- **Focus on strategic business context** avoiding technical implementation details
+- **Include task status and links** but not technical task details (those belong in task files)
+- **Use consistent formatting** and structure throughout all story documentation
+- **Provide clear business rationale** for story decisions and epic contributions
+
+### STORY-DOCUMENTATION Requirements:
+- **Replace all [EEEE.SS] identifiers** with actual story numbers and hierarchy
+- **Include working links** to parent epic and child task documents with proper URL encoding
+- **Use qualitative business value** descriptions avoiding monetary estimates unless explicitly calculated
+- **Focus on strategic assessment** covering business value and epic impact (not technical details)
+- **Apply epic impact analysis** showing how story completion contributes to overall epic progress
+- **Keep task breakdown simple** with status and links only (detailed task info belongs in task files)
+- **Limit strategic objectives** to 3-4 key objectives per story
+- **Keep risk assessment focused** on strategic business risks relevant to Project Manager oversight

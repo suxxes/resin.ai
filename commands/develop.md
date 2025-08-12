@@ -385,13 +385,13 @@ All agents receive comprehensive project context:
 
 **CRITICAL REQUIREMENT**: All agents MUST update the complete task tree during execution:
 - **Epic File** (`docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE - Epic Name.md`): Updated with story progress, epic-level decisions, and completion status
-- **Story Files** (`docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS - Epic Name - Story Name.md`): Updated with task progress, story-level outcomes, and completion status
+- **Story Files** (`docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS - Epic Name - Story Name.md`): Updated with strategic business objectives, story-level outcomes, and completion status
 - **Task Files** (`docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS.TT - Epic Name - Story Name - Task Name.md`): Updated with implementation details, progress, and completion status
 - **Main Progress** (`docs/DEVELOPMENT_PLAN_AND_PROGRESS.md`): Updated with overall epic progress and state transitions
 
 **Update Responsibilities by Agent:**
-- **Project Manager**: Updates Epic files and Main Progress with strategic decisions and epic-level status
-- **Feature Lead**: Updates Story files and Task files with business requirements and validation status
+- **Project Manager**: Updates Epic files, Story files, and Main Progress with strategic decisions and business-level status
+- **Feature Lead**: Updates Task files only with business requirements and validation status - notifies Project Manager for story-level updates
 - **Developer**: Focuses solely on technical implementation (NO progress tracking)
 - **Quality Assurance**: Updates Task files with quality validation results and testing outcomes
 - **Orchestrator**: Coordinates progress updates across task tree and manages agent transitions
