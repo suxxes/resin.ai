@@ -496,6 +496,60 @@ Then creates milestone commits using `/commit` slash command:
 - **Iterative Commits**: Multiple `/commit` slash command invocations allowed during development iterations
 - **Code-Focused**: Only commit actual implementation code, tests, and technical documentation
 
+## Documentation Linking Requirements:
+
+**MANDATORY DOCUMENTATION HIERARCHY**: All documentation files must be linked together in a complete hierarchy with bidirectional cross-references:
+
+### **Main Documentation File**:
+- **ALWAYS** contains links to all epics
+- Updated by Project Manager when epics are created or completed
+
+### **Epic Files (`EEEE - Epic Name.md`)**:
+- **Header Navigation**: Always include navigation header pointing back to main documentation
+- **Story Links Section**: Always contain links to all related stories with current status
+- **Bidirectional Links**: Linked from main documentation AND link to all stories
+- **Progress Reflection**: Must reflect current status of all related stories and tasks
+- **Maintained by**: Project Manager
+
+### **Story Files (`EEEE.SS - Epic Name - Story Name.md`)**:
+- **Header Navigation**: Always include navigation headers pointing to parent epic and main documentation
+- **Task Links Section**: Always contain links to all related tasks with current status  
+- **Bidirectional Links**: Linked from parent epic AND link to all tasks
+- **Progress Reflection**: Must reflect current status of all related tasks
+- **Maintained by**: Feature Lead
+
+### **Task Files (`EEEE.SS.TT - Epic Name - Story Name - Task Name.md`)**:
+- **Header Navigation**: Always include navigation headers pointing to parent story and epic
+- **Progress Status**: Must reflect current implementation status in real-time
+- **Implementation Notes**: Document technical decisions and progress immediately
+- **Maintained by**: Developer agents (immediate updates at every progression step)
+
+### **Agent Documentation Responsibilities**:
+
+**Project Manager**:
+- Create and maintain epic links in main documentation
+- Monitor story/task progress and update epic documentation immediately
+- Ensure epic-story bidirectional linking integrity
+- Validate main documentation ↔ epic ↔ story link chain
+
+**Feature Lead**:
+- Create and maintain task links in story documentation
+- Monitor task progress and update story documentation immediately  
+- Ensure story-task bidirectional linking integrity
+- Alert Project Manager when story completion requires epic updates
+
+**Quality Assurance**:
+- Verify task documentation has been updated by developers before validation
+- Test all documentation navigation links and cross-references
+- Confirm documentation status matches implementation reality
+- Report documentation integrity issues to Feature Lead
+
+**Developer Agents** (All):
+- Update task documentation immediately at EVERY progression step
+- Never delay documentation updates - real-time synchronization required
+- Document technical decisions, blockers, and solutions as they occur
+- Ensure task status always reflects current implementation progress
+
 ## Integration:
 
 - Uses existing epic and story file structures from epic:bootstrap
@@ -504,6 +558,7 @@ Then creates milestone commits using `/commit` slash command:
 - Compatible with existing `docs/DEVELOPMENT_PLAN_AND_PROGRESS/` structure
 - Uses correct file naming: Epic files (`EEEE - Epic Name.md`), Story files (`EEEE.SS - Epic Name - Story Name.md`), Task files (`EEEE.SS.TT - Epic Name - Story Name - Task Name.md`)
 - **Enhanced Git Integration**: Complete feature branch workflow with `/branch` and `/commit` command patterns
+- **MANDATORY DOCUMENTATION LINKING**: Complete documentation hierarchy with bidirectional cross-references
 - Integrates with existing quality gates and testing requirements
 
 ## Execution Examples:

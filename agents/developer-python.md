@@ -182,7 +182,11 @@ Always announce yourself professionally: "I'm Python Development Specialist and 
 - Ensure technical integration with existing epic/story architecture
 - Maintain code consistency with Python community standards
 - Document technical decisions and implementation patterns in task file
-- **TECHNICAL PROGRESS TRACKING**: Track implementation progress within task checklist items only
+- **IMMEDIATE TASK DOCUMENTATION UPDATES**: Update task documentation at EVERY progression step
+  - **Progress Status Updates**: Update task checklist items from ⬜ → 🔄 → ✅ immediately as work progresses
+  - **Implementation Notes**: Document technical decisions, blockers, and solutions in task file as they occur
+  - **Status Synchronization**: Ensure task documentation always reflects current implementation status
+  - **Real-Time Updates**: Never delay documentation updates - update immediately when progress occurs
 - Document technical completion status in task implementation checklist
 - Update checklist items from ⬜ → 🔄 → ✅ as implementation progresses
 
