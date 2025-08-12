@@ -126,14 +126,14 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
    - **All exist**: Continue with implementation/validation phases
 5. **Invoke Sub-Agent** using Task tool with complete file hierarchy context - MAINTAIN MODE LOCK
 6. **Process Return Code** and agent's file hierarchy assessment - NO AUTONOMOUS INTERPRETATION
-7. **State Transition Reporting** - Use **STATE-TRANSITION** template (see Templates section) for all phase transitions
-8. **Update State** across complete task tree based on agent feedback
-9. **Git Workflow Integration** - Orchestrator manages complete feature branch lifecycle:
-   - **Before DEV_IMPLEMENT**: Orchestrator creates task feature branch using `/branch` Claude Code slash command
-   - **During DEV_IMPLEMENT**: Developer agent commits changes using `/commit` Claude Code slash command
-   - **After Task Completion**: Orchestrator commits final documentation updates using `/commit` slash command
-   - **Branch Integration**: Orchestrator merges feature branch into main using standard git commands
-   - **Branch Cleanup**: Orchestrator handles feature branch cleanup after successful merge
+7. **Git Workflow Orchestration** - Actively manage git operations:
+   - **Branch Creation**: When transitioning FL_PLAN → DEV_IMPLEMENT, invoke Feature Lead to execute `/branch` command
+   - **Commit Monitoring**: During DEV_IMPLEMENT, verify Developer is using `/commit` command for code changes
+   - **Branch Merge**: When transitioning FL_FINAL → PM_COMPLETE, invoke Feature Lead to merge feature branch and execute `/commit` for documentation
+   - **Final Commits**: During PM_COMPLETE, invoke Project Manager to execute `/commit` command for final epic documentation
+   - **Error Handling**: If any git operation fails, log error and require agent retry
+8. **State Transition Reporting** - Use **STATE-TRANSITION** template (see Templates section) for all phase transitions
+9. **Update State** across complete task tree based on agent feedback
 10. **Continue Loop** until ALL 6 phases completed OR agent explicitly returns specific error code requiring orchestrator intervention - NEVER EXIT MODE AUTONOMOUSLY
 
 ### State Transitions:
@@ -163,7 +163,11 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
     - `MISSING_STORY_FILES` - Story file missing, return to orchestrator for PM_BOOTSTRAP
     - `MISSING_TASK_FILES` - Created missing task files, return to orchestrator for next phase
     - `FAILURE_TO_PM` - Planning issues, return to PM_BOOTSTRAP
-- Success → Transition based on what was accomplished and what remains
+- **Git Workflow - Feature Branch Creation**: On `SUCCESS_TO_DEV_IMPLEMENT`
+  - **Orchestrator Action**: Invoke Feature Lead to create feature branch using `/branch feature/TASK-EEEE.SS.TT-task-description`
+  - **Branch Creation Verification**: Ensure branch was created successfully before proceeding to DEV_IMPLEMENT
+  - **Error Handling**: If branch creation fails, log error and retry or escalate
+- Success → Transition based on what was accomplished and what remains  
 - Failure → Return to PM_BOOTSTRAP with planning issues
 
 **DEV_IMPLEMENT Phase:**
@@ -175,11 +179,12 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 - Context: Specific task (EEEE.SS.TT) implementation checklist, technical specifications, detected tech stack, feature branch context
 - Apply: BASE technical standards (standard implementation and testing)
 - **Task-Specific Implementation**: Focus on single task completion with full interface contracts
-- **Developer Git Responsibilities**: Developer agent handles commits during development:
-  - **Development Commits**: Developer uses Claude Code `/commit` slash command during implementation
-  - **Slash Command**: `/commit` analyzes changes and creates conventional commit with `type(EEEE.SS.TT): description` format
-  - **Multiple Commits**: Developer may invoke `/commit` multiple times during task development iterations
-  - **Auto-Generated**: `/commit` command automatically determines commit type and generates appropriate message
+- **Git Workflow - Development Commits**: Orchestrator ensures developer commits during implementation:
+  - **Orchestrator Verification**: Monitor that developer agent actually uses `/commit` command during implementation
+  - **Commit Requirement**: Developer MUST use `/commit` command for all code changes with conventional commit format
+  - **Multiple Commits Allowed**: Developer may invoke `/commit` multiple times during task iterations
+  - **Orchestrator Action**: If no commits detected after implementation, prompt developer to commit changes
+  - **Error Handling**: If commits fail, log error and require developer to retry
 - **MANDATORY**: Agent MUST complete implementation fully - NO early exits or shortcuts
 - Success (`SUCCESS_TO_QUALITY_ASSURANCE`) → Transition to QUALITY_ASSURANCE for specific task
 - Failure (`FAILURE_CONTINUE`) → Stay in DEV_IMPLEMENT, increment iteration
@@ -208,6 +213,12 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 - Invoke: `@agent-feature-lead` with "final_business_validation" mode
 - Context: Quality Assurance-validated implementation, business requirements
 - Apply: MAXIMUM business standards (ruthless business validation)
+- **Git Workflow - Feature Completion**: On `SUCCESS_TO_PM_COMPLETE`
+  - **Orchestrator Action**: Invoke Feature Lead to merge feature branch into main using git merge commands
+  - **Documentation Commits**: Orchestrator ensures Feature Lead uses `/commit` command for all documentation updates
+  - **Branch Merge Verification**: Ensure feature branch is successfully merged before proceeding
+  - **Documentation Verification**: Verify all project documentation and status tracking files are committed
+  - **Error Handling**: If merge or commits fail, log error and require retry
 - Success (`SUCCESS_TO_PM_COMPLETE`) → Transition to PM_COMPLETE
 - Failure (`FAILURE_TO_QUALITY_ASSURANCE`) → Return to QUALITY_ASSURANCE with business feedback
 - Critical Failure → Escalate to Project Manager
@@ -216,6 +227,11 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 - Invoke: `@agent-project-manager` with "complete_epic" mode
 - Context: Fully validated epic implementation
 - Apply: STRATEGIC oversight (complete epic coherence validation)
+- **Git Workflow - Epic Documentation**: On successful completion
+  - **Orchestrator Action**: Invoke Project Manager to use `/commit` command for final epic documentation updates
+  - **Documentation Verification**: Ensure all epic status files, progress tracking, and main documentation are committed
+  - **Commit Verification**: Verify commits were successful with proper conventional commit format
+  - **Error Handling**: If documentation commits fail, log error and require retry
 - Success → Epic implementation complete
 - Failure → Return to appropriate phase for epic-level issues
 
@@ -378,33 +394,30 @@ All agents receive comprehensive project context:
 - **Feature Lead**: Updates Story files and Task files with business requirements and validation status
 - **Developer**: Focuses solely on technical implementation (NO progress tracking)
 - **Quality Assurance**: Updates Task files with quality validation results and testing outcomes
-- **Orchestrator**: Handles all git operations (commit/merge) and coordinates progress updates across task tree
+- **Orchestrator**: Coordinates progress updates across task tree and manages agent transitions
 
 **File Update Frequency**: EVERY status change, progress milestone, and phase transition must be reflected across all relevant files in the task tree.
 
 ## Orchestrator Responsibilities:
 
 **CRITICAL**: The develop orchestrator handles these responsibilities that agents do NOT:
-- **Git Branch Management**: Feature branch lifecycle management
-  - **Branch Creation**: Uses Claude Code `/branch` slash command to create task-specific feature branches before DEV_IMPLEMENT
-  - **Branch Naming**: Enforces `feature/TASK-EEEE.SS.TT-task-description` naming convention
-  - **Branch Integration**: Uses standard git commands to merge completed feature branches into main branch
-  - **Branch Cleanup**: Removes feature branches after successful integration using git commands
-- **Documentation Commits**: Final documentation updates after task completion
-  - **Task Documentation**: Uses Claude Code `/commit` slash command for updated task files with completion status
-  - **Progress Documentation**: Uses `/commit` slash command for story/epic progress updates
-  - **Milestone Commits**: Uses `/commit` slash command for story/epic completion milestones
 - **Progress Coordination**: Coordinates progress updates across all task tree files
 - **State Management**: Maintains agentic state section in `docs/DEVELOPMENT_PLAN_AND_PROGRESS.md`
 - **Agent Coordination**: Manages transitions between agents and handles return codes
 - **File Tree Consistency**: Ensures all Epic/Story/Task files remain synchronized
+- **Git Workflow Orchestration**: Actively manages and verifies git operations across all phases
+  - **Branch Creation Orchestration**: Invokes Feature Lead to execute `/branch` commands during transitions
+  - **Commit Verification**: Monitors and verifies that agents are actually executing `/commit` commands
+  - **Merge Coordination**: Orchestrates Feature Lead branch merging and documentation commits
+  - **Final Commit Management**: Ensures Project Manager executes final documentation commits
+  - **Git Error Handling**: Manages git operation failures and requires agent retry
 - **Completion Processing**: Handles task completion, next task discovery, and workflow continuation
 
-**Developer Agent Git Responsibilities**: Developer focuses on technical implementation AND commits during development:
-- **Development Commits**: Uses Claude Code `/commit` slash command during implementation for code changes
-- **Slash Command**: `/commit` command automatically generates conventional commits with task scope: `type(EEEE.SS.TT): description`
-- **Multiple Commits**: May invoke `/commit` slash command multiple times during task iterations
-- **No Branch Management**: Does not create, merge, or delete branches
+**Developer Agent Responsibilities**: Developer focuses on technical implementation and commits during development:
+- **Development Commits**: Uses `/commit` command during implementation for code changes
+- **Conventional Commits**: `/commit` command automatically generates conventional commits with task scope: `type(EEEE.SS.TT): description`
+- **Multiple Commits**: May invoke `/commit` command multiple times during task iterations
+- **No Branch Management**: Does not create, merge, or delete branches - handled by Feature Lead
 
 ## Error Handling:
 
@@ -417,50 +430,46 @@ All agents receive comprehensive project context:
 
 ## Git Workflow Integration:
 
-### Feature Branch Lifecycle:
-The orchestrator manages the complete feature branch workflow with clear responsibility separation:
+### Orchestrated Git Workflow:
+Orchestrator actively manages and verifies git operations:
 
-**1. Branch Creation (Orchestrator - Before DEV_IMPLEMENT)**:
+**1. Feature Branch Creation (Orchestrator → Feature Lead)**:
 ```
-/branch feature TASK-0001.02.03 password-validation-logic
+Orchestrator: Invoke Feature Lead to execute:
+/branch feature/TASK-0001.02.03-password-validation-logic
 ```
-Orchestrator uses Claude Code `/branch` slash command to create: `feature/TASK-0001.02.03-password-validation-logic`
+- **Orchestrator Action**: Invokes Feature Lead at FL_PLAN → DEV_IMPLEMENT transition
+- **Verification**: Confirms branch was created successfully before proceeding
+- **Error Handling**: If branch creation fails, logs error and requires retry
 
-**2. Development Commits (Developer Agent - During DEV_IMPLEMENT)**:
+**2. Development Commits (Orchestrator → Developer)**:
 ```
+Orchestrator: Verify Developer executes:
 /commit
 ```
-Developer agent uses Claude Code `/commit` slash command during implementation:
-- Creates conventional commits: `feat(0001.02.03): add password validation rules`
-- Multiple `/commit` invocations allowed during task iterations
-- Each `/commit` analyzes changes and generates appropriate commit message
+- **Orchestrator Monitoring**: Monitors that developer actually uses `/commit` command during implementation
+- **Verification**: Confirms commits are being made with conventional format
+- **Error Handling**: If no commits detected, prompts developer to commit changes
 
-**3. Documentation Commits (Orchestrator - After Task Completion)**:
+**3. Feature Completion (Orchestrator → Feature Lead)**:
 ```
-/commit
-```
-Orchestrator uses Claude Code `/commit` slash command for final documentation updates:
-- Commits task file updates and progress tracking
-- Generated message: `docs(0001.02.03): update task completion status and progress tracking`
-
-**4. Quality Validation (During QUALITY_ASSURANCE)**:
-- Quality checks run on feature branch with all commits
-- No additional commits during QA validation
-- Branch ready for integration after QA success
-
-**5. Branch Integration (Orchestrator - After All Validation)**:
-Orchestrator uses standard git commands for branch integration:
-```bash
-git checkout main
+Orchestrator: Invoke Feature Lead to execute:
 git merge feature/TASK-0001.02.03-password-validation-logic
-git branch -d feature/TASK-0001.02.03-password-validation-logic
+/commit
 ```
+- **Orchestrator Action**: Invokes Feature Lead at FL_FINAL → PM_COMPLETE transition
+- **Merge Verification**: Ensures feature branch is successfully merged
+- **Documentation Commits**: Verifies all documentation updates are committed
+- **Error Handling**: If merge or commits fail, requires retry
 
-Then creates milestone commits using `/commit` slash command:
+**4. Epic Documentation (Orchestrator → Project Manager)**:
 ```
-/commit  # Story completion: feat(0001.02): complete login implementation story with 6 tasks
-/commit  # Epic completion: feat(0001): complete user authentication system epic
+Orchestrator: Invoke Project Manager to execute:
+/commit
 ```
+- **Orchestrator Action**: Invokes Project Manager during PM_COMPLETE phase
+- **Verification**: Confirms final epic documentation is committed
+- **Error Handling**: If documentation commits fail, requires retry
 
 ### Branch Naming Conventions:
 - **Task Branches**: `feature/TASK-EEEE.SS.TT-task-description`
@@ -483,18 +492,6 @@ Then creates milestone commits using `/commit` slash command:
 
 ### Git Responsibility Separation:
 
-**Orchestrator Git Responsibilities:**
-- **Branch Lifecycle**: Create feature branches using Claude Code `/branch` slash command
-- **Documentation Commits**: Final task documentation updates using Claude Code `/commit` slash command
-- **Branch Integration**: Merge feature branches into main using standard git commands (`git merge`)
-- **Milestone Commits**: Story/epic completion milestone commits using `/commit` slash command
-- **Branch Cleanup**: Remove feature branches after successful merge using git commands (`git branch -d`)
-
-**Developer Git Responsibilities:**
-- **Development Commits**: Commit code changes during implementation using Claude Code `/commit` slash command
-- **Auto-Generated Format**: `/commit` slash command automatically creates conventional commits with `type(EEEE.SS.TT): description` format
-- **Iterative Commits**: Multiple `/commit` slash command invocations allowed during development iterations
-- **Code-Focused**: Only commit actual implementation code, tests, and technical documentation
 
 ## Documentation Linking Requirements:
 
@@ -594,11 +591,10 @@ Then creates milestone commits using `/commit` slash command:
 # 4. Agents return to orchestrator with file hierarchy status codes
 # 5. Orchestrator determines next phase based on agent assessments
 # 6. **Git Workflow Integration**:
-#    - Orchestrator uses /branch slash command to create feature branch before DEV_IMPLEMENT
-#    - Developer uses /commit slash command during implementation (auto-generates: feat(0001.02.03): add validation rules)
-#    - Orchestrator uses /commit slash command for final documentation (auto-generates: docs(0001.02.03): update task status)
-#    - Orchestrator merges feature branch into main using git merge commands
-#    - Story/Epic milestone commits using /commit slash command
+#    - Feature Lead uses /branch command to create feature branch before DEV_IMPLEMENT
+#    - Developer uses /commit command during implementation (auto-generates: feat(0001.02.03): add validation rules)
+#    - Feature Lead merges feature branch and uses /commit command for documentation updates
+#    - Project Manager uses /commit command for final epic documentation updates
 # 7. Continue until scope completion with progressive quality standards
 # 8. Update complete task tree with results throughout process
 ```

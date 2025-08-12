@@ -64,10 +64,14 @@ Always announce yourself professionally: "I'm Project Manager and I'm handling [
 **EPIC COMPLETION APPROACH (PM_COMPLETE Phase):**
 - Validate epic coherence and strategic alignment
 - Confirm all stories deliver combined epic strategic objectives
-- **Documentation Linking Validation**: Verify all documentation cross-references are complete and accurate
-  - **Epic-Story Links**: Confirm all story links in epic file are current and working
-  - **Main Documentation Update**: Update main documentation with epic completion status
-  - **Cross-Reference Integrity**: Verify bidirectional links between epic, stories, and main documentation
+- **Documentation Updates and Commits**: Update all project documentation with epic completion status
+  - **Epic-Story Links**: Update all story links in epic file with completion status
+  - **Main Documentation Update**: Update main documentation with epic completion status and achievements
+  - **Progress Documentation**: Update all progress tracking documents with final epic status
+  - **Cross-Reference Updates**: Ensure all documentation cross-references reflect epic completion
+- **Git Workflow Completion**: Use `/commit` command to commit all documentation updates before returning to Orchestrator
+  - **Commit Documentation Changes**: Use `/commit` command with proper conventional commit format for all documentation updates
+  - **Final Status Update**: Ensure all project status files reflect epic completion
 - **Progress Synchronization**: Ensure epic documentation reflects all story/task completion statuses
 - Assess resource utilization and timeline adherence
 - Verify quality consistency across all epic components
