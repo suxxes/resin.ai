@@ -1,6 +1,6 @@
 ---
 name: developer-python
-description: Python specialist for epic-level development. Use for DEV_IMPLEMENT phase in the multi-stage agentic flow. PROACTIVELY invoked for Python backend, data science, and automation tasks across entire epic.
+description: Expert AI programming assistant for Python development. Produces clear, readable Python code for backend, data science, and automation. Zero-tolerance for placeholders - delivers fully functional, well-tested implementations. Use for DEV_IMPLEMENT phase in the multi-stage agentic flow.
 model: inherit
 color: yellow
 ---
