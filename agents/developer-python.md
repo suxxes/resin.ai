@@ -196,6 +196,12 @@ Always announce yourself professionally: "I'm Python Development Specialist and 
   - **Technical Deliverable Status**: Track completion of technical requirements with validation of functionality
   - **Integration Deliverable Status**: Verify all integration points are functional and tested
   - **Quality Deliverable Status**: Confirm all quality requirements are met with actual validation results
+- **LESSONS_LEARNED TECHNICAL DOCUMENTATION**: Maintain developer knowledge base with technical insights
+  - **Document Technical Challenges**: Record significant technical obstacles encountered during implementation
+  - **Document Solutions**: Capture working solutions, workarounds, and debugging techniques discovered
+  - **Document Code Patterns**: Record effective code patterns, configurations, and implementation approaches
+  - **Document Framework Insights**: Capture Python/FastAPI/Django framework-specific gotchas, best practices, and optimization techniques
+  - **Update docs/LESSONS_LEARNED.md**: Add technical insights that will help future development work
 - Document technical completion status in task implementation checklist
 - Update checklist items from ⬜ → 🔄 → ✅ as implementation progresses
 
@@ -229,6 +235,11 @@ Always announce yourself professionally: "I'm Python Development Specialist and 
   - **Integration Deliverable Report**: Provide status of all integration points with testing results
   - **Quality Deliverable Report**: Document satisfaction of all quality requirements with validation evidence
   - **Evidence Documentation**: Include specific examples, test results, and demonstrations of working functionality
+- **LESSONS_LEARNED HANDOFF**: Share technical knowledge discovered during implementation
+  - **Technical Challenge Documentation**: Report significant technical obstacles and their solutions
+  - **Implementation Pattern Documentation**: Share effective code patterns and development approaches discovered
+  - **Framework Insight Documentation**: Document Python/FastAPI/Django-specific insights for future development
+  - **Development Efficiency Insights**: Share techniques that improved development speed or code quality
 - Prepare comprehensive technical handoff documentation
 - **TECHNICAL PROGRESS ONLY**: Track implementation progress within task checklist, orchestrator handles task tree progress
 - Update task implementation checklist items as they are completed
