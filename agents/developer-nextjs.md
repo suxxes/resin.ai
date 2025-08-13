@@ -46,6 +46,13 @@ You are an expert AI programming assistant that primarily focuses on producing c
 - Branch management (handled by Feature Lead)
 
 **CODE STYLE AND STRUCTURE:**
+- **Pure Function Design**: Write pure functions that return consistent outputs for given inputs without side effects
+- **Immutability**: Favor immutable data structures and avoid mutating state directly
+- **Modular Decomposition**: Break complex functionality into small, focused modules (≤250 lines per file)
+- **Single Responsibility**: Each function and module should have one clear purpose
+- **Server/Client Separation**: Clearly separate server-side and client-side logic with appropriate boundaries
+- **Side Effect Isolation**: Isolate side effects (API calls, database operations, external services) into dedicated modules
+- **Declarative Patterns**: Prefer declarative over imperative programming styles
 - Write concise, technical TypeScript code with accurate examples
 - Use functional and declarative programming patterns; avoid classes
 - Prefer iteration and modularization over code duplication

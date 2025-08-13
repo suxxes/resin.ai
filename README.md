@@ -8,7 +8,7 @@ This project implements a sophisticated multi-agent orchestration system for com
 **Purpose**: Multi-agent workflow orchestration for software development with progressive quality standards
 
 ### Core Architecture:
-- **Multi-Agent System**: Project Manager, Feature Lead, Self-Reflection Developer Discovery, Quality Assurance
+- **Multi-Agent System**: Project Manager, Feature Lead, 6 Specialized Developer Agents, Quality Assurance
 - **6-Stage State Machine**: PM_BOOTSTRAP → FL_PLAN → DEV_IMPLEMENT → QUALITY_ASSURANCE → FL_FINAL → PM_COMPLETE
 - **Self-Reflection Agent Discovery**: Automatically selects appropriate developer agent based on internal knowledge of agent capabilities and project tech stack
 - **Progressive Quality Standards**: BASE → ENHANCED → MAXIMUM → STRATEGIC
@@ -17,10 +17,22 @@ This project implements a sophisticated multi-agent orchestration system for com
 - **Feature Branch Workflow**: Complete git workflow with `/branch` and `/commit` Claude Code slash command integration
 - **Task-Based Branching**: Automatic feature branch creation using `feature/TASK-EEEE.SS.TT-description` pattern
 - **Conventional Commits**: Automated commits with `type(EEEE.SS.TT): description` format for precise tracking
+- **Deliverable-Focused Validation**: Comprehensive deliverable completion verification preventing partial implementations
+- **Pure Function Architecture**: All developer agents implement modular, functional programming principles with ≤250 lines per file
+- **LESSONS_LEARNED Knowledge Base**: Continuous technical knowledge capture and sharing across development cycles
 
 ### Technical Stacks:
 
-Developer agents are discovered through self-reflection based on project technology requirements. Each discovered agent adapts to the specific technical stack and tooling of the current project, providing specialized expertise for optimal implementation quality.
+Six specialized developer agents provide comprehensive technology coverage through self-reflection discovery:
+
+- **TypeScript/JavaScript**: Framework-agnostic development adapting to React, Vue, Angular, Node.js, etc.
+- **Next.js Full-Stack**: App Router, Server Components, Prisma ORM, ZenStack, monorepo architecture  
+- **Python Development**: FastAPI, Django, Flask, SQLAlchemy, data science, automation, async patterns
+- **Swift/SwiftUI**: iOS, macOS, iPadOS native development with modern Apple frameworks
+- **Tauri Frontend**: React + TypeScript cross-platform desktop/mobile frontend with IPC integration
+- **Tauri Backend**: Rust async/concurrent systems for cross-platform desktop/mobile backend services
+
+Each agent follows pure function design principles, modular decomposition (≤250 lines per file), immutable data patterns, and maintains comprehensive technical documentation in LESSONS_LEARNED knowledge base.
 
 ## Workflow Diagrams
 
@@ -251,6 +263,7 @@ docs/DEVELOPMENT_PLAN_AND_PROGRESS/
 All commands maintain state in:
 - **Main Progress**: `docs/DEVELOPMENT_PLAN_AND_PROGRESS.md` with agentic state tracking
 - **Hierarchy Files**: Epic, Story, and Task files with completion status
+- **LESSONS_LEARNED**: `docs/LESSONS_LEARNED.md` with technical knowledge base maintained by developer agents
 - **Iteration Tracking**: Failure reasons and retry counts
 - **Quality Documentation**: Standards applied at each phase
 - **Time Stamps**: All state transitions across file hierarchy
@@ -286,35 +299,45 @@ This section documents the specialized sub-agents used by the `/develop` orchest
   - User journey validation and stakeholder acceptance
 - **Return Codes**: SUCCESS_TO_DEV_IMPLEMENT, SUCCESS_TO_PM_COMPLETE, FAILURE_TO_PM, FAILURE_TO_QUALITY_ASSURANCE, CRITICAL_FAILURE
 
-### Agent 3: Developer (Self-Reflection Discovery)
-- **Role**: Self-reflection based discovery and selection of developer agents based on project tech stack and agent expertise
+### Agent 3: Developer Specialists (Self-Reflection Discovery)
+- **Role**: Self-reflection based discovery and selection from 6 specialized developer agents
 - **Phases**: DEV_IMPLEMENT (All project types)
-- **Quality Standards**: BASE technical standards
+- **Quality Standards**: BASE technical standards with pure function architecture
 - **Discovery Process**: 
   - Uses self-reflection to discover available developer agent capabilities
   - Matches discovered agent descriptions against project technology requirements
   - Selects highest compatibility score agent through internal contemplation
   - Uses SELF-REFLECTION-DEVELOPER-DISCOVERY template for consistent reporting
-- **Dynamic Discovery**: Available developer agents discovered through self-reflection and internal knowledge
-- **Specialized Agents**: Includes Tauri desktop and mobile application specialist, TypeScript generalist, and other technology-specific experts
+- **Specialized Agents**: 
+  - **developer-typescript**: Framework-agnostic TypeScript/JavaScript development
+  - **developer-nextjs**: Next.js full-stack with App Router and Server Components
+  - **developer-python**: Python backend, data science, automation with async patterns
+  - **developer-swift**: Native iOS/macOS/iPadOS development with SwiftUI
+  - **developer-tauri-typescript**: Cross-platform frontend with React + TypeScript + Tauri IPC
+  - **developer-tauri-rust**: Cross-platform backend with Rust async/concurrent systems
+- **Modular Architecture**: All agents implement pure functions, modular decomposition (≤250 lines per file), immutable patterns
+- **LESSONS_LEARNED**: Continuous technical knowledge capture and documentation during implementation
+- **Deliverable Completion**: Comprehensive validation preventing stub implementations or partial deliverables
 - **Task Completion**: Uses TASK-COMPLETION template for progress reporting with dual story/epic tracking
-- **Extensible**: New developer agents automatically discoverable through enhanced self-reflection
-- **Return Codes**: SUCCESS_TO_QUALITY_ASSURANCE, FAILURE_CONTINUE, PARTIAL_SUCCESS, TIMEOUT_CONTINUE
+- **Return Codes**: SUCCESS_TO_QUALITY_ASSURANCE, FAILURE_CONTINUE, PARTIAL_SUCCESS, TIMEOUT_CONTINUE, MISSING_TASK_FILES
 
 ### Agent 4: Quality Assurance (`quality-assurance`)
-- **Role**: Enhanced quality validation specialist
+- **Role**: Deliverable-focused quality validation specialist
 - **Phases**: QUALITY_ASSURANCE
-- **Quality Standards**: ENHANCED (through-the-roof) standards
+- **Quality Standards**: ENHANCED (through-the-roof) standards with deliverable completion verification
 - **Critical Requirements**:
   - **Code formatting and linting MUST pass** without any errors
   - **All tests MUST pass** without exception
+  - **ALL deliverables MUST be complete** - no partial implementations or stubs allowed
   - **NEVER fix any errors** - only test and validate
-  - **Return to DEV_IMPLEMENT immediately** if formatting, linting, or tests fail
-- **Expertise**: Comprehensive testing, security validation, performance benchmarking
+  - **Return to DEV_IMPLEMENT immediately** if formatting, linting, tests fail, or deliverables incomplete
+- **Deliverable Validation**: Comprehensive verification of functional, technical, integration, and quality completeness
+- **Expertise**: Comprehensive testing, security validation, performance benchmarking, requirement fulfillment verification
 - **Responsibilities**:
   - Enhanced quality validation far exceeding Developer standards
   - Integration testing, security scanning, accessibility compliance
   - Performance benchmarking and regression testing
+  - Complete deliverable verification preventing partial implementations
 - **Return Codes**: SUCCESS_TO_FL_FINAL, FAILURE_TO_DEV, ENHANCEMENT_REQUIRED, CRITICAL_FAILURE
 
 ## 6-Stage State Machine Flow
@@ -343,14 +366,23 @@ Each agent applies increasingly strict quality standards:
 ### What Each Agent DOES Understand:
 - **Project Manager**: Strategic planning, epic coherence, portfolio alignment
 - **Feature Lead**: Business requirements, user experience, stakeholder validation
-- **Developer**: Technical implementation, code architecture, testing frameworks
-- **Quality Assurance**: Quality standards, testing methodologies, performance validation, critical validation gates
+- **Developer Specialists**: Technical implementation with pure function architecture, modular design (\u2264250 lines per file), immutable patterns, LESSONS_LEARNED documentation, comprehensive deliverable completion
+- **Quality Assurance**: Quality standards, testing methodologies, performance validation, deliverable completion verification, critical validation gates
 
 ### What Each Agent DOES NOT Understand:
 - **Project Manager**: Technical implementation details, code specifics
 - **Feature Lead**: Technical architecture, programming languages, development tools
-- **Developer**: Business strategy, user experience, market considerations
-- **Quality Assurance**: Business requirements, strategic planning, user workflows
+- **Developer Specialists**: Business strategy, user experience, market considerations, epic/story planning
+- **Quality Assurance**: Business requirements, strategic planning, user workflows, technical implementation details
+
+### Developer Agent Architecture Principles:
+All developer agents implement consistent architecture standards:
+- **Pure Function Design**: Functions without side effects returning predictable results
+- **Modular Decomposition**: Small, focused modules with \u2264250 lines per file constraint
+- **Immutable Data Patterns**: Functional programming patterns preventing state mutations
+- **Side Effect Isolation**: Separation of pure logic from I/O, API calls, database operations
+- **LESSONS_LEARNED Maintenance**: Continuous technical knowledge capture and documentation
+- **Deliverable Completion**: Comprehensive validation preventing partial implementations or stubs
 
 ## Standardized Templates
 
@@ -503,13 +535,14 @@ Each agent file contains:
 The [`templates/`](templates/) folder contains meta-templates for creating and updating agents and commands:
 
 ### Available Templates
-- **[AGENT-STRUCTURE.md](templates/AGENT-STRUCTURE.md)**: Complete structural template for agent instructions
+- **[AGENT-STRUCTURE.md](templates/AGENT-STRUCTURE.md)**: Complete structural template for agent instructions with pure function architecture
 - **[COMMAND-STRUCTURE.md](templates/COMMAND-STRUCTURE.md)**: Complete structural template for command instructions
 
 ### Template Usage
-- **For Agent Development**: Use AGENT-STRUCTURE.md to ensure consistent agent structure and workflow organization
+- **For Agent Development**: Use AGENT-STRUCTURE.md to ensure consistent agent structure with modular design principles, LESSONS_LEARNED integration, and deliverable completion verification
 - **For Command Development**: Use COMMAND-STRUCTURE.md for consistent command structure and functionality
 - **Internal Templates**: Agents and commands include their own internal templates within their instructions
 - **Naming Convention**: Use CAPITAL_CASE for internal template names
+- **Architecture Standards**: All new developer agents automatically include pure function design, modular decomposition (≤250 lines per file), and LESSONS_LEARNED maintenance
 
 See [templates/README.md](templates/README.md) for comprehensive development guidelines and standards.
