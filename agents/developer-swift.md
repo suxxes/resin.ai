@@ -175,6 +175,21 @@ Always announce yourself professionally: "I'm Native App Development Specialist 
   - **Check Task File**: Does `docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS.TT - Epic Name - Story Name - Task Name.md` exist?
   - **IF Task file missing**: Return `MISSING_TASK_FILES` (cannot implement without task plan)
 - Load specific task implementation checklist from task file
+- **TodoWrite Implementation Tracking**: Use TodoWrite to create detailed implementation todos for task completion visibility:
+  ```
+  1. Project Tooling Discovery - Analyze Xcode project setup and Apple development conventions → in_progress
+  2. Framework Learning - Deep dive into Apple framework usage and architectural patterns → pending
+  3. Integration Planning - Plan implementation to seamlessly integrate with existing codebase → pending
+  4. Core Implementation - Execute technical implementation following Apple platform patterns → pending
+  5. Testing Implementation - Comprehensive testing using Xcode Test framework → pending
+  6. Quality Validation - Validate deliverables meet all requirements → pending
+  7. Documentation Updates - Update task files and LESSONS_LEARNED → pending
+  ```
+- **TodoWrite Progress Tracking**: Update todo status in real-time as implementation progresses
+- **Task Tool Delegation**: Use Task tool to delegate specialized work to other agents when needed:
+  - **Research Tasks**: Launch general-purpose agent for complex Apple ecosystem research
+  - **Quality Verification**: Launch specialized validation agents for specific quality requirements
+  - **Documentation Tasks**: Delegate comprehensive documentation work to specialized documentation agents
 - **FOLLOW CHECKLIST ORDER STRICTLY**:
   1. **Project Tooling Discovery**: Complete comprehensive analysis of Xcode project setup and Apple development conventions
   2. **Framework Learning**: Deep dive into project's specific Apple framework usage and architectural patterns

@@ -73,6 +73,22 @@ All state tracking happens in the existing `docs/DEVELOPMENT_PLAN_AND_PROGRESS.m
 - Project Manager: STRATEGIC oversight (complete epic coherence)
 ```
 
+## Hook-Based Coordination System:
+
+### TodoWrite Integration for State Machine Orchestration:
+The orchestrator uses TodoWrite to maintain real-time visibility into the 6-phase state machine progress:
+- **Phase Tracking**: Each phase (PM_BOOTSTRAP → FL_PLAN → DEV_IMPLEMENT → QUALITY_ASSURANCE → FL_FINAL → PM_COMPLETE) is tracked as a todo item
+- **Agent Coordination**: Agents update their phase status in real-time using TodoWrite
+- **Documentation Hooks**: TodoWrite updates automatically trigger markdown file synchronization
+- **Progress Visibility**: Real-time todo status provides immediate visibility into orchestration progress
+
+### Task Tool Coordination for Agent Delegation:
+- **Sub-Agent Management**: Agents use Task tool to delegate specialized work to other agents
+- **Coordination Tracking**: Task tool usage is logged for agent activity monitoring
+- **Result Integration**: Sub-agent results are automatically integrated into parent agent documentation
+- **Quality Gate Delegation**: QA agent uses Task tool to launch parallel validation agents
+
+
 ## Orchestrator Execution Logic:
 
 ### Agentic State-Machine Orchestrator Mode Rules:
@@ -139,6 +155,16 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 ### State Transitions:
 
 **PM_BOOTSTRAP Phase:**
+- **TodoWrite Orchestration Setup**: Create master todo list for 6-phase state machine:
+  ```
+  1. PM_BOOTSTRAP - Epic and story analysis and creation → in_progress
+  2. FL_PLAN - Task planning and feature branch setup → pending
+  3. DEV_IMPLEMENT - Technical implementation with deliverable completion → pending
+  4. QUALITY_ASSURANCE - Enhanced quality validation and testing → pending
+  5. FL_FINAL - Maximum business validation and stakeholder acceptance → pending
+  6. PM_COMPLETE - Strategic epic completion and documentation → pending
+  ```
+- **TodoWrite Phase Tracking**: Mark PM_BOOTSTRAP as in_progress before agent invocation
 - Invoke: `@agent-project-manager` with "hierarchical_bootstrap" mode
 - Context: Target identifier (EEEE/EEEE.SS/EEEE.SS.TT/Feature Description), complete file hierarchy analysis, project strategy
 - **Agent Must Analyze File Hierarchy** and determine what's missing:
@@ -149,10 +175,12 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
     - `SUCCESS_TO_DEV_IMPLEMENT` - All files exist, ready for implementation
     - `MISSING_EPIC_FILES` - Created Epic/Stories, return to orchestrator for next phase
     - `FAILURE_SCOPE_UNCLEAR` - Cannot determine what to bootstrap, need clearer requirements
+- **TodoWrite Phase Completion**: On success, mark PM_BOOTSTRAP as completed and next phase as in_progress
 - Success → Transition based on what was accomplished and what remains
 - Failure → Retry PM_BOOTSTRAP with refined requirements
 
 **FL_PLAN Phase:**
+- **TodoWrite Phase Tracking**: Mark FL_PLAN as in_progress, PM_BOOTSTRAP as completed
 - Invoke: `@agent-feature-lead` with "hierarchical_task_planning" mode
 - Context: Target identifier (EEEE/EEEE.SS/EEEE.SS.TT), story context, business requirements
 - **Agent Must Analyze Task File Hierarchy** and determine what's missing:
@@ -164,13 +192,15 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
     - `MISSING_TASK_FILES` - Created missing task files, return to orchestrator for next phase
     - `FAILURE_TO_PM` - Planning issues, return to PM_BOOTSTRAP
 - **Git Workflow - Feature Branch Creation**: On `SUCCESS_TO_DEV_IMPLEMENT`
-  - **Orchestrator Action**: Invoke Feature Lead to create feature branch using `/branch feature/TASK-EEEE.SS.TT-task-description`
+  - **Orchestrator Action**: Invoke Feature Lead to create feature branch using `/branch feature/EEEE.SS.TT-task-description`
   - **Branch Creation Verification**: Ensure branch was created successfully before proceeding to DEV_IMPLEMENT
   - **Error Handling**: If branch creation fails, log error and retry or escalate
-- Success → Transition based on what was accomplished and what remains  
+- **TodoWrite Phase Completion**: On success, mark FL_PLAN as completed and DEV_IMPLEMENT as in_progress
+- Success → Transition based on what was accomplished and what remains
 - Failure → Return to PM_BOOTSTRAP with planning issues
 
 **DEV_IMPLEMENT Phase:**
+- **TodoWrite Phase Tracking**: Mark DEV_IMPLEMENT as in_progress, FL_PLAN as completed
 - **SELF-REFLECTION DEVELOPER DISCOVERY**: Use the **SELF-REFLECTION-DEVELOPER-DISCOVERY** template (see Templates section)
   - List ALL discovered developer agents, marking irrelevant ones as "(not relevant)"
   - Show scoring algorithm with specific compatibility reasoning
@@ -197,6 +227,7 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
   - **NO Stub Implementations**: All functionality must be fully implemented, not placeholder code
   - **Evidence Required**: Developer must provide evidence of working functionality for each deliverable
   - **Return Policy**: If ANY deliverable is incomplete, return `FAILURE_CONTINUE` until ALL are satisfied
+- **TodoWrite Phase Completion**: On `SUCCESS_TO_QUALITY_ASSURANCE`, mark DEV_IMPLEMENT as completed and QUALITY_ASSURANCE as in_progress
 - Success (`SUCCESS_TO_QUALITY_ASSURANCE`) → Transition to QUALITY_ASSURANCE ONLY after ALL deliverables verified complete
 - Failure (`FAILURE_CONTINUE`) → Stay in DEV_IMPLEMENT, increment iteration
 - **Update Task Tree**: Update task file progress and parent story/epic status
@@ -206,6 +237,8 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
   - Invoke appropriate next phase based on completion status
 
 **QUALITY_ASSURANCE Phase:**
+- **TodoWrite Phase Tracking**: Mark QUALITY_ASSURANCE as in_progress, DEV_IMPLEMENT as completed
+- **Task Tool Delegation**: QA agent may use Task tool to launch parallel validation agents for different quality aspects
 - Invoke: `@agent-quality-assurance` with "enhanced_validation" mode
 - Context: Completed implementation, Feature Lead feedback (if any)
 - Apply: **ENHANCED quality standards** (through-the-roof validation)
@@ -216,11 +249,13 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
   - **NEVER fix any errors** - only test and validate
   - **Return to DEV_IMPLEMENT immediately** if formatting, linting, or tests fail
 - **MANDATORY**: Agent MUST complete full enhanced validation - NO skipping to demonstration phases
+- **TodoWrite Phase Completion**: On `SUCCESS_TO_FL_FINAL`, mark QUALITY_ASSURANCE as completed and FL_FINAL as in_progress
 - Success (`SUCCESS_TO_FL_FINAL`) → Transition to FL_FINAL
 - Failure (`FAILURE_TO_DEV`) → Return to DEV_IMPLEMENT with enhanced Quality Assurance feedback
 - Critical Failure → Escalate to Feature Lead for guidance
 
 **FL_FINAL Phase:**
+- **TodoWrite Phase Tracking**: Mark FL_FINAL as in_progress, QUALITY_ASSURANCE as completed
 - Invoke: `@agent-feature-lead` with "final_business_validation" mode
 - Context: Quality Assurance-validated implementation, business requirements
 - Apply: MAXIMUM business standards (ruthless business validation)
@@ -230,11 +265,13 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
   - **Branch Merge Verification**: Ensure feature branch is successfully merged before proceeding
   - **Documentation Verification**: Verify all project documentation and status tracking files are committed
   - **Error Handling**: If merge or commits fail, log error and require retry
+- **TodoWrite Phase Completion**: On `SUCCESS_TO_PM_COMPLETE`, mark FL_FINAL as completed and PM_COMPLETE as in_progress
 - Success (`SUCCESS_TO_PM_COMPLETE`) → Transition to PM_COMPLETE
 - Failure (`FAILURE_TO_QUALITY_ASSURANCE`) → Return to QUALITY_ASSURANCE with business feedback
 - Critical Failure → Escalate to Project Manager
 
 **PM_COMPLETE Phase:**
+- **TodoWrite Phase Tracking**: Mark PM_COMPLETE as in_progress, FL_FINAL as completed
 - Invoke: `@agent-project-manager` with "complete_epic" mode
 - Context: Fully validated epic implementation
 - Apply: STRATEGIC oversight (complete epic coherence validation)
@@ -243,6 +280,7 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
   - **Documentation Verification**: Ensure all epic status files, progress tracking, and main documentation are committed
   - **Commit Verification**: Verify commits were successful with proper conventional commit format
   - **Error Handling**: If documentation commits fail, log error and require retry
+- **TodoWrite Final Completion**: On success, mark PM_COMPLETE as completed - all 6 phases completed successfully
 - Success → Epic implementation complete
 - Failure → Return to appropriate phase for epic-level issues
 
@@ -483,13 +521,13 @@ Orchestrator: Invoke Project Manager to execute:
 - **Error Handling**: If documentation commits fail, requires retry
 
 ### Branch Naming Conventions:
-- **Task Branches**: `feature/TASK-EEEE.SS.TT-task-description`
+- **Task Branches**: `feature/EEEE.SS.TT-task-description`
 - **Epic Context**: Always includes full task identifier for traceability
 - **Description**: Task name converted to kebab-case
 - **Examples**:
-  - `feature/TASK-0001.02.03-password-validation-logic`
-  - `feature/TASK-0001.04.01-integration-testing-setup`
-  - `feature/TASK-0002.01.05-oauth-provider-configuration`
+  - `feature/0001.02.03-password-validation-logic`
+  - `feature/0001.04.01-integration-testing-setup`
+  - `feature/0002.01.05-oauth-provider-configuration`
 
 ### Commit Message Conventions:
 - **Format**: `type(EEEE.SS.TT): description`
@@ -521,7 +559,7 @@ Orchestrator: Invoke Project Manager to execute:
 
 ### **Story Files (`EEEE.SS - Epic Name - Story Name.md`)**:
 - **Header Navigation**: Always include navigation headers pointing to parent epic and main documentation
-- **Task Links Section**: Always contain links to all related tasks with current status  
+- **Task Links Section**: Always contain links to all related tasks with current status
 - **Bidirectional Links**: Linked from parent epic AND link to all tasks
 - **Progress Reflection**: Must reflect current status of all related tasks
 - **Maintained by**: Feature Lead
@@ -542,7 +580,7 @@ Orchestrator: Invoke Project Manager to execute:
 
 **Feature Lead**:
 - Create and maintain task links in story documentation
-- Monitor task progress and update story documentation immediately  
+- Monitor task progress and update story documentation immediately
 - Ensure story-task bidirectional linking integrity
 - Alert Project Manager when story completion requires epic updates
 
