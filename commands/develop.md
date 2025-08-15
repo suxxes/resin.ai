@@ -43,6 +43,118 @@ PM_BOOTSTRAP ------→ FL_PLAN ------→ DEV_IMPLEMENT ------→ QUALITY_ASSURAN
   - **Extensible**: Additional developer agents can be added by updating the internal knowledge base
 - **Agent 4 - quality-assurance**: Quality Assurance (Enhanced quality assurance - through-the-roof standards)
 
+## Status Progression Mapping:
+
+The orchestrator phases map to epic, story, and task statuses as follows:
+
+### **Epic Status Progression**:
+- **PM_BOOTSTRAP** → Epic: `NOT_STARTED` → `IN_PROGRESS (PLANNING)`
+- **FL_PLAN** → Epic: `IN_PROGRESS (PLANNING)` → `READY_FOR_DEVELOPMENT`
+- **DEV_IMPLEMENT** → Epic: `READY_FOR_DEVELOPMENT` → `IN_DEVELOPMENT`
+- **QUALITY_ASSURANCE** → Epic: `IN_DEVELOPMENT` (validation in progress)
+- **FL_FINAL** → Epic: `IN_DEVELOPMENT` (business validation)
+- **PM_COMPLETE** → Epic: `IN_DEVELOPMENT` → `COMPLETED`
+
+### **Story Status Progression**:
+- **FL_PLAN** → Story: `NOT_STARTED` → `IN_PROGRESS (PLANNING)` → `READY_FOR_DEVELOPMENT`
+- **DEV_IMPLEMENT** → Story: `READY_FOR_DEVELOPMENT` → `IN_DEVELOPMENT`
+- **Task Completion** → Story: `IN_DEVELOPMENT` → `COMPLETED` (when all tasks complete)
+
+### **Task Status Progression**:
+- **FL_PLAN** → Task: `NOT_STARTED (PENDING)` (task file created)
+- **DEV_IMPLEMENT** → Task: `NOT_STARTED (PENDING)` → `IN_PROGRESS` → `COMPLETED`
+
+**Important**: Task `COMPLETED` status indicates development work is finished (code committed), regardless of QA validation status. QA failures trigger orchestrator iteration cycles but do not revert task completion status.
+
+### **Status Progression Examples**:
+
+**Epic Lifecycle Example**:
+```
+Epic 0001: User Authentication System
+Phase: PM_BOOTSTRAP → Status: NOT_STARTED → IN_PROGRESS (PLANNING)
+Phase: FL_PLAN → Status: IN_PROGRESS (PLANNING) → READY_FOR_DEVELOPMENT  
+Phase: DEV_IMPLEMENT → Status: READY_FOR_DEVELOPMENT → IN_DEVELOPMENT
+Phase: QUALITY_ASSURANCE → Status: IN_DEVELOPMENT (validation in progress)
+Phase: FL_FINAL → Status: IN_DEVELOPMENT (business validation)
+Phase: PM_COMPLETE → Status: IN_DEVELOPMENT → COMPLETED
+```
+
+**Story Lifecycle Example**:
+```
+Story 0001.02: Login Implementation
+Phase: FL_PLAN → Status: NOT_STARTED → IN_PROGRESS (PLANNING) → READY_FOR_DEVELOPMENT
+Phase: DEV_IMPLEMENT → Status: READY_FOR_DEVELOPMENT → IN_DEVELOPMENT
+All Tasks Complete → Status: IN_DEVELOPMENT → COMPLETED
+```
+
+**Task Lifecycle Example**:
+```
+Task 0001.02.03: Password Validation Logic
+Phase: FL_PLAN → Dev Status: NOT_STARTED (PENDING), QA Status: QA_PENDING [task file created]
+Phase: DEV_IMPLEMENT → Dev Status: NOT_STARTED (PENDING) → IN_PROGRESS → COMPLETED, QA Status: QA_PENDING
+Phase: QUALITY_ASSURANCE → Dev Status: COMPLETED, QA Status: QA_PENDING → QA_IN_PROGRESS → QA_PASSED/QA_FAILED
+QA Iteration → If QA_FAILED: return to DEV_IMPLEMENT for rework (Dev status remains COMPLETED)
+```
+
+**QA Failure Handling Example**:
+```
+Task 0003.01.01: Hook Integration Setup
+Development Status: COMPLETED (development work committed)
+QA Validation Status: QA_FAILED (integration tests failing)
+Epic/Story Status: Remains IN_DEVELOPMENT (QA iteration required)
+Orchestrator Logic: QA_FAILED tasks require DEV_IMPLEMENT iteration
+Orchestrator Action: Return to DEV_IMPLEMENT phase for task rework
+After Rework: Dev Status: COMPLETED, QA Status: QA_PENDING (ready for re-validation)
+```
+
+**Orchestrator QA Determination Logic**:
+```
+FOR each task in story:
+  IF development_status == COMPLETED AND qa_status == QA_PENDING:
+    → Task needs QA validation
+  IF development_status == COMPLETED AND qa_status == QA_FAILED:
+    → Task needs rework (return to DEV_IMPLEMENT)
+  IF development_status == COMPLETED AND qa_status == QA_PASSED:
+    → Task fully complete
+
+STORY TRANSITION LOGIC:
+  IF all tasks have development_status == COMPLETED:
+    IF any task has qa_status == QA_PENDING:
+      → Transition to QUALITY_ASSURANCE phase
+    IF any task has qa_status == QA_FAILED:
+      → Return to DEV_IMPLEMENT phase for rework
+    IF all tasks have qa_status == QA_PASSED:
+      → Transition to FL_FINAL phase
+```
+
+## State Recovery and Initialization:
+
+The orchestrator supports **state recovery** for pre-existing work that bypassed the orchestrator workflow:
+
+### **State Recovery Logic**:
+When hooks detect missing orchestrator state but find evidence of completed work:
+1. **Git Commit Detection**: Search for commits related to task identifier
+2. **Documentation Verification**: Confirm task documentation files exist
+3. **State Initialization**: Initialize orchestrator tracking for discovered work
+4. **Phase Validation**: Allow appropriate phase transitions based on actual state
+
+### **Recovery Scenarios**:
+- **Task developed outside orchestrator**: Git commits exist + documentation exists → Initialize as COMPLETED
+- **Epic/Story planning done manually**: Documentation hierarchy exists → Initialize planning phases
+- **Partial orchestrator execution**: Some phases logged, others missing → Resume from appropriate phase
+
+### **Hook Recovery Process**:
+```bash
+# Hook detects missing orchestrator state
+IF orchestrator_log_missing(REQUIRED_PHASE):
+  IF git_commits_exist(TASK_ID) AND documentation_exists(TASK_ID):
+    log_state_recovery(TASK_ID, REQUIRED_PHASE)
+    initialize_orchestrator_state(TASK_ID)
+    allow_phase_transition()
+  ELSE:
+    block_transition() # No actual work completed
+```
+
 ## State Persistence:
 
 All state tracking happens in the existing `docs/DEVELOPMENT_PLAN_AND_PROGRESS.md` file with additional agentic state tracking:
@@ -73,20 +185,34 @@ All state tracking happens in the existing `docs/DEVELOPMENT_PLAN_AND_PROGRESS.m
 - Project Manager: STRATEGIC oversight (complete epic coherence)
 ```
 
-## Hook-Based Coordination System:
+## Hook-Based Automation System:
 
-### TodoWrite Integration for State Machine Orchestration:
-The orchestrator uses TodoWrite to maintain real-time visibility into the 6-phase state machine progress:
-- **Phase Tracking**: Each phase (PM_BOOTSTRAP → FL_PLAN → DEV_IMPLEMENT → QUALITY_ASSURANCE → FL_FINAL → PM_COMPLETE) is tracked as a todo item
-- **Agent Coordination**: Agents update their phase status in real-time using TodoWrite
-- **Documentation Hooks**: TodoWrite updates automatically trigger markdown file synchronization
-- **Progress Visibility**: Real-time todo status provides immediate visibility into orchestration progress
+### Automated State Transition Tracking:
+TodoWrite hook automation eliminates manual orchestrator state management:
+- **Auto State Updates**: Hook automation automatically updates `docs/DEVELOPMENT_PLAN_AND_PROGRESS.md` when phase todos change
+- **Phase Tracking**: Each phase (PM_BOOTSTRAP → FL_PLAN → DEV_IMPLEMENT → QUALITY_ASSURANCE → FL_FINAL → PM_COMPLETE) tracked as todo item
+- **Real-time Sync**: Hook detects completed/in_progress phase changes and updates documentation instantly
+- **Session Tracking**: Automatic session ID and timestamp tracking in progress files
 
-### Task Tool Coordination for Agent Delegation:
-- **Sub-Agent Management**: Agents use Task tool to delegate specialized work to other agents
-- **Coordination Tracking**: Task tool usage is logged for agent activity monitoring
-- **Result Integration**: Sub-agent results are automatically integrated into parent agent documentation
-- **Quality Gate Delegation**: QA agent uses Task tool to launch parallel validation agents
+### Automated Documentation Synchronization:
+TodoWrite hook automation eliminates manual agent documentation updates:
+- **Auto Doc Sync**: Hook automation automatically syncs progress across Epic/Story/Task files
+- **Progress Calculation**: Hooks automatically calculate and update task/story/epic completion percentages
+- **Bidirectional Updates**: Changes propagate automatically from Task → Story → Epic documentation
+- **Real-time Status**: All documentation files stay synchronized with current implementation status
+
+### Automated Quality Gate Validation:
+Task hook automation eliminates manual orchestrator quality gate checks:
+- **Pre-delegation Validation**: Hook automation validates completion criteria before Task delegation
+- **Phase Transition Control**: Hooks automatically block delegation unless previous phase is completed
+- **Quality Standards**: Automatic enforcement of phase-specific completion requirements
+- **Error Prevention**: Prevents invalid state transitions and ensures proper workflow progression
+
+### Hook System Structure:
+Located in `resinai/commands/` with 3 essential automation functions:
+- **`progress.py`** (TodoWrite) - Updates orchestrator state in main progress file
+- **`documentation.py`** (TodoWrite) - Syncs progress across Epic/Story/Task hierarchy  
+- **`validation.py`** (Task) - Validates phase completion before delegation
 
 
 ## Orchestrator Execution Logic:
@@ -95,13 +221,24 @@ The orchestrator uses TodoWrite to maintain real-time visibility into the 6-phas
 - **MODE LOCK**: Claude is now in **Agentic State-Machine Orchestrator mode** - cannot exit until user requests
 - **NO AUTONOMOUS MODE SWITCHING**: Cannot switch to demonstration mode, explanation mode, or any other mode
 - **CONTINUOUS ORCHESTRATION**: Must continue orchestrating through ALL 6 phases until completion or user intervention
+- **AUTOMATIC TASK PROGRESSION**: When task/story/epic completes, AUTOMATICALLY discover and continue with next work
+- **NO STOPPING FOR USER INPUT**: NEVER stop and wait for user `/develop` commands unless portfolio is complete
+- **NO PAUSING AFTER AGENTS**: NEVER pause execution after any agent completes - immediately continue to next phase
 - **NO PHASE SKIPPING**: Agents MUST NOT skip phases or transition early for "demonstration" purposes
 - **NO AUTONOMOUS WORKFLOW DECISIONS**: Agents implement their specific phase only - orchestrator controls transitions
 - **COMPLETE IMPLEMENTATION REQUIRED**: Each agent must complete their phase fully before returning control
 - **NO SHORTCUT REASONING**: Agents cannot decide to "move forward to show complete workflow" or similar
 - **STRICT RETURN CODE ADHERENCE**: Only use documented return codes, never create ad-hoc exit reasons
+- **CONTINUOUS DISCOVERY**: Automatically update TodoWrite tasks and continue with discovered next work
 
 ### Prohibited Behaviors in Agentic State-Machine Orchestrator Mode:
+
+**CRITICAL PROHIBITIONS:**
+- **NO "READY FOR NEXT TASK" MESSAGES**: Never display "ready for next task" or similar stopping messages
+- **NO ORCHESTRATOR READY ANNOUNCEMENTS**: Never announce orchestrator readiness and wait for user commands
+- **NO CONTINUATION PROMPTS**: Never prompt user to run `/develop` again unless portfolio complete
+- **NO STOPPING BETWEEN TASKS**: Must automatically continue from task to task without pause
+- **NO USER INPUT REQUESTS**: Never request user input mid-orchestration unless critical failure
 
 ## Mode Exit Protocol (**CRITICAL AND IMPORTANT SECTION!!!**)
 
@@ -123,6 +260,9 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 - Ending orchestration early for any reason except user request or completion
 
 ### Main Loop (Agentic State-Machine Orchestrator Mode):
+
+**🚨 CRITICAL ORCHESTRATOR RULE 🚨**: After EVERY agent completion, the orchestrator MUST IMMEDIATELY continue to the next phase. NEVER stop, NEVER wait for user input, NEVER display completion messages that pause execution. The orchestrator runs continuously until portfolio completion or critical failure.
+
 1. **CONFIRM MODE LOCK**: Verify Claude is in Agentic State-Machine Orchestrator mode - NO MODE SWITCHING ALLOWED
 2. **Parse Input Identifier** - determine scope from user input:
    - **EEEE** (e.g., 0003) = Epic scope
@@ -141,16 +281,39 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
    - **Feature Description**: PM_BOOTSTRAP phase (create new Epic from feature description)
    - **All exist**: Continue with implementation/validation phases
 5. **Invoke Sub-Agent** using Task tool with complete file hierarchy context - MAINTAIN MODE LOCK
-6. **Process Return Code** and agent's file hierarchy assessment - NO AUTONOMOUS INTERPRETATION
-7. **Git Workflow Orchestration** - Actively manage git operations:
+6. **Apply Safeguards** - Validate agent response and prevent stuck situations:
+   - **Validate Return Code**: Ensure agent provides explicit, valid return code
+   - **Verify Deliverables**: Confirm all required deliverables completed before accepting SUCCESS codes
+   - **Check Progress**: Validate actual progress matches claimed status
+   - **Handle Missing Codes**: If no return code, prompt agent for explicit status
+   - **Context Monitoring**: Track token usage and prepare for context boundary recovery
+7. **Process Return Code** and agent's file hierarchy assessment - WITH VALIDATION
+8. **Git Workflow Orchestration** - Actively manage git operations:
    - **Branch Creation**: When transitioning FL_PLAN → DEV_IMPLEMENT, invoke Feature Lead to execute `/branch` command
    - **Commit Monitoring**: During DEV_IMPLEMENT, verify Developer is using `/commit` command for code changes
    - **Branch Merge**: When transitioning FL_FINAL → PM_COMPLETE, invoke Feature Lead to merge feature branch and execute `/commit` for documentation
    - **Final Commits**: During PM_COMPLETE, invoke Project Manager to execute `/commit` command for final epic documentation
    - **Error Handling**: If any git operation fails, log error and require agent retry
-8. **State Transition Reporting** - Use **STATE-TRANSITION** template (see Templates section) for all phase transitions
-9. **Update State** across complete task tree based on agent feedback
-10. **Continue Loop** until ALL 6 phases completed OR agent explicitly returns specific error code requiring orchestrator intervention - NEVER EXIT MODE AUTONOMOUSLY
+9. **State Transition Reporting** - Use **STATE-TRANSITION** template (see Templates section) for all phase transitions
+10. **Update State** across complete task tree based on agent feedback
+11. **IMMEDIATE PHASE TRANSITION** - CRITICAL: After processing return code, IMMEDIATELY continue to next phase:
+    - **NO STOPPING**: Do not stop after reporting state transition
+    - **NO WAITING**: Do not wait for user input or commands
+    - **AUTO-INVOKE**: Immediately invoke the next appropriate agent for the next phase
+    - **CONTINUOUS EXECUTION**: Continue orchestration loop until completion or critical failure
+    - **MANDATORY CONTINUATION**: After every agent completion, automatically proceed to next phase
+12. **Auto-Discovery and Continuation** - CRITICAL: Automatically discover and continue with next work:
+    - **Task Completion**: When task completes, automatically discover next task in story
+    - **Story Completion**: When story completes, automatically discover next story in epic
+    - **Epic Completion**: When epic completes, automatically discover next epic in portfolio
+    - **Continuous Loop**: NEVER stop and wait for user input unless explicitly requested
+    - **Update TodoWrite Tasks**: Automatically update task list with discovered next work
+13. **Continue Loop** with auto-continuation until:
+    - Agent returns `SUCCESS_ALL_EPICS_COMPLETE` (natural portfolio completion)
+    - Agent returns `CRITICAL_FAILURE` (error requiring user intervention)
+    - User explicitly requests exit (manual override)
+    - Auto-continue epic cycles: `SUCCESS_CONTINUE_NEXT_EPIC` → restart at PM_BOOTSTRAP
+    - NEVER EXIT MODE AUTONOMOUSLY except for natural portfolio completion
 
 ### State Transitions:
 
@@ -176,8 +339,9 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
     - `MISSING_EPIC_FILES` - Created Epic/Stories, return to orchestrator for next phase
     - `FAILURE_SCOPE_UNCLEAR` - Cannot determine what to bootstrap, need clearer requirements
 - **TodoWrite Phase Completion**: On success, mark PM_BOOTSTRAP as completed and next phase as in_progress
-- Success → Transition based on what was accomplished and what remains
-- Failure → Retry PM_BOOTSTRAP with refined requirements
+- Success → **IMMEDIATELY** transition based on what was accomplished and what remains - NO STOPPING
+- Failure → **IMMEDIATELY** retry PM_BOOTSTRAP with refined requirements - NO STOPPING
+- **ORCHESTRATOR CONTINUATION**: After processing PM return code, IMMEDIATELY invoke next phase agent
 
 **FL_PLAN Phase:**
 - **TodoWrite Phase Tracking**: Mark FL_PLAN as in_progress, PM_BOOTSTRAP as completed
@@ -196,8 +360,9 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
   - **Branch Creation Verification**: Ensure branch was created successfully before proceeding to DEV_IMPLEMENT
   - **Error Handling**: If branch creation fails, log error and retry or escalate
 - **TodoWrite Phase Completion**: On success, mark FL_PLAN as completed and DEV_IMPLEMENT as in_progress
-- Success → Transition based on what was accomplished and what remains
-- Failure → Return to PM_BOOTSTRAP with planning issues
+- Success → **IMMEDIATELY** transition based on what was accomplished and what remains - NO STOPPING
+- Failure → **IMMEDIATELY** return to PM_BOOTSTRAP with planning issues - NO STOPPING
+- **ORCHESTRATOR CONTINUATION**: After processing FL return code, IMMEDIATELY invoke next phase agent
 
 **DEV_IMPLEMENT Phase:**
 - **TodoWrite Phase Tracking**: Mark DEV_IMPLEMENT as in_progress, FL_PLAN as completed
@@ -228,13 +393,16 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
   - **Evidence Required**: Developer must provide evidence of working functionality for each deliverable
   - **Return Policy**: If ANY deliverable is incomplete, return `FAILURE_CONTINUE` until ALL are satisfied
 - **TodoWrite Phase Completion**: On `SUCCESS_TO_QUALITY_ASSURANCE`, mark DEV_IMPLEMENT as completed and QUALITY_ASSURANCE as in_progress
-- Success (`SUCCESS_TO_QUALITY_ASSURANCE`) → Transition to QUALITY_ASSURANCE ONLY after ALL deliverables verified complete
-- Failure (`FAILURE_CONTINUE`) → Stay in DEV_IMPLEMENT, increment iteration
+- Success (`SUCCESS_TO_QUALITY_ASSURANCE`) → **IMMEDIATELY** transition to QUALITY_ASSURANCE ONLY after ALL deliverables verified complete - NO STOPPING
+- Failure (`FAILURE_CONTINUE`) → **IMMEDIATELY** stay in DEV_IMPLEMENT, increment iteration - NO STOPPING
 - **Update Task Tree**: Update task file progress and parent story/epic status
+- **ORCHESTRATOR CONTINUATION**: After processing Developer return code, IMMEDIATELY invoke next phase agent
 - **Task Completion Processing**: Use **TASK-COMPLETION** template (see Templates section) to:
   - Report task completion with progress statistics
   - Determine next action (task → task, task → story, task → epic)
-  - Invoke appropriate next phase based on completion status
+  - **AUTOMATICALLY CONTINUE**: Immediately invoke appropriate next phase - DO NOT STOP
+  - **UPDATE TODOWRITE**: Update task list with discovered next work
+  - **CONTINUOUS EXECUTION**: Never pause for user input unless all work complete
 
 **QUALITY_ASSURANCE Phase:**
 - **TodoWrite Phase Tracking**: Mark QUALITY_ASSURANCE as in_progress, DEV_IMPLEMENT as completed
@@ -250,9 +418,10 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
   - **Return to DEV_IMPLEMENT immediately** if formatting, linting, or tests fail
 - **MANDATORY**: Agent MUST complete full enhanced validation - NO skipping to demonstration phases
 - **TodoWrite Phase Completion**: On `SUCCESS_TO_FL_FINAL`, mark QUALITY_ASSURANCE as completed and FL_FINAL as in_progress
-- Success (`SUCCESS_TO_FL_FINAL`) → Transition to FL_FINAL
-- Failure (`FAILURE_TO_DEV`) → Return to DEV_IMPLEMENT with enhanced Quality Assurance feedback
-- Critical Failure → Escalate to Feature Lead for guidance
+- Success (`SUCCESS_TO_FL_FINAL`) → **IMMEDIATELY** transition to FL_FINAL - NO STOPPING
+- Failure (`FAILURE_TO_DEV`) → **IMMEDIATELY** return to DEV_IMPLEMENT with enhanced Quality Assurance feedback - NO STOPPING
+- Critical Failure → **IMMEDIATELY** escalate to Feature Lead for guidance - NO STOPPING
+- **ORCHESTRATOR CONTINUATION**: After processing QA return code, IMMEDIATELY invoke next phase agent
 
 **FL_FINAL Phase:**
 - **TodoWrite Phase Tracking**: Mark FL_FINAL as in_progress, QUALITY_ASSURANCE as completed
@@ -266,9 +435,10 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
   - **Documentation Verification**: Verify all project documentation and status tracking files are committed
   - **Error Handling**: If merge or commits fail, log error and require retry
 - **TodoWrite Phase Completion**: On `SUCCESS_TO_PM_COMPLETE`, mark FL_FINAL as completed and PM_COMPLETE as in_progress
-- Success (`SUCCESS_TO_PM_COMPLETE`) → Transition to PM_COMPLETE
-- Failure (`FAILURE_TO_QUALITY_ASSURANCE`) → Return to QUALITY_ASSURANCE with business feedback
-- Critical Failure → Escalate to Project Manager
+- Success (`SUCCESS_TO_PM_COMPLETE`) → **IMMEDIATELY** transition to PM_COMPLETE - NO STOPPING
+- Failure (`FAILURE_TO_QUALITY_ASSURANCE`) → **IMMEDIATELY** return to QUALITY_ASSURANCE with business feedback - NO STOPPING
+- Critical Failure → **IMMEDIATELY** escalate to Project Manager - NO STOPPING
+- **ORCHESTRATOR CONTINUATION**: After processing FL return code, IMMEDIATELY invoke next phase agent
 
 **PM_COMPLETE Phase:**
 - **TodoWrite Phase Tracking**: Mark PM_COMPLETE as in_progress, FL_FINAL as completed
@@ -281,15 +451,24 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
   - **Commit Verification**: Verify commits were successful with proper conventional commit format
   - **Error Handling**: If documentation commits fail, log error and require retry
 - **TodoWrite Final Completion**: On success, mark PM_COMPLETE as completed - all 6 phases completed successfully
-- Success → Epic implementation complete
-- Failure → Return to appropriate phase for epic-level issues
+- **Epic Portfolio Analysis**: Project Manager analyzes epic portfolio for continuation
+  - **Epic Discovery**: Scan `docs/DEVELOPMENT_PLAN_AND_PROGRESS/` for unfinished epics
+  - **Priority Assessment**: Identify next highest-priority unfinished epic
+  - **Continuation Decision**: Return appropriate continuation code based on portfolio status
+- **Auto-Continuation Processing**:
+  - Success (`SUCCESS_CONTINUE_NEXT_EPIC`) → **IMMEDIATELY AND AUTOMATICALLY** transition to PM_BOOTSTRAP for next epic - NO STOPPING
+  - Success (`SUCCESS_ALL_EPICS_COMPLETE`) → Portfolio complete - exit orchestration mode
+  - Failure → **IMMEDIATELY** return to appropriate phase for epic-level issues - NO STOPPING
+  - **CRITICAL**: NEVER report "ready for next task" and stop - ALWAYS continue automatically
+- **ORCHESTRATOR CONTINUATION**: After processing PM return code, IMMEDIATELY invoke next phase agent or continue next epic
 
 ## Return Codes:
 
 ### project-manager:
 - `SUCCESS_TO_FL_PLAN` - Epic/Stories complete, ready for task planning
 - `SUCCESS_TO_DEV_IMPLEMENT` - All files exist, ready for implementation
-- `SUCCESS_COMPLETE` - Epic implementation validated at strategic level
+- `SUCCESS_CONTINUE_NEXT_EPIC` - Current epic complete, next epic discovered, continue orchestration
+- `SUCCESS_ALL_EPICS_COMPLETE` - All epics complete, no further work, exit orchestration mode
 - `MISSING_EPIC_FILES` - Created Epic/Stories, return to orchestrator for next phase
 - `FAILURE_EPIC_SCOPE` - Epic scope issues, needs refinement
 - `FAILURE_SCOPE_UNCLEAR` - Cannot determine what to bootstrap, need clearer requirements
@@ -307,7 +486,7 @@ Claude remains in **Agentic State-Machine Orchestrator mode** until:
 ### developer-* (Self-Reflection Discovery):
 All developer agents follow standardized return codes:
 - `SUCCESS_TO_QUALITY_ASSURANCE` - Implementation complete, ready for enhanced Quality Assurance validation
-- `FAILURE_CONTINUE` - Implementation issues, continuing development iteration
+- `FAILURE_CONTINUE` - Implementation issues, continuing development work
 - `PARTIAL_SUCCESS` - Some tasks complete, continuing with remaining work
 - `TIMEOUT_CONTINUE` - Progress update, continuing development
 - `MISSING_TASK_FILES` - Task file missing, return to orchestrator for FL_PLAN
@@ -322,6 +501,13 @@ All developer agents follow standardized return codes:
 - `FAILURE_TO_DEV` - Quality issues found, return to development with enhanced feedback
 - `ENHANCEMENT_REQUIRED` - Quality standards not met, specific improvements needed
 - `CRITICAL_FAILURE` - Major quality issues, escalate to Feature Lead
+
+**QA Return Code Status Handling**:
+- When QA returns `FAILURE_TO_DEV` or `ENHANCEMENT_REQUIRED`:
+  - Task status remains `COMPLETED` (development work was done and committed)
+  - Epic/Story status remains `IN_DEVELOPMENT` (QA iteration cycle required)
+  - Orchestrator returns to DEV_IMPLEMENT phase for task rework/enhancement
+  - Additional development commits do not change the fundamental `COMPLETED` task status
 
 ## Progressive Quality Standards:
 
@@ -438,22 +624,22 @@ All agents receive comprehensive project context:
 - **Task Files** (`docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS.TT - Epic Name - Story Name - Task Name.md`): Updated with implementation details, progress, and completion status
 - **Main Progress** (`docs/DEVELOPMENT_PLAN_AND_PROGRESS.md`): Updated with overall epic progress and state transitions
 
-**Update Responsibilities by Agent:**
-- **Project Manager**: Updates Epic files, Story files, and Main Progress with strategic decisions and business-level status
-- **Feature Lead**: Updates Task files only with business requirements and validation status - notifies Project Manager for story-level updates
-- **Developer**: Focuses solely on technical implementation (NO progress tracking)
-- **Quality Assurance**: Updates Task files with quality validation results and testing outcomes
-- **Orchestrator**: Coordinates progress updates across task tree and manages agent transitions
+**Update Responsibilities by Agent (Hook-Automated):**
+- **Project Manager**: Focuses on strategic decisions and business-level planning (documentation auto-synced by hooks)
+- **Feature Lead**: Focuses on business requirements and validation (task progress auto-synced by hooks)
+- **Developer**: Focuses solely on technical implementation (progress auto-tracked by hooks)
+- **Quality Assurance**: Focuses on quality validation and testing (results auto-documented by hooks)
+- **Orchestrator**: Focuses on high-level coordination (state transitions auto-managed by hooks)
 
-**File Update Frequency**: EVERY status change, progress milestone, and phase transition must be reflected across all relevant files in the task tree.
+**File Update Frequency**: Automatic real-time updates via hook system - agents only need to update TodoWrite status.
 
-## Orchestrator Responsibilities:
+## Orchestrator Responsibilities (Hook-Automated):
 
-**CRITICAL**: The develop orchestrator handles these responsibilities that agents do NOT:
-- **Progress Coordination**: Coordinates progress updates across all task tree files
-- **State Management**: Maintains agentic state section in `docs/DEVELOPMENT_PLAN_AND_PROGRESS.md`
-- **Agent Coordination**: Manages transitions between agents and handles return codes
-- **File Tree Consistency**: Ensures all Epic/Story/Task files remain synchronized
+**CRITICAL**: The develop orchestrator handles these high-level responsibilities (with hook automation):
+- **Agent Delegation**: Manages transitions between agents and handles return codes (quality gates auto-validated by hooks)
+- **Workflow Coordination**: Orchestrates the 6-phase state machine flow (state transitions auto-tracked by hooks)
+- **Return Code Processing**: Interprets agent responses and determines next actions (documentation auto-synced by hooks)
+- **Epic Scope Management**: Handles epic-level workflow decisions and completion processing
 - **Git Workflow Orchestration**: Actively manages and verifies git operations across all phases
   - **Branch Creation Orchestration**: Invokes Feature Lead to execute `/branch` commands during transitions
   - **Commit Verification**: Monitors and verifies that agents are actually executing `/commit` commands
@@ -468,14 +654,68 @@ All agents receive comprehensive project context:
 - **Multiple Commits**: May invoke `/commit` command multiple times during task iterations
 - **No Branch Management**: Does not create, merge, or delete branches - handled by Feature Lead
 
-## Error Handling:
+## Error Handling and Orchestrator Safeguards:
 
+### Core Error Handling:
 - **Sub-Agent Failures**: Capture error, add to feedback, retry appropriate phase
 - **State Corruption**: Reset to last known good state with progress preservation
-- **Infinite Loops**: Maximum iteration limits per phase (5 dev iterations, 3 Quality Assurance iterations, 2 FL iterations)
+- **Quality-Based Progression**: Agents continue until deliverables meet required quality standards
 - **Critical Failures**: Escalation paths to appropriate senior agent
 - **Quality Gate Failures**: Automatic return to previous phase with enhanced feedback
 - **Epic Scope Changes**: Automatic escalation to Project Manager for strategic decisions
+
+### Orchestrator Safeguards (Anti-Stuck Mechanisms):
+
+#### **1. Agent Response Validation**
+- **Missing Return Codes**: If agent completes without proper return code, orchestrator prompts for explicit status
+- **Ambiguous Responses**: Orchestrator requests clarification on unclear agent responses
+- **Incomplete Handoffs**: Validate all required deliverables before accepting agent completion
+
+#### **2. Progress Verification Checkpoints**
+- **Before Phase Transitions**: Verify previous phase actually completed with evidence
+- **Deliverable Confirmation**: Confirm all task requirements met before moving to next phase
+- **Documentation Sync**: Ensure task documentation reflects current implementation status
+
+#### **3. Context Management**
+- **Token Usage Monitoring**: Track agent token consumption and provide continuation guidance
+- **Session State Recovery**: Maintain orchestrator state across context boundaries
+- **Graceful Degradation**: Handle context limits with proper state preservation
+
+#### **4. Timeout and Recovery Mechanisms**
+- **Agent Responsiveness**: Detect non-responsive agents and provide recovery options
+- **State Persistence**: Save orchestrator state before each agent invocation
+- **Resume Capability**: Allow orchestration to resume from last known good state
+
+#### **5. Validation Gates**
+- **Phase Completion Verification**: Validate each phase meets its quality gates before progression
+- **Return Code Enforcement**: Require explicit, valid return codes from all agents
+- **Deliverable Evidence**: Demand concrete evidence of deliverable completion
+
+### Recovery Procedures:
+
+#### **Stuck Agent Recovery**
+```
+1. Detect: Agent running without progress updates
+2. Prompt: Request explicit status and deliverable completion evidence
+3. Validate: Verify all requirements met or identify missing work
+4. Decide: Continue current phase or escalate to next phase based on evidence
+```
+
+#### **Missing Return Code Recovery**
+```
+1. Detect: Agent completed without valid return code
+2. Prompt: "Please provide explicit return code: SUCCESS_TO_[NEXT_PHASE] or FAILURE_CONTINUE"
+3. Validate: Confirm return code matches actual deliverable completion status
+4. Proceed: Process validated return code for state transition
+```
+
+#### **Context Boundary Recovery**
+```
+1. Detect: Approaching context limits during agent execution
+2. Save: Preserve current orchestrator state and agent progress
+3. Resume: Restart orchestration with saved state and continuation context
+4. Validate: Confirm all deliverables and progress maintained across boundary
+```
 
 ## Git Workflow Integration:
 
@@ -791,10 +1031,28 @@ EPIC PROGRESS: [COMPLETED_STORIES]/[TOTAL_STORIES] stories completed ([EPIC_PERC
 [NEXT_PHASE_INVOCATION]
 ```
 
+### EPIC-CONTINUATION:
+
+```template
+EPIC [EEEE] STRATEGIC COMPLETION ✅ - [EPIC_NAME]
+PORTFOLIO ANALYSIS: [COMPLETED_EPICS] of [TOTAL_EPICS] epics completed ([PORTFOLIO_PERCENTAGE]%)
+
+NEXT EPIC DISCOVERY:
+- Epic [NEXT_EEEE]: [NEXT_EPIC_NAME] ([STATUS])
+- Priority: [HIGH|MEDIUM|LOW]
+- Estimated Scope: [X] stories estimated
+
+[CONTINUATION_TYPE]: [CONTINUATION_ACTION]
+
+[NEXT_PHASE_INVOCATION]
+```
+
 **Next Action Types:**
 - `CONTINUING TO NEXT STORY TASK` - More tasks remain in current story
 - `STORY [EEEE.SS] COMPLETED - CONTINUING TO NEXT STORY` - Current story finished, next story available
 - `EPIC [EEEE] COMPLETED - ALL STORIES FINISHED` - Entire epic completed
+- `EPIC [EEEE] COMPLETED - CONTINUING TO NEXT EPIC` - Current epic finished, next epic discovered
+- `ALL EPICS COMPLETED - PORTFOLIO FINISHED` - All epics completed, orchestration complete
 
 ## Template Usage Examples:
 
@@ -872,6 +1130,61 @@ STORY: 0001.02 - Login Implementation
 TASK: 0001.02.02 - Email Validation Logic
 
 Developer completed 2 of 3 tasks in current story. Continuing with remaining task implementation while maintaining BASE technical standards.
+```
+
+### Epic Continuation
+
+Epic → Next Epic Transition:
+```
+EPIC 0001 STRATEGIC COMPLETION ✅ - User Authentication System
+PORTFOLIO ANALYSIS: 1 of 3 epics completed (33.3%)
+
+NEXT EPIC DISCOVERY:
+- Epic 0002: Payment Processing System (NOT_STARTED)
+- Priority: HIGH
+- Estimated Scope: 5 stories estimated
+
+EPIC 0001 COMPLETED - CONTINUING TO NEXT EPIC: 0002 - Payment Processing System
+
+INVOKING PM_BOOTSTRAP PHASE for Epic 0002 (Auto-continuation)
+```
+
+Portfolio Completion:
+```
+EPIC 0003 STRATEGIC COMPLETION ✅ - Notification System
+PORTFOLIO ANALYSIS: 3 of 3 epics completed (100.0%)
+
+PORTFOLIO STATUS: ALL EPICS COMPLETED
+
+ALL EPICS COMPLETED - PORTFOLIO FINISHED
+
+ORCHESTRATION COMPLETE: All epics implemented with progressive quality standards
+```
+
+Epic Continuation State Transition:
+```
+PHASE 6: ORCHESTRATION
+
+STATE: PM_COMPLETE -> (SUCCESS_CONTINUE_NEXT_EPIC) → PM_BOOTSTRAP
+
+COMPLETED EPIC: 0001 - User Authentication System
+NEXT EPIC: 0002 - Payment Processing System
+PORTFOLIO: 1/3 epics complete (33.3%)
+
+Project Manager completed strategic validation of Epic 0001 and discovered Epic 0002 requires implementation. Auto-continuing orchestration with PM_BOOTSTRAP phase for next epic.
+```
+
+Portfolio Completion State Transition:
+```
+PHASE 6: ORCHESTRATION
+
+STATE: PM_COMPLETE -> (SUCCESS_ALL_EPICS_COMPLETE) → ORCHESTRATION_COMPLETE
+
+COMPLETED EPIC: 0003 - Notification System  
+PORTFOLIO: 3/3 epics complete (100.0%)
+FINAL STATUS: All epics implemented
+
+Project Manager completed strategic validation of final epic. All epics in portfolio have been successfully implemented with progressive quality standards. Orchestration naturally complete.
 ```
 
 ## Template Usage Guidelines:

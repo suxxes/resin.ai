@@ -7,7 +7,11 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "~/.claude/hooks/sync-todowrite.sh"
+						"command": "hooks/run-orchestrator.sh update-progress"
+					},
+					{
+						"type": "command",
+						"command": "hooks/run-orchestrator.sh update-progress-documentation"
 					}
 				]
 			},
@@ -16,7 +20,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "~/.claude/hooks/log-task-coordination.sh"
+						"command": "hooks/run-orchestrator.sh validate-transition"
 					}
 				]
 			}

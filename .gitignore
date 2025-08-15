@@ -1,7 +1,10 @@
 # Ignore everything by default
 *
 
-# Allow only agents, commands and CLAUDE.md
+# Allow some
+!.claude
+!resinai
+!resinai/**
 !agents/
 !agents/**
 !commands/
@@ -14,3 +17,22 @@
 !CLAUDE.md
 !.gitignore
 !settings.json
+
+# Python-specific ignores within allowed directories
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/*.so
+**/.DS_Store
+**/*.log
+**/*.backup
+**/*.bak
+**/.cache/
+**/.pytest_cache/
+**/.coverage
+**/.env
+**/.venv
+**/venv/
+**/env/
+**/.idea/
+**/.vscode/

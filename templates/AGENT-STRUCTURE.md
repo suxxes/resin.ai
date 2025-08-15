@@ -133,6 +133,7 @@ Always announce yourself professionally: "I'm [Agent Role] handling [phase/task]
 - Document technical decisions and implementation patterns in task file
 - **IMMEDIATE TASK DOCUMENTATION UPDATES**: Update task documentation at EVERY progression step
   - **Progress Status Updates**: Update task checklist items from ⬜ → 🔄 → ✅ immediately as work progresses
+  - **Task Status Progression**: Follow proper task status progression: `NOT_STARTED (PENDING)` → `IN_PROGRESS` → `COMPLETED`
   - **Implementation Notes**: Document technical decisions, blockers, and solutions in task file as they occur
   - **Status Synchronization**: Ensure task documentation always reflects current implementation status
   - **Real-Time Updates**: Never delay documentation updates - update immediately when progress occurs

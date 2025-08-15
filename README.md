@@ -20,6 +20,34 @@ This project implements a sophisticated multi-agent orchestration system for com
 - **Deliverable-Focused Validation**: Comprehensive deliverable completion verification preventing partial implementations
 - **Pure Function Architecture**: All developer agents implement modular, functional programming principles with ≤250 lines per file
 - **LESSONS_LEARNED Knowledge Base**: Continuous technical knowledge capture and sharing across development cycles
+- **Hook-Based Automation**: 3 essential hooks automate state management, documentation sync, and workflow validation
+
+### Status Progression System:
+
+The orchestrator implements a granular status progression system that provides clear visibility into workflow phases:
+
+#### **Epic Status Progression**:
+- **`NOT_STARTED`** → **`IN_PROGRESS (PLANNING)`** → **`READY_FOR_DEVELOPMENT`** → **`IN_DEVELOPMENT`** → **`COMPLETED`**
+
+#### **Story Status Progression**:
+- **`NOT_STARTED`** → **`IN_PROGRESS (PLANNING)`** → **`READY_FOR_DEVELOPMENT`** → **`IN_DEVELOPMENT`** → **`COMPLETED`**
+
+#### **Task Status Progression**:
+
+**Development Status**: **`NOT_STARTED (PENDING)`** → **`IN_PROGRESS`** → **`COMPLETED`**
+**QA Validation Status**: **`QA_PENDING`** → **`QA_IN_PROGRESS`** → **`QA_PASSED`** / **`QA_FAILED`**
+
+**Important**: Task development and QA validation are tracked separately. Development `COMPLETED` status means code is committed, regardless of QA validation. QA failures trigger orchestrator iteration cycles without reverting development completion status.
+
+#### **Phase-to-Status Mapping**:
+- **PM_BOOTSTRAP**: Epic `NOT_STARTED` → `IN_PROGRESS (PLANNING)`
+- **FL_PLAN**: Epic/Story `IN_PROGRESS (PLANNING)` → `READY_FOR_DEVELOPMENT`, Task → `NOT_STARTED (PENDING)`
+- **DEV_IMPLEMENT**: Epic/Story `READY_FOR_DEVELOPMENT` → `IN_DEVELOPMENT`, Task `NOT_STARTED (PENDING)` → `IN_PROGRESS` → `COMPLETED`
+- **QUALITY_ASSURANCE**: Epic/Story `IN_DEVELOPMENT` (validation in progress)
+- **FL_FINAL**: Epic/Story `IN_DEVELOPMENT` (business validation)
+- **PM_COMPLETE**: Epic/Story `IN_DEVELOPMENT` → `COMPLETED`
+
+This system provides stakeholders with clear understanding of whether work is in planning, ready for development, actively being developed, or completed.
 
 ### Technical Stacks:
 
@@ -155,6 +183,10 @@ flowchart TD
     J --> M[Git Commit - Story Milestone]
     K --> N[Git Commit - Epic Milestone]
 ```
+
+## Hook-Based Automation System
+
+The system implements essential hooks that automate orchestrator mechanical tasks. See [Hook System Documentation](resinai/README.md) for comprehensive technical details.
 
 ---
 
@@ -480,10 +512,10 @@ Each agent file contains:
 /develop 0003                       # Enter orchestrator mode for Epic 0003
 # Claude now locked in orchestrator mode until completion or user exit
 
-# Git workflow automatically handled:
+# Git workflow with hook automation:
 # - Orchestrator uses /branch slash command to create feature branch before each task
 # - Developer uses /commit slash command during implementation (auto-generates conventional commits)
-# - Orchestrator uses /commit slash command for final documentation updates
+# - Hooks automatically sync documentation updates via hook automation
 # - Orchestrator merges feature branch into main using standard git merge commands
 # - Story/Epic milestone commits using /commit slash command
 ```
@@ -493,7 +525,7 @@ Each agent file contains:
 /framework               # Enter Framework Mode for new project creation
 # Complete greenfield project planning and architecture design
 /develop 0001           # Begin implementation of first epic from framework plan
-# Automatic commits throughout implementation process
+# Hook automation triggers throughout implementation process
 ```
 
 ### Research and Planning
@@ -527,7 +559,7 @@ Each agent file contains:
 
 /develop "Build responsive dashboard with data visualization charts"
 # Complex UI feature that triggers appropriate specialist selection
-# Complete implementation with progressive quality standards
+# Complete implementation with progressive quality standards and hook automation
 ```
 
 ## Development Templates

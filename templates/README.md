@@ -96,6 +96,15 @@ Complete structural template for command instructions including:
 - Templates use consistent placeholder formatting
 - Templates follow established naming conventions
 
+### Status Progression Standards
+- **Epic Status Progression**: `NOT_STARTED` → `IN_PROGRESS (PLANNING)` → `READY_FOR_DEVELOPMENT` → `IN_DEVELOPMENT` → `COMPLETED`
+- **Story Status Progression**: `NOT_STARTED` → `IN_PROGRESS (PLANNING)` → `READY_FOR_DEVELOPMENT` → `IN_DEVELOPMENT` → `COMPLETED`
+- **Task Status Progression**: `NOT_STARTED (PENDING)` → `IN_PROGRESS` → `COMPLETED`
+- **QA Iteration Handling**: Task `COMPLETED` status persists through QA failure cycles - orchestrator handles iteration without status reversion
+- **Visual Task Indicators**: ⬜ (pending) → 🔄 (in progress) → ✅ (completed)
+- **Phase Mapping**: Each orchestrator phase maps to specific status transitions
+- **Status Validation**: Quality Assurance validates proper status progression compliance
+
 ## Development Process
 
 ### For Agents:

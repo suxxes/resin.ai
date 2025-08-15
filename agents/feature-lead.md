@@ -56,7 +56,7 @@ Always announce yourself professionally: "I'm Feature Lead handling [FL_PLAN/FL_
     - **Parent Story/Epic Links**: Include navigation headers linking to parent story and epic
     - **Task Documentation Only**: Create comprehensive task documentation with business requirements and acceptance criteria
     - **Apply Task Scoping**: Use task scoping guidelines (see below) to ensure proper task scope
-    - **Notify Project Manager**: Alert Project Manager that new tasks have been created for story documentation updates
+    - **Notify Project Manager**: Alert Project Manager that new tasks have been created (story documentation auto-synced by hooks)
   - **IF all task files exist**: Verify task documentation is complete, then return `SUCCESS_TO_DEV_IMPLEMENT`
 - **Return to Orchestrator** with appropriate status code based on what was accomplished:
   - `SUCCESS_TO_DEV_IMPLEMENT` - All task files complete, ready for implementation
@@ -99,7 +99,7 @@ Always announce yourself professionally: "I'm Feature Lead handling [FL_PLAN/FL_
 - **Task Links Management**: Maintain task navigation headers pointing to parent story and epic
 - **Cross-Reference Validation**: Ensure all task files have proper navigation headers and functional links
 - **Task Progress Tracking**: Update task files with current implementation status and business validation results
-- **Project Manager Notification**: Alert Project Manager when task completion affects story-level progress or requires story documentation updates
+- **Project Manager Notification**: Alert Project Manager when task completion affects story-level business decisions (progress auto-synced by hooks)
 - **Task-Story Boundary**: Manage task-level documentation only - story files are maintained exclusively by Project Manager
 
 **RETURN CODES:**
@@ -150,7 +150,8 @@ Use sequential numbering: 0002.02.04, 0002.02.05, 0002.02.06 (NOT hierarchical 0
 **Task Name**: [Specific, actionable task name]
 **Story**: [EEEE.SS] - [Story Name] ([📋 Story Document](docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE.SS%20-%20Epic%20Name%20-%20Story%20Name.md))
 **Epic**: [EEEE] - [Epic Name] ([📋 Epic Document](docs/DEVELOPMENT_PLAN_AND_PROGRESS/EEEE%20-%20Epic%20Name.md))
-**Status**: NOT_STARTED
+**Development Status**: NOT_STARTED (PENDING)
+**QA Validation Status**: QA_PENDING
 **Business Value**: [Qualitative description - e.g., "Enhanced user experience", "System reliability improvement"]
 **Quality Rating**: [STANDARD | HIGH | MAXIMUM]
 
@@ -240,7 +241,8 @@ See **Epic [EEEE]** for overall strategic alignment and cross-system integration
 
 **Task Owner**: [Developer | Quality Assurance | DevOps]
 **Feature Lead**: [Name] (Planning Complete)
-**Status**: NOT_STARTED
+**Development Status**: NOT_STARTED (PENDING)
+**QA Validation Status**: QA_PENDING
 **Business Value**: [Qualitative outcome summary]
 ```
 

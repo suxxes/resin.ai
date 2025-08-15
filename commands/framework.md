@@ -224,7 +224,7 @@ Each ADR file contains:
 
 **Epic ID**: [EEEE]  
 **Epic Name**: [Specific, strategic epic name]  
-**Status**: [NOT_STARTED | IN_PROGRESS | COMPLETE] - [Progress description]  
+**Status**: [NOT_STARTED | IN_PROGRESS (PLANNING) | READY_FOR_DEVELOPMENT | IN_DEVELOPMENT | COMPLETED] - [Progress description]  
 **Strategic Value**: [Business value quantification and description]  
 **Quality Standard**: [Quality compliance level and approach]
 **Completion Date**: [YYYY-MM-DD if completed]  

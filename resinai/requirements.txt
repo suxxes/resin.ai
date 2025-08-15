@@ -1,0 +1,68 @@
+# ResIn.AI Orchestrator CLI - Production Dependencies
+# Enterprise-grade CLI framework dependencies for multi-agent orchestration automation
+# Built with modern Python CLI libraries for superior developer experience
+
+# ==============================================================================
+# CORE CLI FRAMEWORK - Required for all functionality
+# ==============================================================================
+
+# Primary CLI Framework
+typer[all]==0.16.0          # Modern CLI framework with type hints, auto-completion, and Rich integration
+                            # [all] includes: click, rich, shellingham, colorama
+
+# Rich Terminal UI
+rich==14.0.0                # Rich text formatting, progress bars, tables, and beautiful terminal output
+                            # Provides enhanced UX with colors, formatting, and interactive elements
+
+# ==============================================================================
+# FRAMEWORK DEPENDENCIES - Auto-installed with typer[all] but listed for clarity
+# ==============================================================================
+
+# Core Dependencies (automatically installed with typer[all])
+# click>=8.1.7              # Click framework underlying Typer (auto-installed)
+# shellingham>=1.3.0        # Shell detection for auto-completion (auto-installed)  
+# colorama>=0.4.3           # Cross-platform colored terminal text (auto-installed on Windows)
+# typing-extensions>=3.7.4  # Type hints support for older Python versions (auto-installed)
+
+# ==============================================================================
+# OPTIONAL DEVELOPMENT DEPENDENCIES
+# ==============================================================================
+# Uncomment these lines for development and testing:
+
+# Testing Framework
+# pytest==8.4.1              # Modern testing framework with fixtures and parametrization
+# pytest-typer==0.0.14       # Typer-specific testing utilities and CLI testing support
+# pytest-cov==6.0.0          # Coverage reporting for test quality measurement
+
+# Development Tools  
+# mypy==1.13.0               # Static type checking for Python code quality
+# black==24.10.0             # Code formatting for consistent style
+# isort==5.13.2              # Import sorting for clean module organization
+# flake8==7.1.1              # Linting for code quality enforcement
+
+# Documentation
+# mkdocs==1.6.1              # Documentation generation from markdown
+# mkdocs-material==9.5.39    # Material theme for professional documentation
+
+# ==============================================================================
+# INSTALLATION NOTES
+# ==============================================================================
+# 
+# Production Installation:
+#   pip install -r requirements.txt
+#
+# Development Installation:
+#   1. Uncomment development dependencies above
+#   2. pip install -r requirements.txt
+#   3. Run: python3 setup.py to verify installation
+#
+# Version Compatibility:
+#   - Python 3.8+ required
+#   - Tested on Python 3.8, 3.9, 3.10, 3.11, 3.12
+#   - Compatible with Windows, macOS, Linux
+#
+# Dependency Rationale:
+#   - typer[all]: Complete CLI framework with all features enabled
+#   - rich: Enhanced terminal output for professional user experience  
+#   - Minimal dependencies for production deployment efficiency
+#   - Development dependencies optional to reduce production footprint
