@@ -1,30 +1,30 @@
-# Dry Run - Orchestration Test Mode
+# Dry Run - Orchestration test mode
 
-<!-- Updated: 2025-09-28 00:00:00 UTC -->
+<!-- Updated: 2025-10-13 17:57:30 UTC -->
 
-Enables simulation mode for actual orchestration commands. When active, all commands execute their real flows but with simulated subagent responses instead of actual delegations.
+Enables simulation mode for orchestration commands. When active, all commands execute their real flows but with simulated agent responses instead of actual delegations. Supports testing both work orchestration and context enrichment flows.
 
 ## USAGE
-- `/dryrun on` - Enable simulation mode
-- `/dryrun off` - Disable simulation mode
-- `/dryrun status` - Check current simulation mode
+- `/orchestrator:dryrun on` - Enable simulation mode
+- `/orchestrator:dryrun off` - Disable simulation mode
+- `/orchestrator:dryrun status` - Check current simulation mode
 
 ### With Simulation Mode Enabled
 Execute actual commands which will use simulated responses:
-- `/work` - Runs actual work orchestration with simulated subagents
-- `/work 0001` - Runs epic orchestration with simulated responses
-- `/plan "Build feature"` - Runs plan orchestration with simulated responses
+- `/orchestrator:work` - Runs work orchestration with simulated agents
+- `/orchestrator:work 0001` - Runs epic orchestration with simulated responses
+- `/orchestrator:plan "Build feature"` - Runs plan orchestration with simulated responses
 
 ### Examples
 ```
-/dryrun on
+/orchestrator:dryrun on
 Simulation mode: ENABLED
-All subagent delegations will be simulated
+All agent delegations will be simulated
 
-/work "Fix authentication bug"
+/orchestrator:work "Fix authentication bug"
 [Executes actual work command with simulated responses]
 
-/dryrun off
+/orchestrator:dryrun off
 Simulation mode: DISABLED
 Normal operation restored
 ```
@@ -32,16 +32,50 @@ Normal operation restored
 ## CRITICAL REQUIREMENTS
 - **MUST** set global SIMULATION_MODE flag when enabled
 - **MUST** execute actual command flows (work, plan, etc.)
-- **MUST** intercept subagent delegations when in simulation mode
-- **MUST** use standardized return codes from RETURN-CODES.md
-- **MUST** provide realistic simulated responses with proper additional information
+- **MUST** intercept agent delegations when in simulation mode
+- **MUST** use standardized return codes from `plugin:orchestrator:resources://STATE-MACHINE/RETURN-CODES.md`
+- **MUST** provide realistic simulated responses with proper structure
 
 ## CRITICAL RESTRICTIONS
 - **NEVER** create actual files when in simulation mode
-- **NEVER** invoke real subagents when in simulation mode
+- **NEVER** invoke real agents when in simulation mode
 - **NEVER** modify existing files when in simulation mode
 - **NEVER** make git commits when in simulation mode
 - **NEVER** skip any orchestration steps
+
+## REPORTING WITH TEMPLATES
+
+### Use Existing Report Templates
+
+All reporting in dry run mode **MUST** use existing templates:
+
+#### State Transitions
+```
+Read `plugin:orchestrator:resources://TEMPLATE/REPORT/STATE-TRANSITION.md`
+```
+Fill placeholders:
+- `{FROM_STATE}`, `{TO_STATE}`, `{RETURN_CODE}`
+- `{EPIC_NAME}`, `{STORY_NAME}`, `{TASK_NAME}`
+- `{PHASE_ACCOMPLISHMENT_DESCRIPTION}`
+- `{LOOP_INDICATORS}`, `{PROGRESS_PERCENTAGE}`
+
+#### Agent Delegation
+```
+Read `plugin:orchestrator:resources://TEMPLATE/REPORT/AGENT-DELEGATION.md`
+```
+Fill placeholders:
+- `{AGENT_NAME}`, `{WORK_IDENTIFIER}`
+- `{DELEGATION_TYPE}`, `{QUALITY_STANDARDS}`
+- `{PROVIDED_CONTEXT}`, `{EXPECTED_OUTPUTS}`
+
+#### Iteration Feedback
+```
+Read `plugin:orchestrator:resources://TEMPLATE/REPORT/ITERATION-FEEDBACK.md`
+```
+Fill placeholders:
+- `{WORK_IDENTIFIER}`, `{CURRENT_STATE}`
+- `{ITERATION_NUMBER}`, `{MAX_ITERATIONS}`
+- `{FAILURE_ANALYSIS}`, `{SPECIFIC_FIXES_REQUIRED}`
 
 ## IMPLEMENTATION
 
@@ -50,81 +84,161 @@ When `/dryrun on` is executed:
 1. Set global `SIMULATION_MODE = true`
 2. All subsequent commands check this flag
 3. When `SIMULATION_MODE = true`:
-   - Subagent Task tool calls are intercepted
-   - Instead of invoking subagent, return simulated response
+   - Agent Task tool calls are intercepted
+   - Instead of invoking agent, return simulated response
    - All other operations execute normally
 
 ### Integration Points
 Commands that support simulation mode:
 - `/work` - All orchestration levels
 - `/plan` - All planning scopes
-- Any command that uses subagent delegation
+- Any command that uses agent delegation
+
+### Context Enrichment Simulation
+
+When simulating context enrichment flow:
+
+1. **Question Phase** - Simulate user responses to requirements questions
+2. **Validation Phase** - Confirm simulated requirements
+3. **Documentation Phase** - Generate simulated enriched context ADR
+4. **Delegation Phase** - Pass simulated enriched context to next agent
+
+#### Simulated Requirements Questionnaire Flow
+
+```
+SIMULATING: Requirements Discovery
+
+Loading questionnaire template: QUESTIONNAIRE.md (PROJECT level)
+
+Question 1: Platform & Deployment
+Simulated Answer: Web application, cloud deployment on AWS
+Validated: ✓
+
+Question 2: Technology Preferences
+Simulated Answer: React, TypeScript, Node.js, PostgreSQL
+Validated: ✓
+
+[... additional questions ...]
+
+VALIDATION CHECKLIST
+✓ Technical Requirements captured
+✓ Team Context documented
+✓ Assumptions recorded
+
+GENERATING: Enriched Context ADR
+Format: Architecture Decision Record
+Content: Validated requirements + documented assumptions
+Status: Ready for delegation
+```
+
+#### Simulated Enriched Context Structure
+
+```
+SIMULATED ENRICHED CONTEXT
+
+**Technical Requirements**:
+- Platform: Web application (React/TypeScript)
+- Deployment: AWS (ECS, RDS PostgreSQL)
+- Integration: Auth0 for authentication, Stripe for payments
+- Performance: Sub-200ms response time, 1000 concurrent users
+- Security: SOC2 compliance, PII encryption
+
+**Documented Assumptions** (ADR format):
+- Modern web stack with TypeScript
+- Cloud-native architecture
+- Standard security practices
+- Comprehensive testing coverage
+
+**Enrichment Status**: COMPLETE
+**Validation**: All requirements captured and validated
+**Next Phase**: Pass to project-manager for epic planning
+```
 
 ### How It Works
-1. User runs `/dryrun on`
-2. User runs actual command like `/work 0001.02.03`
+1. User runs `/orchestrator:dryrun on`
+2. User runs actual command like `/orchestrator:work 0001.02.03` or `/orchestrator:plan "New feature"`
 3. Command executes normally through all phases
-4. When reaching subagent delegation:
+4. When reaching agent delegation or requirements questions:
    - Check `if SIMULATION_MODE == true`
-   - Skip actual Task tool invocation
+   - Skip actual Task tool invocation or user interaction
    - Generate appropriate simulated response
-   - Continue with normal flow using simulated response
+   - Continue with normal flow using simulated data
 5. All state transitions, reports, and TodoWrite updates execute normally
-6. No actual files/code/documentation created
+6. Use existing report templates for all output
+7. No actual files/code/documentation created
 
 ## SIMULATION RESPONSES
 
-### Mock Data Patterns
-When in simulation mode, use these patterns:
+### Manager Agent Responses (with Enriched Context)
 
-#### Epic Level
+#### Product Manager (PROJECT level)
 ```
-Epic 0001: User Authentication System
-Stories:
-  0001.01: User Registration Flow
-  0001.02: Login and Session Management
-  0001.03: Password Recovery System
-```
-
-#### Story Level
-```
-Story 0001.01: User Registration Flow
-Tasks:
-  0001.01.01: Create registration form UI
-  0001.01.02: Implement email validation
-  0001.01.03: Add password strength checker
-  0001.01.04: Create user database schema
-  0001.01.05: Implement registration API
-```
-
-#### Task Level
-```
-Task 0001.01.01: Create registration form UI
-Type: Frontend Development
-Tech Stack: React, TypeScript, TailwindCSS
-Complexity: Medium
-```
-
-### Simulated Subagent Responses
-
-#### Planning Specialist (INIT states)
-```
-SIMULATED RESPONSE: Planning Specialist
+SIMULATED RESPONSE: Product Manager
 Return Code: SUCCESS
-Summary: Successfully created work breakdown structure
+Summary: Project architecture and epics defined
+
+Enriched Context Used: YES
+- Technical requirements validated
+- Assumptions documented in ADR format
+- No redundant questioning required
+
 Deliverables:
-- 3 stories identified and documented
-- 15 total tasks planned with specifications
-- Dependencies mapped between tasks
-- Acceptance criteria defined for all items
-Validation: All stories have clear scope and requirements
+- docs/OVERVIEW.md created
+- docs/ARCHITECTURE.md created
+- docs/TECH-STACK.md created
+- docs/DEVELOPMENT-PLAN.md created
+- 3 epics identified and documented
+
+Validation: All project documentation complete
 ```
 
-#### Developer (WORK states) - Success Case
+#### Project Manager (EPIC level)
+```
+SIMULATED RESPONSE: Project Manager
+Return Code: SUCCESS
+Summary: Epic broken down into stories
+
+Enriched Context Used: YES
+- Epic requirements from enriched context
+- Scope boundaries respected
+- Dependencies identified
+
+Deliverables:
+- 5 stories created for Epic 0001
+- Story objectives defined
+- Story dependencies mapped
+- Epic updated with story references
+
+Validation: All stories have clear scope
+```
+
+#### Feature Manager (STORY level)
+```
+SIMULATED RESPONSE: Feature Manager
+Return Code: SUCCESS
+Summary: Story decomposed into tasks
+
+Enriched Context Used: YES
+- Story requirements from enriched context
+- Technical approach validated
+- Implementation sequence planned
+
+Deliverables:
+- 7 tasks created for Story 0001.01
+- Task specifications complete
+- Technical dependencies identified
+- Story updated with task references
+
+Validation: All tasks are implementable
+```
+
+### Developer Responses
+
+#### Success Case
 ```
 SIMULATED RESPONSE: Developer (React/TypeScript)
 Return Code: SUCCESS
-Summary: Registration form UI implemented successfully
+Summary: Implementation completed successfully
 Deliverables:
 - Created RegistrationForm.tsx component
 - Added form validation logic
@@ -133,7 +247,7 @@ Deliverables:
 Validation: All linting and type checks passed
 ```
 
-#### Developer (WORK states) - Partial Case
+#### Partial Case
 ```
 SIMULATED RESPONSE: Developer (Node.js/Express)
 Return Code: PARTIAL
@@ -148,7 +262,9 @@ Progress: 3/5 tasks (60%)
 Reason: Complex session logic requires additional design input
 ```
 
-#### QA Specialist (TEST states) - Failure Case
+### QA Specialist Responses
+
+#### Failure Case
 ```
 SIMULATED RESPONSE: QA Specialist
 Return Code: FAILURE
@@ -161,7 +277,7 @@ Blockers:
 Suggestion: Fix email validation edge case and add missing tests
 ```
 
-#### QA Specialist (TEST states) - Success Case
+#### Success Case
 ```
 SIMULATED RESPONSE: QA Specialist
 Return Code: SUCCESS
@@ -174,79 +290,60 @@ Deliverables:
 Validation: Code quality score A, no security issues found
 ```
 
-#### Validation Specialist (DONE states)
-```
-SIMULATED RESPONSE: Validation Specialist
-Return Code: SUCCESS
-Summary: Work item meets all acceptance criteria
-Deliverables:
-- Business requirements validated
-- Technical criteria satisfied
-- Integration tests passing
-- Documentation complete
-Validation: Ready for production deployment
-```
-
-#### Timeout Scenario
-```
-SIMULATED RESPONSE: Developer (Python/Django)
-Return Code: TIMEOUT
-Last Success: Completed 4/10 API endpoints
-Timeout At: 300 seconds elapsed
-Remaining: 6 endpoints, approximately 180 seconds
-Checkpoint: Can resume from endpoint #5 (/api/users/profile)
-```
-
-#### Missing Dependencies Scenario
-```
-SIMULATED RESPONSE: Developer (Java/Spring)
-Return Code: MISSING
-Missing Items:
-- Database schema: schema.sql
-- API specification: openapi.yaml
-- Environment config: application.properties
-Searched: src/main/resources/, docs/, config/
-Required For: Database setup and API implementation
-Alternatives: Could generate from existing code or use templates
-```
-
-## SUBAGENT INTERCEPTION
+## AGENT INTERCEPTION
 
 ### When SIMULATION_MODE is Active
 
-In any command, when reaching subagent delegation:
+In any command, when reaching agent delegation:
 
 ```pseudocode
 if SIMULATION_MODE == true:
-    # Instead of: Task(subagent_type=developer, prompt=...)
+    # Read delegation template
+    delegation_report = fill_template(
+        "`plugin:orchestrator:resources://TEMPLATE/REPORT/AGENT-DELEGATION.md`",
+        agent_name=detected_type,
+        work_identifier=work_id,
+        delegation_type=state,
+        ...
+    )
+
+    # Output delegation report
+    print(delegation_report)
+
+    # Generate simulated response
     response = generate_simulated_response(
-        subagent_type=detected_type,
+        agent_type=detected_type,
         state=current_state,
         iteration=current_iteration,
         context=delegation_context
     )
+
+    # Output simulated response
+    print("SIMULATED RESPONSE:", response)
 else:
-    # Normal delegation
-    response = Task(subagent_type=..., prompt=...)
+    # Normal delegation with templates
+    delegation_report = fill_template(...)
+    print(delegation_report)
+    response = Task(agent_type=..., prompt=...)
 ```
 
 ### Simulated Response Generation
 
 Based on current state and context:
 
-1. **INIT States** - Always return SUCCESS with planning deliverables
-2. **WORK States** - Return SUCCESS (70%), PARTIAL (15%), FAILURE (10%), TIMEOUT (5%)
-3. **TEST States** - Return FAILURE (30% first iteration), SUCCESS (95% after retry)
-4. **DONE States** - Return SUCCESS (95%), MISSING (5% for dependencies)
+1. **Manager Agents (with enrichment)** - Always return SUCCESS with planning deliverables and enriched context usage
+2. **Developer Agents** - Return SUCCESS (70%), PARTIAL (15%), FAILURE (10%), TIMEOUT (5%)
+3. **QA Subaagents** - Return FAILURE (30% first iteration), SUCCESS (95% after retry)
+4. **Validation** - Return SUCCESS (95%), MISSING (5% for dependencies)
 
 ### Return Code Selection Logic
 
 ```
-function select_return_code(state, iteration, complexity):
-    if state == "INIT":
-        return SUCCESS  # Planning always succeeds in simulation
+function select_return_code(agent_type, state, iteration, complexity):
+    if agent_type in ["product-manager", "project-manager", "feature-manager"]:
+        return SUCCESS  # Manager agents always succeed in simulation
 
-    if state == "WORK":
+    if agent_type starts_with "developer":
         if iteration > 1:
             return SUCCESS  # Usually succeeds after retry
         if complexity == "high":
@@ -254,129 +351,68 @@ function select_return_code(state, iteration, complexity):
         else:
             return random_choice([SUCCESS:80%, PARTIAL:10%, FAILURE:8%, TIMEOUT:2%])
 
-    if state == "TEST":
+    if agent_type == "quality-assurance":
         if iteration == 1:
             return random_choice([SUCCESS:70%, FAILURE:30%])
         else:
             return SUCCESS  # Almost always succeeds after fix
 
-    if state == "DONE":
-        return random_choice([SUCCESS:95%, MISSING:5%])
+    return SUCCESS  # Default for other agents
 ```
 
-## OUTPUT EXAMPLE
+## OUTPUT EXAMPLE WITH TEMPLATES
 
 ```
 /dryrun on
 
 SIMULATION MODE: ENABLED
-- All subagent delegations will be simulated
+- All agent delegations will be simulated
 - No files will be created or modified
 - All orchestration flows will execute normally
+- Using existing report templates
 
-/work 0001.01.03
+/plan "User authentication system"
 
 ## PHASE 00: INITIALIZE ORCHESTRATION
 
-Detected Orchestration Level: TASK (0001.01.03)
-Work Context: Task - Create registration form UI
-State Machine: TASK_ORCHESTRATION
-Loading: ~/.claude/shared/orchestrator/ORCHESTRATION-TASK.md
+Detected Orchestration Level: PROJECT
+Planning Context: User authentication system
+Loading: ${CLAUDE_PLUGIN_ROOT}/resources/STATE-MACHINE/ORCHESTRATION/PROJECT.md
 
 Creating TodoWrite tasks...
-✓ Phase 00: Initialize Orchestration
-○ Phase 01: Task Discovery and Planning
-○ Phase 02: [01] Implementation
-○ Phase 03: [01] Quality Validation
 
-## PHASE 01: ORCHESTRATION
+## PHASE 01: REQUIREMENTS ENRICHMENT
 
-STATE: TASK_CONTROLLER → (SUCCESS) → TASK_INIT
+SIMULATING: Requirements Discovery (PROJECT level)
+Loading: ${CLAUDE_PLUGIN_ROOT}/resources/TEMPLATE/QUESTIONNAIRE.md
 
-SIMULATING: Task Discovery and Planning
-SIMULATED RESPONSE: Planning Specialist
-Return Code: SUCCESS
-Summary: Task requirements analyzed and documented
-Deliverables:
-- Task specification created
-- Tech stack identified: React, TypeScript
-- Acceptance criteria defined
-Validation: Requirements complete and clear
+[Simulated questionnaire interaction...]
+
+GENERATING: Enriched Context ADR
+Status: COMPLETE
 
 ## PHASE 02: ORCHESTRATION
 
-STATE: TASK_INIT → (SUCCESS) → TASK_WORK
+Read `plugin:orchestrator:resources://TEMPLATE/REPORT/AGENT-DELEGATION.md`
+[Filled with product-manager delegation details]
 
-SIMULATING: Developer Discovery
-Selected: React/TypeScript Developer (95% match)
-
-SIMULATING: Implementation
-SIMULATED RESPONSE: Developer
+SIMULATED RESPONSE: Product Manager
 Return Code: SUCCESS
-Summary: Registration form UI implemented successfully
-Deliverables:
-- Created RegistrationForm.tsx component
-- Added form validation logic
-- Wrote 8 unit tests (100% passing)
-- Updated documentation
-Validation: All linting and type checks passed
+Enriched Context Used: YES
+[Full response details...]
 
-## PHASE 03: ORCHESTRATION
+Read `plugin:orchestrator:resources://TEMPLATE/REPORT/STATE-TRANSITION.md`
+[Filled with transition details: PROJECT_INIT → SUCCESS → PROJECT_DONE]
 
-STATE: TASK_WORK → (SUCCESS) → TASK_TEST
-
-SIMULATING: QA Discovery
-Selected: QA Specialist (90% match)
-
-SIMULATING: Quality Validation (First Attempt)
-SIMULATED RESPONSE: QA Specialist
-Return Code: FAILURE
-Error: Quality validation failed
-Blockers:
-- Edge case not handled: empty email validation
-- Coverage: 85% (required 90%)
-Suggestion: Fix email validation edge case and add tests
-
-## ITERATION FEEDBACK REPORT
-
-Returning to TASK_WORK with feedback...
-
-## PHASE 02: ORCHESTRATION (Iteration 2)
-
-STATE: TASK_TEST → (FAILURE) → TASK_WORK
-
-SIMULATING: Implementation Fix
-SIMULATED RESPONSE: Developer
-Return Code: SUCCESS
-Summary: Fixed validation issues
-Deliverables:
-- Fixed empty email edge case
-- Added 2 additional tests
-- Coverage increased to 92%
-Validation: All issues resolved
-
-## PHASE 03: ORCHESTRATION (Iteration 2)
-
-STATE: TASK_WORK → (SUCCESS) → TASK_TEST
-
-SIMULATING: Quality Validation (Second Attempt)
-SIMULATED RESPONSE: QA Specialist
-Return Code: SUCCESS
-Summary: All quality validations passed
-Deliverables:
-- 10/10 tests passing
-- All edge cases covered
-- Coverage: 92%
-Validation: Code quality score A
-
-TASK 0001.01.01 COMPLETED
-Orchestration complete.
+PROJECT ORCHESTRATION COMPLETED
+All documentation created (simulated)
 ```
 
 ## BENEFITS
 
 1. **Risk-Free Testing** - No artifacts created
 2. **Flow Validation** - Verify orchestration logic
-3. **Template Testing** - Ensure all templates work
-4. **Training Mode** - Learn the orchestration patterns
-5. **Debugging** - Identify flow issues without side effects
+3. **Template Testing** - Ensure all templates work correctly
+4. **Enrichment Testing** - Validate context enrichment flow
+5. **Training Mode** - Learn the orchestration patterns
+6. **Debugging** - Identify flow issues without side effects

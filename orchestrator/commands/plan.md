@@ -1,343 +1,174 @@
-# Plan - Planning Orchestrator
+# Plan - State-Machine Planning Orchestrator
 
-<!-- Updated: 2025-10-03 09:34:15 UTC -->
+<!-- Updated: 2025-10-15 00:25:31 UTC -->
 
-Planning Orchestrator that coordinates planning through formalized algorithms and specialized subagents. Maintains architectural coherence while ensuring deterministic execution paths through scope-based routing and template-driven documentation.
-
-**CRITICAL**: When this command is invoked, you enter **Planning mode** where all operations follow strict algorithmic patterns.
-- You **MUST** execute algorithms exactly as defined and in defined order.
-- You **MUST** follow and respect all requirements and restrictions.
-- You **MUST** be concise and report only when and only in the way you've been instructed.
-- You **MUST NOT** report any information between actions and phases unless instructed to do so.
-- You **MUST** use ordered numbering for Phases instead of X.
-- You **MUST** update Phases numbering order when new Phases list or ordering changes.
-
+State-Machine Planning Orchestrator that coordinates hierarchical planning from requirements discovery through validation using specialized agents in a multi-stage controlled flow. When this command is invoked, you enter **State-Machine Orchestration mode** where all operations follow strict state-machine patterns with continuous execution.
 
 ## USAGE
-- `/plan [DESCRIPTION]` - Initiates algorithmic planning
+- `/orchestrator:plan` - Auto-detect next unfinished planning work
+- `/orchestrator:plan [DESCRIPTION]` - Natural language description with auto-detected scope
 
 ### Examples
-- `/plan "Build SaaS platform"` - Project-level orchestration
-- `/plan "Add authentication"` - Epic-level orchestration
-- `/plan "User login story"` - Story-level orchestration
-- `/plan "Fix database query"` - Task-level orchestration
+- `/orchestrator:plan` - Discovers and continues next unfinished planning
+- `/orchestrator:plan "Build SaaS platform"` - Project-level planning
+- `/orchestrator:plan "Add authentication"` - Epic-level planning
+- `/orchestrator:plan "User login story"` - Story-level planning
+- `/orchestrator:plan "Fix database query"` - Task-level planning
 
+## CRITICAL REQUIREMENTS
+- **MUST** follow and respect all requirements and restrictions
+- **MUST** automatically find next planning work
+- **MUST** run continuously until all planning complete
+- **MUST** remain in **State-Machine Orchestration mode** and execute state transitions exactly as defined
+- **MUST** be concise and report only when and only in the way you've been instructed
+
+## CRITICAL RESTRICTIONS
+- **NEVER** report any information between actions and phases unless instructed to do so
+- **NEVER** stop or pause between phases
+- **NEVER** ask user for continuation
 
 ## PROCESS DEFINITION
 
-
-### Phase X: Initialize Tasks
-Creates planning tasks for progress tracking
-
-#### CRITICAL REQUIREMENTS
-- **MUST** create all phase tracking tasks
-- **MUST** use TodoWrite for task management
-- **MUST** proceed through all phases
-
-#### CRITICAL RESTRICTIONS
-- **NEVER** skip this phase
-- **NEVER** proceed without task initialization
-- **NEVER** create phases out of order
-
-#### EXECUTION FLOW
-
-- **Initialize phase tracking**
-  - Create "Phase X: Initialize Tasks" task as in_progress
-  - Create "Phase X: Context Discovery" task as pending
-  - Create "Phase X: Requirements Discovery" task as pending
-  - Create "Phase X: Subagent Discovery" task as pending
-  - Create "Phase X: Documentation Creation" task as pending
-  - Create "Phase X: Validation and Handoff" task as pending
-
-- **Complete phase**
-  - Update "Phase X: Initialize Tasks" task as completed
-  - Transition to "Phase X: Context Discovery"
-
-
-### Phase X: Context Discovery
-Analyzes request and establishes planning context
+### Phase 00: Initialize Plan Orchestration
+Determines planning scope and initializes state machine
 
 #### CRITICAL REQUIREMENTS
-- **MUST** determine exact scope level before proceeding
-- **MUST** assess existing project structure if present
-- **MUST** create tracking tasks in TodoWrite
+- **MUST** determine exact planning scope before proceeding
+- **MUST** validate planning context exists
+- **MUST** initialize state machine tracking
 
 #### CRITICAL RESTRICTIONS
 - **NEVER** proceed without scope determination
-- **NEVER** assume context without verification
-- **NEVER** skip technology assessment
+- **NEVER** skip state initialization
+- **NEVER** exit mode autonomously
 
 #### EXECUTION FLOW
 
-- **Update phase tracking**
-  - Update "Phase X: Context Discovery" task as in_progress
+- **Bootstrap phase tracking**
+  - Create "Phase 00: Initialize Plan Orchestration" task as in_progress
 
-- **Check for existing project structure**
-  - When `docs/OVERVIEW.md` file does not exist:
-    - **MUST** treat as new project
-  - Otherwise:
-    - **MUST** treat as existing project
+- **Parse input and determine planning scope**
+  - When user input is empty:
+    - Find all incomplete planning items
+    - Order found items by priority and ID
+    - Auto-discover next planning item and detect appropriate scope
+  - When user input is not empty:
+    - Read `plugin:orchestrator:resources://CORE/EPIC-STORY-TASK-FORMAT.md`
+    - Auto-detect planning scope based on complexity determined from user input
 
-- **Analyze project context**
-  - Read `README.md` file
+- **Validate planning context**
+  - Check existence of relevant documentation files
+  - Verify prerequisite planning completion
+  - Confirm no blocking dependencies
 
-- **Analyze existing project context (if applicable)**
-  - Read `docs/OVERVIEW.md` file
-  - Read `docs/ARCHITECTURE.md` file
-  - Read `docs/TECH-STACK.md` file
-
-- **Determine planning scope level**
-  - Extract and analyze project structure
-  - Detect scope as one of Project, Epic, Story, or Task from user description and project context
-
-- **Identify technology requirements**
-  - Analyze detected scope for technology needs
-  - Determine required frameworks and tools
-
-- **Report project analysis**
-  - **MUST** read and use `~/.claude/shared/templates/REPORT/PROJECT-OVERVIEW.md` file as a template
-  - **MUST** read and follow requirements from `~/.claude/shared/core/TEMPLATE-REQUIREMENTS.md` file
+- **Initialize state machine**
+  - **MUST** read and use `plugin:orchestrator:resources://STATE-MACHINE/ORCHESTRATION/PLANNING.md` as orchestration requirements
+  - **MUST** read and follow requirements from `plugin:orchestrator:resources://CORE/TEMPLATE-REQUIREMENTS.md`
   - **MUST** preserve template organization
+  - **MUST** create ALL phase tasks upfront:
+    - Create tasks for ALL phases defined in orchestration requirements as pending
+    - Use ONLY the phase name from "Phase Name (with Loop Indicators)" column
+    - **NEVER** use state names for phase task names
+    - Include ALL named phases
+    - Use initial generic loop indicators (e.g., [XX/YY] for unknowns)
+    - **NEVER** create new phase tasks during loops
+    - **ALWAYS** update existing phase tasks when entering loops
+    - **MUST** have exactly ONE task per phase name (no duplicates, no multiple tasks for same phase name)
+  - Set initial state based on existing planning progress
 
-- **Complete phase**
-  - Update "Phase X: Context Discovery" task as completed
-  - Transition to "Phase X: Requirements Discovery"
-
-
-### Phase X: Requirements Discovery
-Enriches planning context through structured questioning when needed
-
-#### CRITICAL REQUIREMENTS
-- **MUST** assess context completeness before proceeding
-- **MUST** follow requirements enrichment workflow
-- **MUST** validate and store enriched context
-- **MUST** be transparent about questioning process
-
-#### CRITICAL RESTRICTIONS
-- **NEVER** skip for new projects without complete context
-- **NEVER** make assumptions without documenting them
-- **NEVER** re-ask questions if context already complete
-- **NEVER** proceed with incomplete requirements without user consent
-
-#### EXECUTION FLOW
-
-- **Update phase tracking**
-  - Update "Phase X: Requirements Discovery" task as in_progress
-
-- **Assess context completeness**
-  - **MUST** read and follow `~/.claude/shared/workflows/REQUIREMENTS-DISCOVERY.md` workflow
-  - Evaluate if user description contains sufficient planning detail
-  - Check against scope-specific required information checklist
-  - Determine if questionnaire is required
-
-- **Check skip conditions**
-  - When existing project has complete documentation, or:
-  - When user description is comprehensive and complete, or
-  - When user explicitly requests to skip or use assumptions:
-    - **MUST** skip to "Phase X: Subagent Discovery"
-
-- **Execute questionnaire**
-  - When project level planning:
-    - **MUST** read and use `~/.claude/shared/templates/REQUIREMENTS-QUESTIONS/PROJECT.md` file as a template
-  - When epic level planning:
-    - **MUST** read and use `~/.claude/shared/templates/REQUIREMENTS-QUESTIONS/EPIC.md` file as a template
-  - When story level planning:
-    - **MUST** read and use `~/.claude/shared/templates/REQUIREMENTS-QUESTIONS/STORY.md` file as a template
-  - When task level planning:
-    - **MUST** read and use `~/.claude/shared/templates/REQUIREMENTS-QUESTIONS/TASK.md` file as a template
-  - **MUST** read and follow requirements from `~/.claude/shared/core/TEMPLATE-REQUIREMENTS.md` file
+- **Report analysis results**
+  - **MUST** read and use `plugin:orchestrator:resources://TEMPLATE/REPORT/ORCHESTRATION-LEVEL.md` as a template
+  - **MUST** read and follow requirements from `plugin:orchestrator:resources://CORE/TEMPLATE-REQUIREMENTS.md`
   - **MUST** preserve template organization
-
-  - Present questions with transparency:
-    - Announce total question count and categories
-    - Group questions by category
-    - Number questions sequentially
-    - Allow user to skip at any time
-
-  - Collect and validate answers:
-    - Ask questions one category at a time
-    - Restate understanding after each category
-    - Get explicit user confirmation
-    - Allow corrections and refinements
-
-- **Handle user skip request**
-  - When user types "skip" or requests assumptions:
-    - Acknowledge request
-    - Apply scope-appropriate default assumptions
-    - Document assumptions clearly
-    - Proceed to enriched context storage
-
-- **Store enriched context**
-  - Create enriched context structure with:
-    - Original user request
-    - Validated answers from questionnaire
-    - Applied assumptions for skipped questions
-    - Enrichment timestamp and scope level
-  - Prepare for subagent delegation
+  - Use detected planning scope, scope of work information, quality standards
 
 - **Complete phase**
-  - Update "Phase X: Requirements Discovery" task as completed
-  - Transition to "Phase X: Subagent Discovery"
+  - Update "Phase 00: Initialize Plan Orchestration" task as completed
+  - Transition to appropriate first planning phase following **STATE MACHINE EXECUTION FLOW** requirements
 
+## STATE MACHINE EXECUTION FLOW
 
-### Phase X: Subagent Discovery
-Discovers an appropriate planning subagent
+After Phase 00 completes, the planning continues through state-machine execution based on the loaded orchestration requirements.
 
-#### CRITICAL REQUIREMENTS
-- **MUST** use scope level to determine required capability
-- **MUST** use internal knowledge of all available subagents, their specializations and capabilities
-- **MUST** follow subagent discovery protocol
-- **MUST** discover or exit - no direct planning
+### CRITICAL REQUIREMENTS
 
-#### CRITICAL RESTRICTIONS
-- **NEVER** skip subagent discovery
-- **NEVER** proceed if subagent unavailable
-- **NEVER** attempt planning yourself
-- **NEVER** execute discovered subagent in this phase
-- **NEVER** use files to determine available subagents
+#### State Template Usage
+- **MUST** read and use appropriate state template for EVERY state execution
+- **MUST** follow template structure exactly as defined
+- **MUST** report using designated report templates
+- **MUST** update TodoWrite with phase status before and after each state
+- **MUST** continue immediately to next state without stopping
 
-#### EXECUTION FLOW
+#### State Template Mapping
+- **LOOP States** (PLAN_LOOP) - **MUST** read and use `plugin:orchestrator:resources://STATE-MACHINE/STATE/LOOP.md` template
+- **INIT States** (PLAN_INIT) - **MUST** read and use `plugin:orchestrator:resources://STATE-MACHINE/STATE/INIT.md` template
+- **QUIZ States** (PLAN_QUIZ) - **MUST** read and use `plugin:orchestrator:resources://STATE-MACHINE/STATE/QUIZ.md` template
+- **WORK States** (PLAN_WORK) - **MUST** read and use `plugin:orchestrator:resources://STATE-MACHINE/STATE/WORK.md` template
+- **DONE States** (PLAN_DONE) - **MUST** read and use `plugin:orchestrator:resources://STATE-MACHINE/STATE/DONE.md` template
 
-- **Update phase tracking**
-  - Update "Phase X: Subagent Discovery" task as in_progress
+#### State Transitions
+- **MUST** read and use `plugin:orchestrator:resources://TEMPLATE/REPORT/STATE-TRANSITION.md` for ALL transitions
+- **MUST** follow state transition tables defined in PLANNING ORCHESTRATION requirements
+- **MUST** validate next state according to current state and conditions
+- **MUST** maintain continuous execution through all states
+- **MUST** use STATE TRANSITION CODES (not return codes) for internal transitions
 
-- **Define discovery limitations based on scope-specific requirements**
-  - When project level planning:
-    - System architecture, epic discovery, technology stack
-  - When epic level planning:
-    - Feature architecture, integration design, success criteria
-  - When story level planning:
-    - Story breakdown, acceptance criteria, task decomposition
-  - When task level planning:
-    - Task specification, implementation notes, testing approach
+#### Continuous Execution
+- **MUST** continue in loop until all planning levels complete
+- **MUST** automatically progress through all states
+- **MUST** ensure proper agent discovery and delegation
+- **MUST** enforce planning validation at each level
+- **MUST** maintain complete audit trail through reports
 
-  - **Discover and filter subagents**
-    - Find all available and active subagents
-    - Filter subagents to match subagent discovery limitations
-    - Score each subagent based on discovery limitations compatibility
-    - Only keep highest scoring subagents with score > 75
-    - Select top-most subagent from the list of highest scoring subagents
+### CRITICAL RESTRICTIONS
 
-  - **Ensure subagent unavailability**
-    - When no suitable subagent found:
-      - **MUST** stop and exit immediately with error report
+#### Template Usage
+- **NEVER** skip reading state templates
+- **NEVER** modify template structure during execution
+- **NEVER** proceed without template validation
+- **NEVER** ignore template requirements
 
-  - **Report subagent selection**
-    - **MUST** read and use `~/.claude/shared/templates/REPORT/SUBAGENT-DISCOVERY.md` file as a template
-    - **MUST** read and follow requirements from `~/.claude/shared/core/TEMPLATE-REQUIREMENTS.md` file
-    - **MUST** preserve template organization
-    - Include each and every discovered subagent, including irrelevant ones
-    - Include each and every highest scoring subagent
+#### State Execution
+- **NEVER** skip states defined in orchestration
+- **NEVER** pause between state transitions
+- **NEVER** ask user for continuation between states
+- **NEVER** exit orchestration mode autonomously
+- **NEVER** proceed to next state without completing current state
 
-- **Prepare delegation context**
-  - Extract delegation context from project information
-  - Include enriched context from Requirements Enrichment phase (if available)
-  - Specify expected deliverables based on scope
-  - Determine quality standards for the scope level
-  - Combine into planning context package with enriched requirements
+#### Loop Control
+- **NEVER** exit loop prematurely
+- **NEVER** skip levels in sequence
+- **NEVER** process completed levels again
+- **NEVER** create duplicate phase tasks
 
-- **Complete phase**
-  - Update "Phase X: Subagent Discovery" task as completed
-  - Transition to "Phase X: Documentation Orchestration"
+### State Execution Details
 
+- **PLAN_LOOP State**
+  - Self-execution by orchestrator (no agent)
+  - Builds `COMPLETION_PLAN` with hierarchy validation
+  - Manages level iteration and next level selection
+  - Reports loop continuation using designated template
 
-### Phase X: Documentation Orchestration
-Coordinates parallel documentation creation
+- **PLAN_INIT State**
+  - Self-execution by orchestrator (no agent)
+  - Analyzes context and detects planning scope
+  - Validates hierarchical prerequisites
+  - Builds ordered completion plan (Project → Epic → Story → Task)
 
-#### CRITICAL REQUIREMENTS
-- **MUST** create appropriate documentation for scope
-- **MUST** verify documentation completeness
-- **MUST** use parallel execution when possible
+- **PLAN_QUIZ State**
+  - Self-execution by orchestrator (no agent)
+  - Executes requirements questionnaires for each level in completion plan
+  - Stores level-specific enriched context
+  - Prepares consolidated context for delegation
 
-#### CRITICAL RESTRICTIONS
-- **NEVER** create documentation directly
-- **NEVER** skip required documentation
-- **NEVER** proceed with incomplete documentation
+- **PLAN_WORK State**
+  - Discovers planning agent based on current level
+  - Delegates planning with level-specific enriched context
+  - Validates created documentation and hierarchy format compliance
+  - Reports agent discovery and delegation
 
-#### EXECUTION FLOW
-
-- **Update phase tracking**
-  - Update "Phase X: Documentation Creation" task as in_progress
-
-- **Delegate to selected subagent**
-
-  - **Report subagent selection**
-    - **MUST** read and use `~/.claude/shared/templates/REPORT/SUBAGENT-DELEGATION.md` file as a template
-    - **MUST** read and follow requirements from `~/.claude/shared/core/TEMPLATE-REQUIREMENTS.md` file
-    - **MUST** preserve template organization
-
-  - **Invoke selected subagent**
-    - Task selected subagent with prepared context including enriched requirements
-    - Include scope definition, expected deliverables, and quality standards
-    - Pass enriched context with validated requirements and documented assumptions
-    - Wait for selected subagent to complete
-
-  - **Collect subagent outputs**
-    - Gather outputs from subagent results
-    - Extract list of completed work
-
-- **Verify required documentation exists**
-  - When Project scope planning, check for files:
-    - `docs/OVERVIEW.md`
-    - `docs/ARCHITECTURE.md`
-    - `docs/TECH-STACK.md`
-    - `docs/DEPLOYMENT.md`
-    - `docs/DEVELOPMENT.md`
-    - `docs/FILES.md`
-    - `docs/DEVELOPMENT-PLAN.md`
-  - When Epic scope planning, check for files:
-    - `docs/DEVELOPMENT-PLAN/{EPIC_ID} - {EPIC_NAME}.md`
-  - When Story scope planning, check for files:
-    - `docs/DEVELOPMENT-PLAN/{EPIC_ID}.{STORY_ID} - {STORY_NAME}.md`
-  - When Task scope planning, check for files:
-    - `docs/DEVELOPMENT-PLAN/{EPIC_ID}.{STORY_ID}.{TASK_ID} - {TASK_NAME}.md`
-
-- **Handle documentation failures**
-  - When any of the files are missing or incomplete:
-    - **MUST** stop and exit immediately with error report
-
-- **Complete phase**
-  - Update "Phase X: Documentation Creation" task as completed
-  - Transition to "Phase X: Validation & Handoff"
-
-
-### Phase X: Validation & Handoff
-Validates completeness and prepares development handoff
-
-#### CRITICAL REQUIREMENTS
-- **MUST** validate all deliverables
-- **MUST** ensure specifications are complete
-- **MUST** prepare clear handoff package
-
-#### CRITICAL RESTRICTIONS
-- **NEVER** handoff incomplete work
-- **NEVER** skip validation
-- **NEVER** proceed without success criteria
-
-#### EXECUTION FLOW
-
-- **Update phase tracking**
-  - Update "Phase X: Validation and Handoff" task as in_progress
-
-- **Build validation checklist**
-  - Generate scope-specific validation checklist
-  - Include requirements for deliverables, specifications, and documentation
-
-- **Execute validation checks**
-  - Validate each item in checklist
-  - When any validation fails:
-    - **MUST** stop and exit immediately with error report
-
-- **Prepare handoff package**
-  - Compile prioritized backlog items
-  - Include technical specifications
-  - Document success criteria
-  - Define next steps for development
-
-- **Complete phase**
-  - Update "Phase X: Validation and Handoff" task as completed
-
-- **Clean up planning tasks**
-  - Remove all phase tasks from todo list
-  - Log successful completion
-  - Return success status
+- **PLAN_DONE State**
+  - Self-execution by orchestrator (no agent)
+  - Validates all planning deliverables
+  - Prepares development handoff package
+  - Reports completion

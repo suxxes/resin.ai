@@ -22,7 +22,7 @@
 		"documentation",
 		"workflow",
 		"agents",
-		"subagents",
+		"agents",
 		"architecture",
 		"deployment"
 	]

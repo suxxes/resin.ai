@@ -1,9 +1,8 @@
-# Docs
+# Docs - Create comprehensive project documentation
 
 <!-- Updated: 2025-09-29 16:05:50 UTC -->
 
 Create comprehensive LLM-optimized technical documentation for the codebase. This command complements the plan command by focusing on technical implementation details while plan focuses on project planning and specifications.
-
 
 ## CRITICAL REQUIREMENTS
 - **MUST** follow template requirements from TEMPLATE-REQUIREMENTS
@@ -29,9 +28,7 @@ Create comprehensive LLM-optimized technical documentation for the codebase. Thi
 - **NEVER** exceed 2-3 paragraphs for overview sections
 - **NEVER** use placeholder code examples
 
-
 ## PROCESS DEFINITION
-
 
 ### Phase X: Initialize Tasks
 Create and track all documentation tasks
@@ -63,7 +60,6 @@ Create and track all documentation tasks
 - **Complete phase**
   - Update "Phase X: Initialize Tasks" task as completed
   - Transition to "Phase X: Project Discovery"
-
 
 ### Phase X: Project Discovery
 Discover project structure and technology stack
@@ -108,7 +104,6 @@ Discover project structure and technology stack
   - Update "Phase X: Project Discovery" task as completed
   - Transition to "Phase X: Create ARCHITECTURE.md"
 
-
 ### Phase X: Create ARCHITECTURE.md
 Create system architecture documentation
 
@@ -137,8 +132,8 @@ Create system architecture documentation
     - Proceed with documentation creation
 
 - **Create documentation**
-  - **MUST** read and use `~/.claude/shared/templates/PROJECT-DOCUMENTATION/ARCHITECTURE.md` file as a template
-  - **MUST** read and follow requirements from `~/.claude/shared/core/TEMPLATE-REQUIREMENTS.md` file
+  - **MUST** read and use `plugin:orchestrator:resources://TEMPLATE/DOCUMENTATION/ARCHITECTURE.md` as a template
+  - **MUST** read and follow requirements from `plugin:orchestrator:resources://CORE/TEMPLATE-REQUIREMENTS.md`
   - **MUST** preserve template organization
   - Document high-level system organization
   - Map major components with source file locations
@@ -149,7 +144,6 @@ Create system architecture documentation
 - **Complete phase**
   - Update "Phase X: Create ARCHITECTURE.md" task as completed
   - Transition to "Phase X: Create TECH-STACK.md"
-
 
 ### Phase X: Create TECH-STACK.md
 Create technology stack documentation
@@ -179,8 +173,8 @@ Create technology stack documentation
     - Proceed with documentation creation
 
 - **Create documentation**
-  - **MUST** read and use `~/.claude/shared/templates/PROJECT-DOCUMENTATION/TECH-STACK.md` file as a template
-  - **MUST** read and follow requirements from `~/.claude/shared/core/TEMPLATE-REQUIREMENTS.md` file
+  - **MUST** read and use `plugin:orchestrator:resources://TEMPLATE/DOCUMENTATION/TECH-STACK.md` as a template
+  - **MUST** read and follow requirements from `plugin:orchestrator:resources://CORE/TEMPLATE-REQUIREMENTS.md`
   - **MUST** preserve template organization
   - Document complete technology inventory
   - List languages, frameworks, runtime environments
@@ -192,7 +186,6 @@ Create technology stack documentation
 - **Complete phase**
   - Update "Phase X: Create TECH-STACK.md" task as completed
   - Transition to "Phase X: Create DEPLOYMENT.md"
-
 
 ### Phase X: Create DEPLOYMENT.md
 Create build and deployment documentation
@@ -222,8 +215,8 @@ Create build and deployment documentation
     - Proceed with documentation creation
 
 - **Create documentation**
-  - **MUST** read and use `~/.claude/shared/templates/PROJECT-DOCUMENTATION/DEPLOYMENT.md` file as a template
-  - **MUST** read and follow requirements from `~/.claude/shared/core/TEMPLATE-REQUIREMENTS.md` file
+  - **MUST** read and use `plugin:orchestrator:resources://TEMPLATE/DOCUMENTATION/DEPLOYMENT.md` as a template
+  - **MUST** read and follow requirements from `plugin:orchestrator:resources://CORE/TEMPLATE-REQUIREMENTS.md`
   - **MUST** preserve template organization
   - Document build system and deployment pipeline
   - Include build configuration and workflows
@@ -235,7 +228,6 @@ Create build and deployment documentation
 - **Complete phase**
   - Update "Phase X: Create DEPLOYMENT.md" task as completed
   - Transition to "Phase X: Create DEVELOPMENT.md"
-
 
 ### Phase X: Create DEVELOPMENT.md
 Create development and testing documentation
@@ -265,8 +257,8 @@ Create development and testing documentation
     - Proceed with documentation creation
 
 - **Create documentation**
-  - **MUST** read and use `~/.claude/shared/templates/PROJECT-DOCUMENTATION/DEVELOPMENT.md` file as a template
-  - **MUST** read and follow requirements from `~/.claude/shared/core/TEMPLATE-REQUIREMENTS.md` file
+  - **MUST** read and use `plugin:orchestrator:resources://TEMPLATE/DOCUMENTATION/DEVELOPMENT.md` as a template
+  - **MUST** read and follow requirements from `plugin:orchestrator:resources://CORE/TEMPLATE-REQUIREMENTS.md`
   - **MUST** preserve template organization
   - Document development environment and testing approach
   - Include code conventions from codebase
@@ -278,7 +270,6 @@ Create development and testing documentation
 - **Complete phase**
   - Update "Phase X: Create DEVELOPMENT.md" task as completed
   - Transition to "Phase X: Create FILES.md"
-
 
 ### Phase X: Create FILES.md
 Create file catalog documentation
@@ -308,8 +299,8 @@ Create file catalog documentation
     - Proceed with documentation creation
 
 - **Create documentation**
-  - **MUST** read and use `~/.claude/shared/templates/PROJECT-DOCUMENTATION/FILES.md` file as a template
-  - **MUST** read and follow requirements from `~/.claude/shared/core/TEMPLATE-REQUIREMENTS.md` file
+  - **MUST** read and use `plugin:orchestrator:resources://TEMPLATE/DOCUMENTATION/FILES.md` as a template
+  - **MUST** read and follow requirements from `plugin:orchestrator:resources://CORE/TEMPLATE-REQUIREMENTS.md`
   - **MUST** preserve template organization
   - Discover all source files, configs, and build files
   - Organize files into logical categories
@@ -321,7 +312,6 @@ Create file catalog documentation
 - **Complete phase**
   - Update "Phase X: Create FILES.md" task as completed
   - Transition to "Phase X: Create OVERVIEW.md"
-
 
 ### Phase X: Create OVERVIEW.md
 Create project overview documentation
@@ -350,8 +340,8 @@ Create project overview documentation
     - Proceed with documentation creation
 
 - **Create documentation**
-  - **MUST** read and use `~/.claude/shared/templates/PROJECT-DOCUMENTATION/OVERVIEW.md` file as a template
-  - **MUST** read and follow requirements from `~/.claude/shared/core/TEMPLATE-REQUIREMENTS.md` file
+  - **MUST** read and use `plugin:orchestrator:resources://TEMPLATE/DOCUMENTATION/OVERVIEW.md` as a template
+  - **MUST** read and follow requirements from `plugin:orchestrator:resources://CORE/TEMPLATE-REQUIREMENTS.md`
   - **MUST** preserve template organization
   - Include project purpose and key value proposition
   - Add main entry points and configuration files
@@ -362,7 +352,6 @@ Create project overview documentation
 - **Complete phase**
   - Update "Phase X: Create OVERVIEW.md" task as completed
   - Transition to "Phase X: Create README.md"
-
 
 ### Phase X: Create README.md
 Synthesize documentation into README
@@ -392,8 +381,8 @@ Synthesize documentation into README
     - Proceed with documentation creation
 
 - **Create documentation**
-  - **MUST** read and use `~/.claude/shared/templates/PROJECT-DOCUMENTATION/README.md` file as a template
-  - **MUST** read and follow requirements from `~/.claude/shared/core/TEMPLATE-REQUIREMENTS.md` file
+  - **MUST** read and use `plugin:orchestrator:resources://TEMPLATE/DOCUMENTATION/README.md` as a template
+  - **MUST** read and follow requirements from `plugin:orchestrator:resources://CORE/TEMPLATE-REQUIREMENTS.md`
   - **MUST** preserve template organization
   - Read all `docs/*.md` files for reference
   - Write concise project description (2-3 sentences)
@@ -405,7 +394,6 @@ Synthesize documentation into README
 - **Complete phase**
   - Update "Phase X: Create README.md" task as completed
   - Transition to "Phase X: Validation & Cleanup"
-
 
 ### Phase X: Validation & Cleanup
 Validate completeness and remove duplication
@@ -439,7 +427,6 @@ Validate completeness and remove duplication
 
 - **Complete phase**
   - Update "Phase X: Validation & Cleanup" task as completed
-
 
 ## DOCUMENTATION STRUCTURE
 
@@ -486,7 +473,6 @@ Validate completeness and remove duplication
 - Platform-specific implementations
 - Build configuration and helper modules
 - File organization patterns and dependencies
-
 
 ## FORMAT REQUIREMENTS
 

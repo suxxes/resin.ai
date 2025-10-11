@@ -49,7 +49,7 @@ The orchestrator implements a granular status progression system that provides c
 #### **Task Status Progression**:
 
 **Development Status**: **`NOT_STARTED (PENDING)`** → **`IN_PROGRESS`** → **`COMPLETED`**
-**QA Validation Status**: **`QA_PENDING`** → **`QA_IN_PROGRESS`** → **`QA_PASSED`** / **`QA_FAILED`**
+**QA Validation Status**: **`NOT_STARTED (PENDING)`** → **`QA_PENDING`** → **`QA_IN_PROGRESS`** → **`QA_PASSED`** / **`QA_FAILED`**
 
 **Important**: Task development and QA validation are tracked separately. Development `COMPLETED` status means code is committed, regardless of QA validation. QA failures trigger orchestrator iteration cycles without reverting development completion status.
 
@@ -204,7 +204,7 @@ The system leverages 50+ shared components organized by responsibility, injected
 
 ```markdown
 <!-- Component Name -->
-!`cat ~/.claude/shared/category/COMPONENT-NAME.md`
+Read `plugin:orchestrator:resources://category/COMPONENT-NAME.md` and use as instructions
 ```
 
 **Component Categories**:
@@ -217,7 +217,7 @@ The system leverages 50+ shared components organized by responsibility, injected
 
 ## Hook-Based Automation System
 
-Three essential hooks in `~/.claude/hooks/orchestrator/` automate orchestrator tasks:
+Three essential hooks in `${CLAUDE_PLUGIN_ROOT}/hooks/` automate orchestrator tasks:
 
 ### TodoWrite Hooks (Progress Management)
 - **`update-progress.sh`** - Automatically updates orchestrator state in `docs/DEVELOPMENT-PLAN.md`
@@ -293,7 +293,6 @@ The system provides custom slash commands for development workflow orchestration
 - **Features**: README analysis, file structure review, configuration understanding, comprehensive status reporting
 - **Output**: Detailed project status report with technology stack, architecture highlights, and development context
 - **Usage**: `/prime` - Load complete project context
-
 
 ### Utility Commands
 
