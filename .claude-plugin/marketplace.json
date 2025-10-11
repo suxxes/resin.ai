@@ -1,0 +1,15 @@
+{
+	"name": "resin-ai",
+	"metadata": {
+		"description": ""
+	},
+	"owner": {
+		"name": "Fedor"
+	},
+	"plugins": [
+		{
+			"name": "orchestrator",
+			"source": "./orchestrator"
+		}
+	]
+}

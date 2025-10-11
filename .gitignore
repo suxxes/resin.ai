@@ -1,38 +1,10 @@
 # Ignore everything by default
 *
 
-# Allow some
-!.claude
-!resinai
-!resinai/**
-!agents/
-!agents/**
-!commands/
-!commands/**
-!hooks/
-!hooks/**
-!templates/
-!templates/**
-!README.md
-!CLAUDE.md
+# Allow selected only
+!.claude-plugin/
+!.claude-plugin/**
+!orchestrator/
+!orchestrator/**
 !.gitignore
-!settings.json
-
-# Python-specific ignores within allowed directories
-**/__pycache__/
-**/*.py[cod]
-**/*$py.class
-**/*.so
-**/.DS_Store
-**/*.log
-**/*.backup
-**/*.bak
-**/.cache/
-**/.pytest_cache/
-**/.coverage
-**/.env
-**/.venv
-**/venv/
-**/env/
-**/.idea/
-**/.vscode/
+!README.md

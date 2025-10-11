@@ -1,6 +1,8 @@
 # Research Institute of Artificial Intelligence (ResIn.AI)
 
-This project implements a sophisticated multi-agent orchestration system for complete epic implementation with progressive quality standards using Claude Code's custom slash commands.
+<!-- Updated: 2025-09-18 18:05:19 UTC -->
+
+A sophisticated multi-agent orchestration system for software development using Claude Code's custom slash commands. Built on iterative development principles with progressive quality standards and shared component architecture.
 
 ## System Overview
 
@@ -10,13 +12,25 @@ This project implements a sophisticated multi-agent orchestration system for com
 ### Core Architecture:
 - **Multi-Agent System**: Project Manager, Feature Lead, 6 Specialized Developer Agents, Quality Assurance
 - **6-Stage State Machine**: PM_BOOTSTRAP → FL_PLAN → DEV_IMPLEMENT → QUALITY_ASSURANCE → FL_FINAL → PM_COMPLETE
+
+#### Multi-Stage, 4-Agent State Machine Flow:
+
+```
+PM_BOOTSTRAP ------→ FL_PLAN ------→ DEV_IMPLEMENT ------→ QUALITY_ASSURANCE ------→ FL_FINAL ------→ PM_COMPLETE
+   (Agent 1)        (Agent 2)          (Agent 3)               (Agent 4)             (Agent 2)         (Agent 1)
+                         ↑               ↓  ↑                    ↓  ↑                  ↓  ↑              ↓
+                         └───────────────┘  └────────────────────┘  └──────────────────┘  └──────────────┘
+                          (FL fails,         (QA fails,              (FL fails,              (PM fails,
+                           return to          return to               return to               return to
+                           FL_PLAN)           DEV_IMPLEMENT)          QUALITY_ASSURANCE)      FL_FINAL)
+```
 - **Self-Reflection Agent Discovery**: Automatically selects appropriate developer agent based on internal knowledge of agent capabilities and project tech stack
 - **Progressive Quality Standards**: BASE → ENHANCED → MAXIMUM → STRATEGIC
-- **Hierarchical Task Management**: Epic → Story → Task with unique identifiers (EEEE.SS.TT)
+- **Hierarchical Task Management**: Epic → Story → Task with unique identifiers (XXXX.YY.ZZ)
 - **Standardized Templates**: Consistent reporting and transition handling across all orchestration phases
 - **Feature Branch Workflow**: Complete git workflow with `/branch` and `/commit` Claude Code slash command integration
-- **Task-Based Branching**: Automatic feature branch creation using `feature/EEEE.SS.TT-description` pattern
-- **Conventional Commits**: Automated commits with `type(EEEE.SS.TT): description` format for precise tracking
+- **Task-Based Branching**: Automatic feature branch creation using `feature/XXXX.YY.ZZ-description` pattern
+- **Conventional Commits**: Automated commits with `type(XXXX.YY.ZZ): description` format for precise tracking
 - **Deliverable-Focused Validation**: Comprehensive deliverable completion verification preventing partial implementations
 - **Pure Function Architecture**: All developer agents implement modular, functional programming principles with ≤250 lines per file
 - **LESSONS_LEARNED Knowledge Base**: Continuous technical knowledge capture and sharing across development cycles
@@ -68,10 +82,10 @@ Each agent follows pure function design principles, modular decomposition (≤25
 
 ```mermaid
 flowchart TD
-    A["/develop command"] --> B{Parse Input}
-    B -->|EEEE| C[Epic Scope]
-    B -->|EEEE.SS| D[Story Scope]
-    B -->|EEEE.SS.TT| E[Task Scope]
+    A["/work command"] --> B{Parse Input}
+    B -->|XXXX| C[Epic Scope]
+    B -->|XXXX.YY| D[Story Scope]
+    B -->|XXXX.YY.ZZ| E[Task Scope]
     B -->|No Input| F[Auto-discover Work]
     B -->|Feature Description| G[Natural Language Feature]
 
@@ -184,39 +198,92 @@ flowchart TD
     K --> N[Git Commit - Epic Milestone]
 ```
 
+## Shared Component Architecture
+
+The system leverages 50+ shared components organized by responsibility, injected via bash pattern:
+
+```markdown
+<!-- Component Name -->
+!`cat ~/.claude/shared/category/COMPONENT-NAME.md`
+```
+
+**Component Categories**:
+- **Core**: Base instructions (templates, documentation, output standards)
+- **Developer**: Implementation patterns and tools
+- **Manager**: Planning and coordination tools
+- **Quality Assurance**: Validation standards
+- **Orchestrator**: State management and handoffs
+- **Workflows**: Cross-cutting processes
+
 ## Hook-Based Automation System
 
-The system implements essential hooks that automate orchestrator mechanical tasks. See [Hook System Documentation](resinai/README.md) for comprehensive technical details.
+Three essential hooks in `~/.claude/hooks/orchestrator/` automate orchestrator tasks:
+
+### TodoWrite Hooks (Progress Management)
+- **`update-progress.sh`** - Automatically updates orchestrator state in `docs/DEVELOPMENT-PLAN.md`
+  - Detects phase transitions (PM_BOOTSTRAP → FL_PLAN → DEV_IMPLEMENT → etc.)
+  - Updates Current Phase and timestamp in Epic Implementation State section
+  - Provides real-time orchestrator state synchronization
+
+- **`update-epic-story-task-progress.sh`** - Automatically syncs progress across documentation hierarchy
+  - Updates task files with Implementation Status sections
+  - Calculates and updates story progress percentages (completed/total tasks)
+  - Calculates and updates epic progress percentages (completed/total stories)
+  - Maintains bidirectional Epic ↔ Story ↔ Task documentation sync
+
+### Task Hooks (Workflow Validation)
+- **`validate-phase-transition.sh`** - Validates completion before allowing agent delegation
+  - Enforces quality gates: feature-lead requires PM_BOOTSTRAP completed, developer-* requires FL_PLAN completed, quality-assurance requires DEV_IMPLEMENT completed
+  - Blocks invalid state transitions and prevents workflow violations
+  - Logs quality gate decisions for audit trail
+
+**System Benefits**:
+- Orchestrator focuses on high-level coordination while hooks handle mechanical tasks
+- Documentation remains synchronized with actual implementation progress
+- Invalid state transitions are automatically prevented
+- Missing files and directories are handled gracefully without workflow disruption
 
 ---
 
 # Commands Directory
 
-This section contains Claude Code custom slash commands for development workflow orchestration and project management.
+The system provides custom slash commands for development workflow orchestration and project management.
 
 ## Active Commands
 
-### `/develop` (`develop.md`)
+### `/work` (`work.md`)
 **Agentic State-Machine Orchestrator for complete epic implementation**
 
-- **Mode**: Enters **Agentic State-Machine Orchestrator mode** - locked until user exit or completion
+- **Mode**: Enters orchestrator mode - locked until user exit or completion
 - **Purpose**: Orchestrates multi-agent, multi-stage state machine for epic → story → task implementation
 - **Architecture**: PM_BOOTSTRAP → FL_PLAN → DEV_IMPLEMENT → QUALITY_ASSURANCE → FL_FINAL → PM_COMPLETE
 - **Progressive Quality**: BASE → ENHANCED → MAXIMUM → STRATEGIC standards
-- **Self-Reflection Discovery**: Uses internal knowledge for developer agent selection
-- **Standardized Templates**: SELF-REFLECTION-DEVELOPER-DISCOVERY, STATE-TRANSITION, TASK-COMPLETION
+- **Self-Reflection Discovery**: Automatically selects appropriate developer agent
+- **Standardized Templates**: Consistent reporting across all orchestration phases
 - **Critical Quality Gates**: Mandatory code formatting, linting, and test validation
-- **Feature Branch Workflow**: Orchestrator uses `/branch` slash command, developer uses `/commit` slash command
-- **Task-Based Branching**: Creates feature branches using `feature/EEEE.SS.TT-description` naming
-- **Conventional Commits**: Both use Claude Code `/commit` slash command for auto-generated conventional commits
-- **Mode Lock**: Prevents autonomous exits, phase skipping, and demonstration shortcuts
+- **Feature Branch Workflow**: Automatic branch creation and conventional commits
 - **Usage**:
   ```bash
-  /develop                # Enter orchestrator mode, auto-discover work
-  /develop 0003          # Enter orchestrator mode for Epic 0003
-  /develop 0003.02       # Enter orchestrator mode for Story 0003.02
-  /develop 0003.02.01    # Enter orchestrator mode for Task 0003.02.01
-  /develop "feature description"  # Create new epic from natural language feature description
+  /work                   # Auto-discover next work
+  /work 0003             # Epic 0003 implementation
+  /work 0003.02          # Story 0003.02 implementation
+  /work 0003.02.01       # Task 0003.02.01 implementation
+  /work "feature description"  # Create new epic from description
+  ```
+
+### `/plan` (`plan.md`)
+**Project & Epic Planning Assistant**
+
+- **Scope**: Project architecture and epic-level feature planning only
+- **Delegation**: Stories to project-manager agent, tasks to feature-lead agent
+- **Features**: System architecture, technology stack definition, epic prioritization
+- **Principles**: Iterative development, functional deliverables, no time estimates
+- **Output**: Project overview, architecture docs, epic definitions
+- **Usage**:
+  ```bash
+  /plan "Build a SaaS platform"     # Project-level planning
+  /plan "Add real-time features"    # Epic-level planning
+  /plan "User story or task"        # Delegates to appropriate agent
   ```
 
 ### `/prime` (`prime.md`)
@@ -227,14 +294,6 @@ This section contains Claude Code custom slash commands for development workflow
 - **Output**: Detailed project status report with technology stack, architecture highlights, and development context
 - **Usage**: `/prime` - Load complete project context
 
-### `/framework` (`framework.md`)
-**Comprehensive technical architect assistant for new project creation**
-
-- **Purpose**: Comprehensive technical architect assistant for designing and planning entirely new projects from the ground up
-- **Features**: Requirements discovery, technology stack recommendations, architecture design, epic-level planning, implementation roadmap
-- **Process**: Discovery → Technology Stack → Architecture Design → Documentation → Epic Planning → Progress Tracking Setup
-- **Output**: Complete project blueprint with documentation structure and epic-based development plan
-- **Usage**: `/framework` - Enter Framework Mode for greenfield project creation
 
 ### Utility Commands
 
@@ -257,21 +316,16 @@ This section contains Claude Code custom slash commands for development workflow
 
 ## Command Architecture
 
-### Agentic State-Machine Orchestrator (`/develop`)
-The `/develop` command operates in **Agentic State-Machine Orchestrator mode**:
-- **Mode Lock**: Claude locked in orchestrator mode until user exit or completion
-- **Single Command**: Handles Epic → Story → Task hierarchy with automatic progression
-- **Multi-Agent Quality Progression**: Project Manager → Feature Lead → Developer → Quality Assurance
-- **6-Stage State Machine**: Complete workflow from planning to strategic completion
-- **Progressive Quality Standards**: Each phase applies increasingly strict standards
-- **Self-Reflection Agent Discovery**: Internal knowledge-based developer agent selection
-- **Standardized Templates**: Consistent reporting and state transition handling
-- **Critical Quality Validation**: Mandatory formatting, linting, and test requirements
-- **Anti-Early-Exit**: Prevents autonomous phase skipping and demonstration shortcuts
-- **Hierarchical Identifier Support**: Works with EPIC, STORY, or TASK identifiers
-- **Conditional Bootstrapping**: Only creates missing files as needed
-- **Complete Task Tree Maintenance**: Updates all hierarchy files
-- **Automatic Git Integration**: Creates meaningful commits at key milestones
+### Work Command Architecture
+The `/work` command operates in orchestrator mode:
+- **Mode Lock**: Locked until user exit or completion
+- **6-Stage State Machine**: PM_BOOTSTRAP → FL_PLAN → DEV_IMPLEMENT → QUALITY_ASSURANCE → FL_FINAL → PM_COMPLETE
+- **Multi-Agent Progression**: Project Manager → Feature Lead → Developer → Quality Assurance
+- **Progressive Quality Standards**: BASE → ENHANCED → MAXIMUM → STRATEGIC
+- **Self-Reflection Discovery**: Automatic developer agent selection based on tech stack
+- **Critical Validation**: Zero tolerance for formatting, linting, or test failures
+- **Hierarchical Support**: Works with Epic, Story, or Task identifiers
+- **Automatic Git Integration**: Feature branches and conventional commits
 
 ### Quality Standards Progression
 
@@ -284,18 +338,18 @@ The `/develop` command operates in **Agentic State-Machine Orchestrator mode**:
 
 Commands work with structured file hierarchy:
 ```
-docs/DEVELOPMENT_PLAN_AND_PROGRESS/
-├── EEEE - Epic Name.md                                 # Epic files
-├── EEEE.SS - Epic Name - Story Name.md                 # Story files
-└── EEEE.SS.TT - Epic Name - Story Name - Task Name.md  # Task files
+docs/DEVELOPMENT-PLAN/
+├── XXXX - Epic Name.md                                 # Epic files
+├── XXXX.YY - Epic Name - Story Name.md                 # Story files
+└── XXXX.YY.ZZ - Epic Name - Story Name - Task Name.md  # Task files
 ```
 
 ## State Persistence
 
 All commands maintain state in:
-- **Main Progress**: `docs/DEVELOPMENT_PLAN_AND_PROGRESS.md` with agentic state tracking
+- **Main Progress**: `docs/DEVELOPMENT-PLAN.md` with agentic state tracking
 - **Hierarchy Files**: Epic, Story, and Task files with completion status
-- **LESSONS_LEARNED**: `docs/LESSONS_LEARNED.md` with technical knowledge base maintained by developer agents
+- **LESSONS_LEARNED**: `docs/LESSONS-LEARNED.md` with technical knowledge base maintained by developer agents
 - **Iteration Tracking**: Failure reasons and retry counts
 - **Quality Documentation**: Standards applied at each phase
 - **Time Stamps**: All state transitions across file hierarchy
@@ -346,7 +400,7 @@ This section documents the specialized sub-agents used by the `/develop` orchest
   - **developer-python**: Python backend, data science, automation with async patterns
   - **developer-swift**: Native iOS/macOS/iPadOS development with SwiftUI
   - **developer-tauri-typescript**: Cross-platform frontend with React + TypeScript + Tauri IPC
-  - **developer-tauri-rust**: Cross-platform backend with Rust async/concurrent systems
+  - **developer-rust**: Rust development with async/concurrent systems, web backends, CLI tools
 - **Modular Architecture**: All agents implement pure functions, modular decomposition (≤250 lines per file), immutable patterns
 - **LESSONS_LEARNED**: Continuous technical knowledge capture and documentation during implementation
 - **Deliverable Completion**: Comprehensive validation preventing stub implementations or partial deliverables
@@ -478,29 +532,24 @@ Each agent file contains:
 - **Return Codes**: State transition signals
 - **Template Usage**: Required template compliance
 
-## Mode Exit Protocol
+## Orchestrator Mode Behavior
 
-### Permitted Exits:
-- ✅ **User explicitly requests exit**: "Exit orchestrator mode", "Stop develop"
-- ✅ **Complete epic implementation**: All 6 stages successfully completed through PM_COMPLETE
-- ✅ **Critical system failure**: Agent returns CRITICAL_FAILURE requiring user intervention
+The orchestrator mode implements strict controls to ensure complete implementation:
 
-### Prohibited Autonomous Exits:
-- ❌ **Demonstration purposes**: "Let me show the complete workflow"
-- ❌ **Iterative reasoning**: "Given the iterative nature..."
-- ❌ **Mode switching**: Switching to explanation, tutorial, or any other mode
-- ❌ **Self-termination**: Any autonomous decision to end orchestration
-- ❌ **Phase skipping**: Jumping ahead to demonstrate later phases
+**Mode Lock**: Once entered, the orchestrator remains active until user exit or completion.
 
-### Agent Behavioral Rules:
-- Complete their phase fully before returning control
-- Use only documented return codes
-- Follow required template formats
-- Never skip phases or make autonomous workflow decisions
-- Never transition early for "demonstration" purposes
-- Focus solely on their specialized domain expertise
-- Maintain mode lock throughout their execution
-- Quality Assurance must never fix errors, only validate
+**Exit Conditions**:
+- User requests exit explicitly
+- Epic implementation completes all 6 stages
+- Critical failure requires user intervention
+
+**Phase Progression**: The system progresses sequentially through phases, with return codes determining transitions. No phases can be skipped.
+
+**Agent Focus**: Each agent operates within their domain expertise:
+- Project Manager handles strategic planning
+- Feature Lead manages business requirements
+- Developers implement technical solutions
+- Quality Assurance validates without fixing
 
 ---
 
@@ -508,73 +557,69 @@ Each agent file contains:
 
 ### Development Workflow
 ```bash
-/prime                              # Load project context
-/develop 0003                       # Enter orchestrator mode for Epic 0003
-# Claude now locked in orchestrator mode until completion or user exit
+/prime                   # Load project context
+/plan "Project vision"  # Create project architecture and epic definitions
+/work 0001              # Begin implementation of first epic
+# Orchestrator locked until completion or user exit
 
-# Git workflow with hook automation:
-# - Orchestrator uses /branch slash command to create feature branch before each task
-# - Developer uses /commit slash command during implementation (auto-generates conventional commits)
-# - Hooks automatically sync documentation updates via hook automation
-# - Orchestrator merges feature branch into main using standard git merge commands
-# - Story/Epic milestone commits using /commit slash command
+# Git workflow automatically handled:
+# - Feature branches created for each task
+# - Conventional commits throughout implementation
+# - Automatic merging and milestone tracking
 ```
 
-### Project Setup
+### Planning & Implementation
 ```bash
-/framework               # Enter Framework Mode for new project creation
-# Complete greenfield project planning and architecture design
-/develop 0001           # Begin implementation of first epic from framework plan
-# Hook automation triggers throughout implementation process
+/plan "Build SaaS platform"    # Project-level architecture
+# Creates: Project overview, tech stack, epic definitions
+
+/plan "Add real-time features"  # Epic-level planning
+# Creates: Epic architecture, integration design
+
+/work                           # Auto-discover and implement next work
+/work 0002.03                  # Implement specific story
 ```
 
-### Research and Planning
+### Research and Development
 ```bash
 /ask "Best practices for Next.js authentication"
-/prime                   # Refresh context with new information
-/develop 0004            # Apply research to new epic
+/prime                   # Refresh context
+/work 0004              # Apply research in implementation
 ```
 
-### Quality Assurance Focus
+### Quality Assurance Process
 ```bash
-/develop 0005           # Epic with strict quality requirements
-# Quality Assurance phase will:
-# - Validate code formatting (zero errors)
-# - Validate all tests pass (100% success)
-# - Return to DEV_IMPLEMENT if any critical validation fails
-# - Perform comprehensive enhanced validation only after critical checks pass
+/work 0005              # Epic implementation with quality validation
+# The Quality Assurance phase validates:
+# - Code formatting (zero errors required)
+# - Test execution (100% pass rate required)
+# - Deliverable completeness (no stubs allowed)
+# - Returns to DEV_IMPLEMENT on validation failure
 ```
 
 ### Natural Language Feature Development
 ```bash
-# Create and implement new features from natural language descriptions
-/develop "Add user authentication with OAuth2 and role-based permissions"
-# Creates new epic from feature description, starts with PM_BOOTSTRAP phase
-# Project Manager analyzes feature and breaks into stories and tasks
-# Automatic progression through all 6 stages with quality validation
+# Plan new features from descriptions
+/plan "Add user authentication with OAuth2"
+# Creates epic definition with architecture
 
-/develop "Implement real-time chat feature with message history"
-# Another feature-driven epic that starts from planning
-# Self-reflection agent discovery selects appropriate developer based on tech requirements
+# Implement features directly
+/work "Implement real-time chat feature"
+# Creates epic and begins orchestrated implementation
 
-/develop "Build responsive dashboard with data visualization charts"
-# Complex UI feature that triggers appropriate specialist selection
-# Complete implementation with progressive quality standards and hook automation
+/work "Build responsive dashboard"
+# Self-reflection discovers appropriate developer agent
+# Progresses through all 6 stages with quality validation
 ```
 
 ## Development Templates
 
-The [`templates/`](templates/) folder contains meta-templates for creating and updating agents and commands:
+The system includes meta-templates in the [`templates/`](templates/) folder that define standard structures:
 
-### Available Templates
-- **[AGENT-STRUCTURE.md](templates/AGENT-STRUCTURE.md)**: Complete structural template for agent instructions with pure function architecture
-- **[COMMAND-STRUCTURE.md](templates/COMMAND-STRUCTURE.md)**: Complete structural template for command instructions
+**Available Templates**:
+- **AGENT-STRUCTURE.md**: Template for agent instructions including pure function architecture
+- **COMMAND-STRUCTURE.md**: Template for command instructions and functionality
 
-### Template Usage
-- **For Agent Development**: Use AGENT-STRUCTURE.md to ensure consistent agent structure with modular design principles, LESSONS_LEARNED integration, and deliverable completion verification
-- **For Command Development**: Use COMMAND-STRUCTURE.md for consistent command structure and functionality
-- **Internal Templates**: Agents and commands include their own internal templates within their instructions
-- **Naming Convention**: Use CAPITAL_CASE for internal template names
-- **Architecture Standards**: All new developer agents automatically include pure function design, modular decomposition (≤250 lines per file), and LESSONS_LEARNED maintenance
+**Template Architecture**: Templates enforce consistent structure across agents and commands, including modular design principles (≤250 lines per file), LESSONS_LEARNED documentation, and deliverable completion verification.
 
-See [templates/README.md](templates/README.md) for comprehensive development guidelines and standards.
+**Naming Convention**: Internal templates use CAPITAL_CASE naming for consistency.

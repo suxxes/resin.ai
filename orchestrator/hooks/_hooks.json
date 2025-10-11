@@ -1,0 +1,26 @@
+{
+	"PostToolUse": [
+		{
+			"matcher": "TodoWrite",
+			"hooks": [
+				{
+					"type": "command",
+					"command": "./${CLAUDE_PLUGIN_ROOT}/scripts/update-progress.sh"
+				},
+				{
+					"type": "command",
+					"command": "./${CLAUDE_PLUGIN_ROOT}/scripts/update-progress-documentation.sh"
+				}
+			]
+		},
+		{
+			"matcher": "Task",
+			"hooks": [
+				{
+					"type": "command",
+					"command": "./${CLAUDE_PLUGIN_ROOT}/scripts/validate-transition.sh"
+				}
+			]
+		}
+	]
+}
