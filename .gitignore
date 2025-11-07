@@ -1,12 +1,10 @@
 # Ignore everything by default
 *
 
-# Allow only agents, commands and CLAUDE.md
-!agents/
-!agents/**
-!commands/
-!commands/**
-!README.md
-!CLAUDE.md
+# Allow selected only
+!.claude-plugin/
+!.claude-plugin/**
+!orchestrator/
+!orchestrator/**
 !.gitignore
-!settings.json
+!README.md

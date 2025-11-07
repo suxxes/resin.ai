@@ -1,0 +1,29 @@
+{
+	"name": "orchestrator",
+	"version": "2.0.0",
+	"description": "Autonomous agentic orchestration system with specialized agents for planning, development, testing, and quality assurance. Features intelligent requirements enrichment, template-driven documentation, phase-based workflows, and deterministic execution across the entire software development lifecycle from architecture to deployment.",
+	"author": {
+		"name": "Fedor",
+		"url": "https://github.com/suxxes"
+	},
+	"homepage": "https://github.com/suxxes/resin.ai",
+	"repository": "https://github.com/suxxes/resin.ai",
+	"license": "MIT",
+	"keywords": [
+		"automation",
+		"orchestration",
+		"planning",
+		"development",
+		"testing",
+		"quality-assurance",
+		"project-management",
+		"sdlc",
+		"requirements",
+		"documentation",
+		"workflow",
+		"agents",
+		"agents",
+		"architecture",
+		"deployment"
+	]
+}
