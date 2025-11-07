@@ -7,4 +7,5 @@
 !orchestrator/
 !orchestrator/**
 !.gitignore
+!LICENSE
 !README.md
