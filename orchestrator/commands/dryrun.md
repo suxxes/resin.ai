@@ -1,6 +1,6 @@
 # Dry Run - Orchestration test mode
 
-<!-- Updated: 2025-10-13 17:57:30 UTC -->
+<!-- Updated: 2025-10-19 10:02:16 UTC -->
 
 Enables simulation mode for orchestration commands. When active, all commands execute their real flows but with simulated agent responses instead of actual delegations. Supports testing both work orchestration and context enrichment flows.
 
