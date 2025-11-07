@@ -1,8 +1,52 @@
 # Resin.ai Orchestrator
 
-<!-- Updated: 2025-11-07 15:57:25 UTC -->
+<!-- Updated: 2025-11-07 16:17:36 UTC -->
 
 An autonomous multi-agent orchestration system for software development using Claude Code's plugin architecture. Built on state machine orchestration with deterministic execution, hierarchical planning, and specialized AI agents.
+
+## Installation
+
+### Prerequisites
+
+- **Claude Code** installed and configured
+- **Python 3.10+** for MCP server functionality
+- **Git** for version control integration
+
+### Quick Install
+
+Install the Resin.ai marketplace and orchestrator plugin using Claude Code:
+
+```bash
+# Add the Resin.ai marketplace
+/plugin marketplace add suxxes/resin.ai
+
+# Or add from local directory
+/plugin marketplace add .
+
+# Or add from Git repository
+/plugin marketplace add https://github.com/suxxes/resin.ai.git
+
+# Install the orchestrator plugin
+/plugin install orchestrator@resin-ai
+
+# Or browse and install interactively
+/plugin
+```
+
+### Verify Installation
+
+After installation, verify the plugin is working:
+
+```bash
+# List installed marketplaces
+/plugin marketplace list
+
+# List installed plugins
+/plugin list
+
+# Test the orchestrator commands
+/orchestrator:plan --help
+```
 
 ## System Overview
 
