@@ -7,26 +7,26 @@ detects stale sessions using file mtime, and sends continuation prompts to reviv
 Uses only Python standard library - no external dependencies required.
 
 Implements MCP (Model Context Protocol) JSON-RPC 2.0 over stdio.
-Tools: list_sessions, configure, send_continuation
 
 Features:
 - Hook-based session tracking (ping-pong.sh creates/deletes session files on active events)
 - File existence-based activity monitoring (file only exists when active work is happening)
 - File mtime-based staleness detection (no polling overhead)
-- Auto-discovery of sessions from $CLAUDE_PROJECT_DIR/.sessions/
-- Direct tmux pane continuation prompt injection
+- Auto-discovery of sessions from $CLAUDE_PLUGIN_ROOT/.sessions/
+- Direct tmux session continuation prompt injection
 - Zero external dependencies
 
-Session files: $CLAUDE_PROJECT_DIR/.sessions/{normalized_project}/{session_id}.txt
-File contents: tmux pane ID (e.g., "%0")
+Session files: $CLAUDE_PLUGIN_ROOT/.sessions/{normalized_project}/{session_id}.json
+File contents: JSON array of todos from TodoWrite
 Activity tracking:
   - File existence indicates active work (created on UserPromptSubmit, PreToolUse, PostToolUse)
   - File mtime used for staleness detection
   - File deleted on SessionEnd or when session becomes idle
+  - Todos parsed directly from session file (no dependency on ~/.claude/todos)
 
 Requires Python 3.10+
 
-Updated: 2025-11-08 21:14:42 UTC
+Updated: 2025-11-09 03:30:54 UTC
 """
 
 import json
@@ -44,8 +44,8 @@ from typing import Any, Union
 JsonValue = Union[str, int, float, bool, None, dict[str, "JsonValue"], list["JsonValue"]]
 
 # Setup logging to stderr
-# Use INFO level by default (set PING_PONG_DEBUG=1 for DEBUG level)
-log_level = logging.DEBUG if os.environ.get('PING_PONG_DEBUG') == '1' else logging.INFO
+# Use INFO level by default (set RESIN_AI_DEBUG=1 for DEBUG level)
+log_level = logging.DEBUG if os.environ.get('RESIN_AI_DEBUG') == '1' else logging.INFO
 logging.basicConfig(
     level=log_level,
     format='[%(levelname)s] %(message)s',
@@ -138,19 +138,21 @@ class SessionMonitor:
         try:
             logger.debug(f"Leader election starting: my_pid={self.my_pid}")
 
-            # Find all ping-pong.py processes (runs as "python3 -c ... exec(open('ping-pong.py').read())")
+            # Find all ping-pong.py processes using ps + grep
+            # Pattern matches: python3 -c ... exec(open('ping-pong.py').read())
+            # Using ps is more reliable than pgrep across different systems
             result = subprocess.run(
-                ['pgrep', '-f', 'ping-pong.py'],
+                ['sh', '-c', 'ps -eo pid,command | grep "[e]xec.*ping-pong" | awk \'{print $1}\''],
                 capture_output=True,
                 text=True,
                 timeout=2
             )
 
-            logger.debug(f"pgrep result (pattern='ping-pong.py'): returncode={result.returncode}, stdout='{result.stdout.strip()}'")
+            logger.debug(f"ps+grep result: returncode={result.returncode}, stdout='{result.stdout.strip()}'")
 
-            if result.returncode != 0:
-                # No other processes found, we're the leader
-                logger.debug(f"No ping-pong processes found via pgrep, assuming leader")
+            if result.returncode != 0 or not result.stdout.strip():
+                # No processes found, we're the leader
+                logger.debug(f"No ping-pong processes found, assuming leader")
                 return True
 
             # Parse PIDs
@@ -165,11 +167,6 @@ class SessionMonitor:
                     except ValueError as e:
                         logger.warning(f"Failed to parse PID from line '{line}': {e}")
                         continue
-
-            # Always include our own PID in the list (pgrep doesn't return the calling process)
-            if self.my_pid not in pids:
-                pids.append(self.my_pid)
-                logger.debug(f"Added own PID to list: {self.my_pid}")
 
             if not pids:
                 # No valid PIDs found, we're the leader
@@ -225,31 +222,45 @@ class SessionMonitor:
 
             logger.debug(f"Scanning project directory: {project_dir_entry.name}")
 
-            # Scan for session files (*.txt)
+            # Scan for session files (*.json)
             session_count = 0
-            for session_file in project_dir_entry.glob('*.txt'):
+            for session_file in project_dir_entry.glob('*.json'):
                 try:
-                    # Session ID is the filename (without .txt)
+                    # Session ID is the filename (without .json extension)
                     session_id = session_file.stem
 
-                    # Read tmux pane from file
-                    tmux_pane = session_file.read_text().strip()
+                    # Read todos from JSON file
+                    file_content = session_file.read_text().strip()
+                    try:
+                        todos = json.loads(file_content) if file_content else []
+                    except json.JSONDecodeError:
+                        logger.warning(f"Failed to parse JSON in {session_file}, treating as empty todos")
+                        todos = []
+
+                    # tmux session name matches session_id (we rename it in the hook)
+                    tmux_session = session_id
 
                     # Get file modification time
                     mtime = session_file.stat().st_mtime
                     current_time = time.time()
                     idle_seconds = current_time - mtime
 
+                    # Count active/pending todos
+                    active_todos = [t for t in todos if isinstance(t, dict) and t.get('status') in ['in_progress', 'pending']]
+                    active_count_local = len(active_todos)
+
                     discovered[session_id] = {
                         'session_id': session_id,
-                        'tmux_pane': tmux_pane,
+                        'tmux_session': tmux_session,
                         'file_path': str(session_file),
                         'last_mtime': mtime,
-                        'project_dir': project_dir_entry.name
+                        'project_dir': project_dir_entry.name,
+                        'todos': todos,
+                        'active_todo_count': active_count_local
                     }
 
                     session_count += 1
-                    logger.debug(f"Discovered session: id={session_id}, pane={tmux_pane}, idle={idle_seconds:.1f}s, file={session_file}")
+                    logger.debug(f"Discovered session: id={session_id}, tmux_session={tmux_session}, todos={len(todos)} ({active_count_local} active), idle={idle_seconds:.1f}s, file={session_file}")
 
                 except (IOError, OSError) as e:
                     logger.warning(f"Failed to read session file {session_file}: {e}")
@@ -260,66 +271,70 @@ class SessionMonitor:
         logger.debug(f"Total sessions discovered: {len(discovered)}")
         return discovered
 
-    def _validate_pane_exists(self, tmux_pane: str) -> bool:
-        """Validate that a tmux pane actually exists and is active."""
-        if not self.tmux_available or tmux_pane == 'none':
+    def _validate_session_exists(self, tmux_session: str) -> bool:
+        """Validate that a tmux session actually exists and is active."""
+        if not self.tmux_available or tmux_session == 'none':
             return False
 
         try:
-            # Use tmux display-message to check if pane exists and get its info
+            # Use tmux has-session to check if session exists
             result = subprocess.run(
-                ['tmux', 'display-message', '-t', tmux_pane, '-p', '#{pane_id}:#{pane_pid}:#{pane_current_command}'],
+                ['tmux', 'has-session', '-t', tmux_session],
+                capture_output=True,
+                timeout=2
+            )
+
+            if result.returncode != 0:
+                logger.debug(f"Session validation failed: session {tmux_session} does not exist (returncode={result.returncode})")
+                return False
+
+            # Get session info to verify it's active
+            result = subprocess.run(
+                ['tmux', 'display-message', '-t', tmux_session, '-p', '#{session_name}:#{session_windows}:#{session_attached}'],
                 capture_output=True,
                 text=True,
                 timeout=2
             )
 
             if result.returncode != 0:
-                logger.debug(f"Pane validation failed: pane {tmux_pane} does not exist (returncode={result.returncode})")
+                logger.debug(f"Session info failed for {tmux_session}")
                 return False
 
-            # Parse the output
             output = result.stdout.strip()
             if not output:
-                logger.debug(f"Pane validation failed: empty response for pane {tmux_pane}")
+                logger.debug(f"Session validation failed: empty response for session {tmux_session}")
                 return False
 
             parts = output.split(':')
             if len(parts) >= 3:
-                pane_id, pane_pid, pane_command = parts[0], parts[1], parts[2]
-                logger.debug(f"Pane {tmux_pane} validated: id={pane_id}, pid={pane_pid}, command={pane_command}")
-
-                # Check if the pane has an active process
-                if pane_pid and pane_pid != '0':
-                    return True
-                else:
-                    logger.warning(f"Pane {tmux_pane} has no active process (pid={pane_pid})")
-                    return False
+                session_name, session_windows, session_attached = parts[0], parts[1], parts[2]
+                logger.debug(f"Session {tmux_session} validated: name={session_name}, windows={session_windows}, attached={session_attached}")
+                return True
 
             return False
 
         except (subprocess.TimeoutExpired, subprocess.SubprocessError) as e:
-            logger.error(f"Pane validation error for {tmux_pane}: {e}")
+            logger.error(f"Session validation error for {tmux_session}: {e}")
             return False
 
-    def _send_continuation_prompt_to_pane(self, tmux_pane: str, message: str) -> bool:
-        """Send continuation prompt to specific tmux pane."""
-        if not self.tmux_available or tmux_pane == 'none':
-            logger.warning(f"Cannot send prompt - tmux unavailable or no pane: {tmux_pane}")
+    def _send_continuation_prompt_to_session(self, tmux_session: str, message: str) -> bool:
+        """Send continuation prompt to specific tmux session."""
+        if not self.tmux_available or tmux_session == 'none':
+            logger.warning(f"Cannot send prompt - tmux unavailable or no session: {tmux_session}")
             return False
 
-        # Validate pane exists before sending
-        if not self._validate_pane_exists(tmux_pane):
-            logger.warning(f"Cannot send prompt - pane {tmux_pane} does not exist or has no active process")
+        # Validate session exists before sending
+        if not self._validate_session_exists(tmux_session):
+            logger.warning(f"Cannot send prompt - session {tmux_session} does not exist")
             return False
 
         try:
-            logger.debug(f"Sending continuation prompt to pane {tmux_pane}")
+            logger.debug(f"Sending continuation prompt to session {tmux_session}")
             logger.debug(f"Message: {repr(message)}")
 
-            # Send the message to the tmux pane
+            # Send the message to the tmux session
             result1 = subprocess.run(
-                ['tmux', 'send-keys', '-t', tmux_pane, message],
+                ['tmux', 'send-keys', '-t', tmux_session, message],
                 capture_output=True,
                 timeout=5
             )
@@ -329,17 +344,17 @@ class SessionMonitor:
 
             # Send Enter to execute
             result2 = subprocess.run(
-                ['tmux', 'send-keys', '-t', tmux_pane, 'Enter'],
+                ['tmux', 'send-keys', '-t', tmux_session, 'Enter'],
                 capture_output=True,
                 timeout=5
             )
             logger.debug(f"send-keys (Enter) result: returncode={result2.returncode}")
 
-            logger.info(f"✓ Continuation prompt sent to pane: {tmux_pane}")
+            logger.info(f"✓ Continuation prompt sent to session: {tmux_session}")
             return True
 
         except (subprocess.TimeoutExpired, Exception) as e:
-            logger.error(f"✗ Failed to send prompt to pane {tmux_pane}: {e}")
+            logger.error(f"✗ Failed to send prompt to session {tmux_session}: {e}")
             import traceback
             traceback.print_exc(file=sys.stderr)
             return False
@@ -406,9 +421,11 @@ class SessionMonitor:
                 time_since_activity = current_time - last_mtime
                 is_stale = time_since_activity > self.config["stale_timeout"]
                 is_forgotten = time_since_activity > self.config["forget_timeout"]
-                tmux_pane = session_data.get("tmux_pane")
+                tmux_session = session_data.get("tmux_session")
+                active_todo_count = session_data.get("active_todo_count", 0)
+                todos = session_data.get("todos", [])
 
-                logger.debug(f"Session {session_id}: idle={time_since_activity:.1f}s, stale={is_stale}, forgotten={is_forgotten}, pane={tmux_pane}")
+                logger.debug(f"Session {session_id}: idle={time_since_activity:.1f}s, stale={is_stale}, forgotten={is_forgotten}, tmux_session={tmux_session}, active_todos={active_todo_count}")
 
                 if is_forgotten:
                     # Session has been idle too long, don't try to revive it
@@ -416,22 +433,26 @@ class SessionMonitor:
                     logger.info(f"💤 Forgotten session (idle {time_since_activity:.0f}s > {self.config['forget_timeout']}s): {session_id} - skipping continuation")
                 elif is_stale:
                     # Session is stale but not forgotten
-                    # Since session file exists, it means there's active work happening
-                    stale_count += 1
-                    logger.warning(f"⚠️  Stale session detected: {session_id} ({time_since_activity:.0f}s idle, threshold={self.config['stale_timeout']}s)")
-                    logger.info(f"🔧 Session {session_id} has active work (file exists) - sending continuation")
+                    # Only send continuation if there are active/pending todos
+                    if active_todo_count > 0:
+                        stale_count += 1
+                        logger.warning(f"⚠️  Stale session detected: {session_id} ({time_since_activity:.0f}s idle, threshold={self.config['stale_timeout']}s)")
+                        logger.info(f"🔧 Session {session_id} has {active_todo_count} active todos - sending continuation")
 
-                    # Send continuation prompt to tmux pane
-                    if tmux_pane and tmux_pane != "none":
-                        message = random.choice(self.config["continuation_messages"])
-                        logger.info(f"Sending continuation to pane {tmux_pane} for session {session_id}")
-                        success = self._send_continuation_prompt_to_pane(tmux_pane, message)
-                        if success:
-                            logger.info(f"✓ Continuation sent successfully to {session_id}")
+                        # Send continuation prompt to tmux session
+                        if tmux_session and tmux_session != "none":
+                            message = random.choice(self.config["continuation_messages"])
+                            logger.info(f"Sending continuation to session {tmux_session} for session {session_id}")
+                            success = self._send_continuation_prompt_to_session(tmux_session, message)
+                            if success:
+                                logger.info(f"✓ Continuation sent successfully to {session_id}")
+                            else:
+                                logger.error(f"✗ Failed to send continuation to {session_id}")
                         else:
-                            logger.error(f"✗ Failed to send continuation to {session_id}")
+                            logger.warning(f"Cannot send continuation - no valid tmux session for {session_id}")
                     else:
-                        logger.warning(f"Cannot send continuation - no valid tmux pane for {session_id}")
+                        logger.debug(f"Session {session_id} is stale but has no active todos - skipping continuation")
+                        active_count += 1  # Count as active (no intervention needed)
                 else:
                     active_count += 1
 
@@ -525,62 +546,6 @@ class SessionMonitor:
             "action": "continuation_sent" if success else "failed"
         }
 
-    def list_sessions(self) -> dict[str, Any]:
-        """List all discovered sessions with mtime info."""
-        current_time = time.time()
-
-        # Discover sessions from filesystem in real-time
-        file_sessions = self._discover_sessions()
-
-        # Update in-memory cache
-        with self._lock:
-            self.sessions = file_sessions
-
-            sessions_list = []
-            for session_id, session_data in self.sessions.items():
-                last_mtime = session_data.get("last_mtime", current_time)
-                idle_seconds = current_time - last_mtime
-                is_stale = idle_seconds > self.config["stale_timeout"]
-                is_forgotten = idle_seconds > self.config["forget_timeout"]
-
-                sessions_list.append({
-                    "session_id": session_id,
-                    "tmux_pane": session_data.get("tmux_pane"),
-                    "project_dir": session_data.get("project_dir"),
-                    "idle_seconds": round(idle_seconds, 1),
-                    "is_stale": is_stale,
-                    "is_forgotten": is_forgotten,
-                    "file_path": session_data.get("file_path")
-                })
-
-        return {
-            "sessions": sessions_list,
-            "count": len(sessions_list),
-            "monitoring_enabled": self.monitoring_enabled,
-            "tmux_available": self.tmux_available,
-            "is_leader": self._am_i_leader(),
-            "my_pid": self.my_pid
-        }
-
-    def configure(self, ping_interval: int | None = None, stale_timeout: int | None = None, forget_timeout: int | None = None, continuation_messages: list[str] | None = None) -> dict[str, Any]:
-        """Update monitoring configuration."""
-        with self._lock:
-            if ping_interval is not None:
-                self.config["ping_interval"] = max(5, ping_interval)  # Minimum 5 seconds
-
-            if stale_timeout is not None:
-                self.config["stale_timeout"] = max(30, stale_timeout)  # Minimum 30 seconds
-
-            if forget_timeout is not None:
-                self.config["forget_timeout"] = max(300, forget_timeout)  # Minimum 5 minutes
-
-            if continuation_messages is not None and len(continuation_messages) > 0:
-                self.config["continuation_messages"] = continuation_messages
-
-        return {
-            "success": True,
-            "config": self.config.copy()
-        }
 
 
 class PingPongMCPServer:
@@ -614,60 +579,7 @@ class PingPongMCPServer:
     def handle_tools_list(self, _: dict[str, JsonValue]) -> dict[str, JsonValue]:
         """Handle tools/list request - list available tools."""
         return {
-            "tools": [
-                {
-                    "name": "list_sessions",
-                    "description": "List all discovered sessions from hook-created files with their current status and idle time based on file mtime.",
-                    "inputSchema": {
-                        "type": "object",
-                        "properties": {}
-                    }
-                },
-                {
-                    "name": "configure",
-                    "description": "Configure monitoring parameters (ping interval, stale timeout, forget timeout, continuation messages).",
-                    "inputSchema": {
-                        "type": "object",
-                        "properties": {
-                            "ping_interval": {
-                                "type": "integer",
-                                "description": "Seconds between monitoring checks (minimum 5)"
-                            },
-                            "stale_timeout": {
-                                "type": "integer",
-                                "description": "Seconds of inactivity before marking stale (minimum 30)"
-                            },
-                            "forget_timeout": {
-                                "type": "integer",
-                                "description": "Seconds of inactivity before forgetting session (minimum 300, default 3600)"
-                            },
-                            "continuation_messages": {
-                                "type": "array",
-                                "items": {"type": "string"},
-                                "description": "List of messages to randomly select from when sending continuation prompts"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "send_continuation",
-                    "description": "Manually send continuation prompt to a specific tmux pane (for testing/debugging).",
-                    "inputSchema": {
-                        "type": "object",
-                        "properties": {
-                            "tmux_pane": {
-                                "type": "string",
-                                "description": "Tmux pane ID (e.g., '%0')"
-                            },
-                            "message": {
-                                "type": "string",
-                                "description": "Custom message to send (optional, uses default if not provided)"
-                            }
-                        },
-                        "required": ["tmux_pane"]
-                    }
-                }
-            ]
+            "tools": []
         }
 
     def handle_tools_call(self, params: dict[str, JsonValue]) -> dict[str, JsonValue]:
@@ -678,58 +590,8 @@ class PingPongMCPServer:
             raise ValueError("Tool name must be a string")
 
         name: str = name_value
-        arguments = params.get("arguments", {})
 
-        if not isinstance(arguments, dict):
-            raise ValueError("Tool arguments must be an object")
-
-        # Route to appropriate handler
-        result: dict[str, Any]
-
-        if name == "list_sessions":
-            result = self.monitor.list_sessions()
-
-        elif name == "configure":
-            ping_interval = arguments.get("ping_interval")
-            stale_timeout = arguments.get("stale_timeout")
-            forget_timeout = arguments.get("forget_timeout")
-            continuation_messages = arguments.get("continuation_messages")
-
-            result = self.monitor.configure(
-                ping_interval=ping_interval if isinstance(ping_interval, int) else None,
-                stale_timeout=stale_timeout if isinstance(stale_timeout, int) else None,
-                forget_timeout=forget_timeout if isinstance(forget_timeout, int) else None,
-                continuation_messages=continuation_messages if isinstance(continuation_messages, list) else None
-            )
-
-        elif name == "send_continuation":
-            tmux_pane = arguments.get("tmux_pane", "")
-            message = arguments.get("message")
-
-            if not isinstance(tmux_pane, str) or not tmux_pane:
-                raise ValueError("tmux_pane must be a non-empty string")
-
-            # Use provided message or random default
-            msg = message if isinstance(message, str) else random.choice(self.monitor.config["continuation_messages"])
-
-            success = self.monitor._send_continuation_prompt_to_pane(tmux_pane, msg)
-
-            result = {
-                "success": success,
-                "tmux_pane": tmux_pane,
-                "message_sent": msg if success else None
-            }
-
-        else:
-            raise ValueError(f"Unknown tool: {name}")
-
-        # Format result as MCP tool response
-        return {
-            "content": [{
-                "type": "text",
-                "text": json.dumps(result, indent=2)
-            }]
-        }
+        raise ValueError(f"Unknown tool: {name}")
 
     def handle_request(self, request: dict[str, JsonValue]) -> dict[str, JsonValue]:
         """Handle incoming JSON-RPC request."""

@@ -3,10 +3,11 @@
 # Creates session file ONLY on active work events, deletes on SessionEnd
 # File existence = session is actively working (not just open)
 # Renames tmux session to match Claude Code session ID
-# Updated: 2025-11-08 22:43:51 UTC
+# Session file format: JSON array of todos from TodoWrite
+# Updated: 2025-11-08 23:50:00 UTC
 
-# Enable debug logging by setting PING_PONG_DEBUG=1 or DEBUG=1
-DEBUG="${PING_PONG_DEBUG:-${DEBUG:-0}}"
+# Enable debug logging by setting RESIN_AI_DEBUG=1
+DEBUG="${RESIN_AI_DEBUG:-0}"
 
 # Parse session info from stdin JSON
 STDIN_INPUT=$(cat)
@@ -16,12 +17,21 @@ TOOL_NAME=$(echo "$STDIN_INPUT" | jq -r '.tool_name // empty')
 PROJECT_DIR=$(echo "$STDIN_INPUT" | jq -r '.cwd // empty')
 TMUX_SESSION=$(echo "$STDIN_INPUT" | jq -r '.tmux_session // empty')
 
-# Read todos from file (stored in ~/.claude/todos/)
-TODO_FILE="$HOME/.claude/todos/${SESSION_ID}-agent-${SESSION_ID}.json"
-if [ -f "$TODO_FILE" ]; then
-  TODOS=$(cat "$TODO_FILE")
+# Extract todos from stdin (for TodoWrite tool, it's in tool_input.todos)
+TODOS=$(echo "$STDIN_INPUT" | jq -c '.tool_input.todos // .todos // empty')
+
+# If todos not in stdin, try to read from ~/.claude/todos as fallback
+if [ "$TODOS" = "empty" ] || [ "$TODOS" = "null" ] || [ -z "$TODOS" ]; then
+  TODO_FILE="$HOME/.claude/todos/${SESSION_ID}-agent-${SESSION_ID}.json"
+  if [ -f "$TODO_FILE" ]; then
+    TODOS=$(cat "$TODO_FILE")
+    log_debug "Loaded todos from file: $TODO_FILE"
+  else
+    TODOS="[]"
+    log_debug "No todos found in stdin or file, using empty array"
+  fi
 else
-  TODOS=""
+  log_debug "Loaded todos from stdin: $(echo "$TODOS" | jq 'length') todos"
 fi
 
 # Fallback to environment variables if JSON parsing fails
@@ -37,7 +47,7 @@ NORMALIZED_DIR=$(echo "$PROJECT_DIR" | tr '[:upper:]' '[:lower:]' | sed 's|^/||'
 
 # Session directory and file paths (stored in plugin root)
 SESSION_DIR="$PLUGIN_ROOT/.sessions/$NORMALIZED_DIR"
-SESSION_FILE="$SESSION_DIR/${SESSION_ID}.txt"
+SESSION_FILE="$SESSION_DIR/${SESSION_ID}.json"
 LOG_DIR="$SESSION_DIR/logs"
 LOG_FILE="$LOG_DIR/${SESSION_ID}.log"
 
@@ -202,8 +212,8 @@ if [ "$EVENT_NAME" = "Notification" ]; then
         log_debug "Preparing to send continuation prompt"
         log_debug "Note: May occasionally interrupt user typing - accepted limitation"
 
-        # Send continuation prompt to tmux pane
-        if [ -n "$TMUX_PANE" ]; then
+        # Send continuation prompt to tmux session
+        if [ -n "$SESSION_ID" ]; then
           # Pick random continuation message
           MESSAGES=(
             "Please continue working..."
@@ -216,12 +226,13 @@ if [ "$EVENT_NAME" = "Notification" ]; then
           MESSAGE="${MESSAGES[$RANDOM_INDEX]}"
 
           # Send message and Enter as separate commands with small delay
-          tmux send-keys -t "$TMUX_PANE" "$MESSAGE" 2>/dev/null
+          # Target the tmux session by SESSION_ID (we renamed session to match)
+          tmux send-keys -t "$SESSION_ID" "$MESSAGE" 2>/dev/null
           sleep 0.1
-          tmux send-keys -t "$TMUX_PANE" Enter 2>/dev/null
-          log_debug "Sent continuation to tmux pane $TMUX_PANE: $MESSAGE"
+          tmux send-keys -t "$SESSION_ID" Enter 2>/dev/null
+          log_debug "Sent continuation to tmux session $SESSION_ID: $MESSAGE"
         else
-          log_debug "No TMUX_PANE available for continuation"
+          log_debug "No SESSION_ID available for continuation"
         fi
       else
         log_debug "Idle prompt: No active todos found"
@@ -249,14 +260,18 @@ if [ $IS_ACTIVE -eq 1 ]; then
   # Create session directory if needed
   mkdir -p "$SESSION_DIR"
 
-  # Create or update session file
+  # Create or update session file with JSON format (just todos array)
+  # Filename already contains session_id, mtime is tracked by filesystem
+  # File content is just the todos array from TodoWrite
+
   if [ -f "$SESSION_FILE" ]; then
-    touch "$SESSION_FILE"
-    log_debug "Activity: $EVENT_NAME (updated session file mtime)"
+    # File exists - update it
+    echo "$TODOS" > "$SESSION_FILE"
+    log_debug "Activity: $EVENT_NAME (updated session file with $(echo "$TODOS" | jq 'length') todos)"
   else
-    # Create new session file with tmux pane ID
-    echo "${TMUX_PANE:-none}" > "$SESSION_FILE"
-    log_debug "Activity: $EVENT_NAME (created session file for active work)"
+    # File doesn't exist - create it
+    echo "$TODOS" > "$SESSION_FILE"
+    log_debug "Activity: $EVENT_NAME (created session file with $(echo "$TODOS" | jq 'length') todos)"
   fi
 else
   # Passive event - just log it, don't create/update session file

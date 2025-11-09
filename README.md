@@ -1,6 +1,6 @@
 # Resin.ai Orchestrator
 
-<!-- Updated: 2025-11-08 22:44:29 UTC -->
+<!-- Updated: 2025-11-09 03:18:32 UTC -->
 
 An autonomous multi-agent orchestration system for software development using Claude Code's plugin architecture. Built on state machine orchestration with deterministic execution, hierarchical planning, and specialized AI agents.
 
@@ -8,46 +8,32 @@ An autonomous multi-agent orchestration system for software development using Cl
 
 ### Prerequisites
 
-- **Claude Code** installed and configured
-- **Python 3.10+** for MCP server functionality
-- **Git** for version control integration
-- **tmux** for session management and monitoring (required for orchestrator agents)
+**Required:**
+- **tmux** - Session management and monitoring
+  ```bash
+  # macOS
+  brew install tmux
 
-### Quick Install
+  # Ubuntu/Debian
+  sudo apt-get install tmux
 
-Install the Resin.ai marketplace and orchestrator plugin using Claude Code:
+  # Fedora/RHEL
+  sudo dnf install tmux
+  ```
 
-```bash
-# Add the Resin.ai marketplace
-/plugin marketplace add suxxes/resin.ai
+**Automatically Available:**
+- **Claude Code** - You're already using it
+- **Python 3.10+** - Built into macOS/Linux
+- **Git** - Pre-installed on most systems
 
-# Or add from local directory
-/plugin marketplace add .
-
-# Or add from Git repository
-/plugin marketplace add https://github.com/suxxes/resin.ai.git
-
-# Install the orchestrator plugin
-/plugin install orchestrator@resin-ai
-
-# Or browse and install interactively
-/plugin
-```
-
-### Verify Installation
-
-After installation, verify the plugin is working:
+### Install Plugin
 
 ```bash
-# List installed marketplaces
-/plugin marketplace list
-
-# List installed plugins
-/plugin list
-
-# Test the orchestrator commands
-/orchestrator:plan --help
+# Add marketplace and install plugin (one command)
+/plugin marketplace add suxxes/resin.ai && /plugin install orchestrator@resin-ai
 ```
+
+That's it! The orchestrator is ready to use.
 
 ## System Overview
 
@@ -226,44 +212,54 @@ Two zero-dependency MCP servers power the orchestrator:
 - **Hook-based session monitoring** via file mtime tracking
 - **Auto-discovery** of sessions from `$CLAUDE_PLUGIN_ROOT/.sessions/` directories
 - **Stale detection** and automatic continuation prompts
-- **Direct tmux pane** communication for session revival
+- **Direct tmux session** communication for session revival
 - **Randomized continuation messages** for natural interaction (5+ variants)
-- **Debug-only logging** via `PING_PONG_DEBUG=1` environment variable
+- **Debug-only logging** via `RESIN_AI_DEBUG=1` environment variable
 - **System-wide session tracking** at plugin root level
-- **Tools**: `list_sessions`, `configure`, `send_continuation`
 
 ### 9. Session Monitoring & Revival
 
 Hooks-based ping/pong system ensures continuous agent operation:
 
 **How it works**:
-1. **Hooks track activity**: Every tool use updates session file mtime
-2. **Ping-pong monitors**: Background process checks for stale sessions
-3. **Auto-continuation**: Sends prompts to tmux panes when stale detected
-4. **Session files**: `$CLAUDE_PLUGIN_ROOT/.sessions/{normalized_project}/{session_id}.txt`
+1. **Hooks track activity**: Every tool use updates session file with todos from `tool_input.todos`
+2. **Ping-pong monitors**: Background process checks for stale sessions via file mtime
+3. **Auto-continuation**: Sends prompts to tmux sessions by session ID when stale detected (only if active todos exist)
+4. **Session files**: `$CLAUDE_PLUGIN_ROOT/.sessions/{normalized_project}/{session_id}.json`
 
 **Session lifecycle**:
-- **SessionStart hook**: Creates session file with tmux pane ID, renames tmux session to match Claude Code session ID
-- **Tool use hooks**: Update file mtime (via `touch`)
-- **UserPromptSubmit hook**: Ensures tmux session name stays synchronized with Claude Code session
-- **Background monitor**: Checks mtime every 30 seconds
-- **Stale detection**: No activity for 120 seconds triggers continuation
-- **SessionEnd hook**: Deletes session file (todo-aware)
+- **PreToolUse hook** (TodoWrite): Updates session file with todos array from `tool_input.todos`
+- **PostToolUse hook**: Updates file mtime for activity tracking
+- **UserPromptSubmit hook**: Ensures tmux session name stays synchronized with Claude Code session ID
+- **SessionStart hook**: Renames tmux session to match Claude Code session ID
+- **Background monitor**: Checks file mtime every 30 seconds, parses todos, counts active/pending tasks
+- **Stale detection**: No activity for 150 seconds + active/pending todos triggers continuation
+- **SessionEnd hook**: Deletes session file (todo-aware - preserves if active todos exist)
 
 **Continuation messages**:
 - **Randomized prompts**: 5+ message variants for natural interaction
-- **Configurable**: Add custom messages via `configure` tool
-- **Examples**: "Please continue working...", "Let's keep going...", "Ready to continue?"
+- **Examples**: "Please continue working...", "Let's keep going...", "Continue..."
 
 **Debug mode**:
-- **Enable logging**: Set `PING_PONG_DEBUG=1` environment variable
+- **Enable logging**: Set `RESIN_AI_DEBUG=1` environment variable
 - **Production default**: Logging disabled for zero overhead
 - **Log location**: `$CLAUDE_PLUGIN_ROOT/.sessions/logs/`
+
+**Session file format**:
+- **Filename**: `{session_id}.json` (session_id encoded in filename)
+- **Contents**: JSON array of todos from `tool_input.todos` in PreToolUse hook payload
+- **Example**: `[{"content":"Phase 1","activeForm":"Running Phase 1","status":"in_progress"}]`
+- **Benefits**:
+  - Self-contained (no dependency on `~/.claude/todos`)
+  - Reads directly from hook payload (`tool_input.todos`)
+  - Falls back to `~/.claude/todos` if needed
+  - mtime-based staleness detection
+  - Smart continuation (only when active/pending todos exist)
 
 **Requirements**:
 - **tmux required**: All orchestrator work must run in tmux
 - **Automatic setup**: Hooks are plugin-native (no manual configuration)
-- **Zero overhead**: Just file touch operations (~1ms per event)
+- **Zero overhead**: File write operations on active events only (~1-2ms per event)
 
 ### 10. TMUX Environment Requirements
 
@@ -286,10 +282,11 @@ tmux attach -t resin-ai-orchestrator
 
 **Why tmux is required**:
 - **Session persistence**: Long-running orchestrations survive terminal disconnects
-- **Activity monitoring**: Ping-pong system tracks stale sessions via tmux pane IDs
-- **Auto-revival**: Continuation prompts sent directly to tmux panes
-- **Session isolation**: Each tmux pane has unique identifier for tracking
-- **Session naming**: tmux sessions automatically renamed to match Claude Code session IDs for easy identification
+- **Activity monitoring**: Ping-pong system tracks stale sessions via session IDs
+- **Auto-revival**: Continuation prompts sent directly to tmux sessions by session ID
+- **Session naming**: tmux sessions automatically renamed to match Claude Code session IDs
+- **Simplified targeting**: Uses session IDs (e.g., `tmux send-keys -t $SESSION_ID`) instead of pane IDs for more robust communication
+- **Stable references**: Session IDs don't change, unlike pane IDs which can shift
 
 **Resources**:
 - **TMUX requirements**: `orchestrator/resources/CORE/TMUX.md`

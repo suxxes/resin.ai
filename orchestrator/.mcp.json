@@ -14,7 +14,10 @@
 			"args": [
 				"-c",
 				"import os; os.chdir('${CLAUDE_PLUGIN_ROOT}'); exec(open('ping-pong.py').read())"
-			]
+			],
+			"env": {
+				"RESIN_AI_DEBUG": "${RESIN_AI_DEBUG:-0}"
+			}
 		}
 	}
 }
