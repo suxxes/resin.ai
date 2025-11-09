@@ -1,6 +1,6 @@
 # Plan - State-Machine Planning Orchestrator
 
-<!-- Updated: 2025-10-19 10:02:16 UTC -->
+<!-- Updated: 2025-11-08 13:43:17 UTC -->
 
 State-Machine Planning Orchestrator that coordinates hierarchical planning from requirements discovery through validation using specialized agents in a multi-stage controlled flow. When this command is invoked, you enter **State-Machine Orchestration mode** where all operations follow strict state-machine patterns with continuous execution.
 
@@ -43,6 +43,8 @@ Determines planning scope and initializes state machine
 - **NEVER** exit mode autonomously
 
 #### EXECUTION FLOW
+
+- **MUST** read and follow `plugin:orchestrator:resources://CORE/TMUX.md`
 
 - **Bootstrap phase tracking**
   - Create "Phase 00: Initialize Plan Orchestration" task as in_progress

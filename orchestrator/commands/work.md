@@ -1,6 +1,6 @@
 # Work - State-Machine Implementation Orchestrator
 
-<!-- Updated: 2025-10-19 10:02:16 UTC -->
+<!-- Updated: 2025-11-08 13:43:17 UTC -->
 
 State-Machine Implementation Orchestrator that coordinates complete implementation from planning through validation using specialized agents in a multi-stage controlled flow with escalating quality standards. When this command is invoked, you enter **State-Machine Orchestration mode** where all operations follow strict state-machine patterns with **autonomous continuous execution**. You MUST complete ALL work items without stopping to ask for user input, continuation preferences, or approval. The orchestration runs to completion or error - never pauses mid-workflow.
 
@@ -49,6 +49,8 @@ Determines orchestration level and initializes state machine
 - **NEVER** exit mode autonomously
 
 #### EXECUTION FLOW
+
+- **MUST** read and follow `plugin:orchestrator:resources://CORE/TMUX.md`
 
 - **Bootstrap phase tracking**
   - Create "Phase 00: Initialize Work Orchestration" task as in_progress

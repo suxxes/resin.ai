@@ -1,0 +1,94 @@
+{
+	"hooks": {
+		"PreToolUse": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "PING_PONG_DEBUG=1 ${CLAUDE_PLUGIN_ROOT}/hooks/ping-pong.sh"
+					}
+				]
+			}
+		],
+		"PostToolUse": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "PING_PONG_DEBUG=1 ${CLAUDE_PLUGIN_ROOT}/hooks/ping-pong.sh"
+					}
+				]
+			}
+		],
+		"Notification": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "PING_PONG_DEBUG=1 ${CLAUDE_PLUGIN_ROOT}/hooks/ping-pong.sh"
+					}
+				]
+			}
+		],
+		"UserPromptSubmit": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "PING_PONG_DEBUG=1 ${CLAUDE_PLUGIN_ROOT}/hooks/ping-pong.sh"
+					}
+				]
+			}
+		],
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "PING_PONG_DEBUG=1 ${CLAUDE_PLUGIN_ROOT}/hooks/ping-pong.sh"
+					}
+				]
+			}
+		],
+		"SubagentStop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "PING_PONG_DEBUG=1 ${CLAUDE_PLUGIN_ROOT}/hooks/ping-pong.sh"
+					}
+				]
+			}
+		],
+		"PreCompact": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "PING_PONG_DEBUG=1 ${CLAUDE_PLUGIN_ROOT}/hooks/ping-pong.sh"
+					}
+				]
+			}
+		],
+		"SessionStart": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "PING_PONG_DEBUG=1 ${CLAUDE_PLUGIN_ROOT}/hooks/ping-pong.sh"
+					}
+				]
+			}
+		],
+		"SessionEnd": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "PING_PONG_DEBUG=1 ${CLAUDE_PLUGIN_ROOT}/hooks/ping-pong.sh"
+					}
+				]
+			}
+		]
+	}
+}

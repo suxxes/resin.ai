@@ -1,6 +1,6 @@
 # Docs - Create comprehensive project documentation
 
-<!-- Updated: 2025-10-19 10:02:16 UTC -->
+<!-- Updated: 2025-11-08 13:43:17 UTC -->
 
 Create comprehensive LLM-optimized technical documentation for the codebase. This command complements the plan command by focusing on technical implementation details while plan focuses on project planning and specifications.
 
@@ -44,6 +44,8 @@ Create and track all documentation tasks
 - **NEVER** create phases out of order
 
 #### EXECUTION FLOW
+
+- **MUST** read and follow `plugin:orchestrator:resources://CORE/TMUX.md`
 
 - **Initialize phase tracking**
   - Create "Phase X: Initialize Tasks" task as in_progress

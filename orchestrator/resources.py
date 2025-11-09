@@ -284,7 +284,7 @@ class MCPServer:
 
 def main() -> None:
     """Main entry point."""
-    server = MCPServer("resin-ai-orchestrator-plugin-root")
+    server = MCPServer("resin-ai-orchestrator-resources")
     server.run()
 
 
