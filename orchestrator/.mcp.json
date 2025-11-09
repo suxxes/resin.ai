@@ -7,6 +7,14 @@
 				"-c",
 				"import os; os.chdir('${CLAUDE_PLUGIN_ROOT}'); exec(open('resources.py').read())"
 			]
+		},
+		"ping-pong": {
+			"type": "stdio",
+			"command": "python3",
+			"args": [
+				"-c",
+				"import os; os.chdir('${CLAUDE_PLUGIN_ROOT}'); exec(open('ping-pong.py').read())"
+			]
 		}
 	}
 }

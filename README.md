@@ -1,6 +1,6 @@
 # Resin.ai Orchestrator
 
-<!-- Updated: 2025-11-07 16:17:36 UTC -->
+<!-- Updated: 2025-11-08 22:44:29 UTC -->
 
 An autonomous multi-agent orchestration system for software development using Claude Code's plugin architecture. Built on state machine orchestration with deterministic execution, hierarchical planning, and specialized AI agents.
 
@@ -11,6 +11,7 @@ An autonomous multi-agent orchestration system for software development using Cl
 - **Claude Code** installed and configured
 - **Python 3.10+** for MCP server functionality
 - **Git** for version control integration
+- **tmux** for session management and monitoring (required for orchestrator agents)
 
 ### Quick Install
 
@@ -212,13 +213,87 @@ Template-driven documentation generation:
 
 ### 8. MCP Server Implementation
 
-Zero-dependency MCP server (`resources.py`) features:
+Two zero-dependency MCP servers power the orchestrator:
 
+**Resources Server** (`resources.py`):
 - **JSON-RPC 2.0 protocol** over stdio
 - **Single tool**: `read` for accessing Markdown resources
 - **URI scheme**: `plugin:orchestrator:resources://path/to/file.md`
 - **Security**: Directory traversal prevention, Markdown-only validation
 - **Error handling**: Comprehensive JSON-RPC error responses
+
+**Ping-Pong Server** (`ping-pong.py`):
+- **Hook-based session monitoring** via file mtime tracking
+- **Auto-discovery** of sessions from `$CLAUDE_PLUGIN_ROOT/.sessions/` directories
+- **Stale detection** and automatic continuation prompts
+- **Direct tmux pane** communication for session revival
+- **Randomized continuation messages** for natural interaction (5+ variants)
+- **Debug-only logging** via `PING_PONG_DEBUG=1` environment variable
+- **System-wide session tracking** at plugin root level
+- **Tools**: `list_sessions`, `configure`, `send_continuation`
+
+### 9. Session Monitoring & Revival
+
+Hooks-based ping/pong system ensures continuous agent operation:
+
+**How it works**:
+1. **Hooks track activity**: Every tool use updates session file mtime
+2. **Ping-pong monitors**: Background process checks for stale sessions
+3. **Auto-continuation**: Sends prompts to tmux panes when stale detected
+4. **Session files**: `$CLAUDE_PLUGIN_ROOT/.sessions/{normalized_project}/{session_id}.txt`
+
+**Session lifecycle**:
+- **SessionStart hook**: Creates session file with tmux pane ID, renames tmux session to match Claude Code session ID
+- **Tool use hooks**: Update file mtime (via `touch`)
+- **UserPromptSubmit hook**: Ensures tmux session name stays synchronized with Claude Code session
+- **Background monitor**: Checks mtime every 30 seconds
+- **Stale detection**: No activity for 120 seconds triggers continuation
+- **SessionEnd hook**: Deletes session file (todo-aware)
+
+**Continuation messages**:
+- **Randomized prompts**: 5+ message variants for natural interaction
+- **Configurable**: Add custom messages via `configure` tool
+- **Examples**: "Please continue working...", "Let's keep going...", "Ready to continue?"
+
+**Debug mode**:
+- **Enable logging**: Set `PING_PONG_DEBUG=1` environment variable
+- **Production default**: Logging disabled for zero overhead
+- **Log location**: `$CLAUDE_PLUGIN_ROOT/.sessions/logs/`
+
+**Requirements**:
+- **tmux required**: All orchestrator work must run in tmux
+- **Automatic setup**: Hooks are plugin-native (no manual configuration)
+- **Zero overhead**: Just file touch operations (~1ms per event)
+
+### 10. TMUX Environment Requirements
+
+All orchestrator commands require tmux for session persistence and monitoring:
+
+**Critical requirements**:
+- **MUST** run in tmux session for orchestrator commands (`/orchestrator:plan`, `/orchestrator:work`, `/orchestrator:docs`)
+- **Automatic verification**: Phase 00 checks `$TMUX_PANE` environment variable
+- **Immediate stop**: Commands halt with clear error message if tmux not detected
+- **Template-based errors**: Consistent error reporting via `TMUX-ERROR.md` template
+
+**How to start tmux**:
+```bash
+# Create new session
+tmux new -s resin-ai-orchestrator
+
+# Or attach to existing session
+tmux attach -t resin-ai-orchestrator
+```
+
+**Why tmux is required**:
+- **Session persistence**: Long-running orchestrations survive terminal disconnects
+- **Activity monitoring**: Ping-pong system tracks stale sessions via tmux pane IDs
+- **Auto-revival**: Continuation prompts sent directly to tmux panes
+- **Session isolation**: Each tmux pane has unique identifier for tracking
+- **Session naming**: tmux sessions automatically renamed to match Claude Code session IDs for easy identification
+
+**Resources**:
+- **TMUX requirements**: `orchestrator/resources/CORE/TMUX.md`
+- **Error template**: `orchestrator/resources/TEMPLATE/REPORT/TMUX-ERROR.md`
 
 ## CLI Commands
 
@@ -351,11 +426,12 @@ Loop until completion
 
 48 Markdown resource files organized by category:
 
-### CORE Resources (5 files)
+### CORE Resources (6 files)
 - **PHASE-EXECUTION-REQUIREMENTS.md**: Universal execution requirements
 - **PHASE-EXECUTION-RESTRICTIONS.md**: Execution constraints
 - **TEMPLATE-REQUIREMENTS.md**: Output template standards
 - **EPIC-STORY-TASK-FORMAT.md**: Hierarchical ID format
+- **TMUX.md**: TMUX environment requirements for all commands
 - **YOU-DO-NOT-UNDERSTAND.md**: Error handling instructions
 
 ### STATE-MACHINE Resources (14 files)
