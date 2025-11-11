@@ -17,9 +17,11 @@ Analyze task requirements and specifications
   - Update "Phase 03: Requirements Analysis" task as in_progress
 
 - **Language Detection and Skill Activation**
-  - Detect task language from file extensions (.py, .ts, .tsx, .js, .jsx, .swift), explicit mentions ("implement in Python"), existing file context, or project configuration files
-  - Invoke appropriate language skill using Skill tool: `developer-python` for Python, `developer-typescript` for TypeScript/JavaScript, `developer-nextjs` for Next.js, `developer-swift` for Swift
-  - If language is ambiguous, use AskUserQuestion tool to confirm language choice
+  - Detect task language from
+    - Explicit mentions ("implement in Python")
+    - Existing files or project configuration
+    - Context or task requirements
+  - Invoke appropriate language skill using Skill tool
   - Language skill remains active for entire task execution
 
 - **QA Report Review**

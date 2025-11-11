@@ -3,7 +3,7 @@ name: developer-python
 description: Python development standards and best practices. Provides type safety requirements, code organization patterns, testing standards, and Pythonic coding guidelines.
 ---
 
-<!-- Updated: 2025-11-11 19:00:00 UTC -->
+<!-- Updated: 2025-11-11 19:15:00 UTC -->
 
 # Python Development Skill
 
@@ -29,6 +29,10 @@ This skill provides Python-specific standards and best practices for TDD-based d
 - **Fixtures**: Use pytest fixtures for test setup
 - **Test Coverage**: Minimum 80% code coverage
 - **Fast Tests**: Keep tests fast and focused
+- **Test Files**: `tests/test_*.py` or `tests/*_test.py`
+- **Test Functions**: `def test_function_name():`
+- **Test Classes**: `class TestClassName:`
+- **Test Methods**: `def test_method_name(self):`
 
 ### Best Practices
 - **Pythonic Code**: Follow PEP 8 and write idiomatic Python
@@ -37,50 +41,3 @@ This skill provides Python-specific standards and best practices for TDD-based d
 - **Generators**: Use generators for memory-efficient iteration
 - **Dataclasses**: Use dataclasses or Pydantic models for data structures
 - **F-Strings**: Use f-strings for string formatting (not % or .format())
-
-## COMMON PATTERNS
-
-### Test File Organization
-- Test files: `tests/test_*.py` or `tests/*_test.py`
-- Test functions: `def test_function_name():`
-- Test classes: `class TestClassName:`
-- Test methods: `def test_method_name(self):`
-
-### Fixture Usage
-```python
-import pytest
-
-@pytest.fixture
-def sample_data():
-    return {"key": "value"}
-
-def test_with_fixture(sample_data):
-    assert sample_data["key"] == "value"
-```
-
-### Parametrized Tests
-```python
-import pytest
-
-@pytest.mark.parametrize("input,expected", [
-    (1, 2),
-    (2, 4),
-    (3, 6),
-])
-def test_double(input, expected):
-    assert input * 2 == expected
-```
-
-### Type Annotations
-```python
-from typing import List, Optional, Dict, Protocol
-
-def process_items(items: List[str]) -> Dict[str, int]:
-    return {item: len(item) for item in items}
-
-def find_user(id: str) -> Optional[User]:
-    return database.get(id)
-
-class Drawable(Protocol):
-    def draw(self) -> None: ...
-```
