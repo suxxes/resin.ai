@@ -16,6 +16,12 @@ Analyze task requirements and specifications
 - **Update phase tracking**
   - Update "Phase 03: Requirements Analysis" task as in_progress
 
+- **Language Detection and Skill Activation**
+  - Detect task language from file extensions (.py, .ts, .tsx, .js, .jsx, .swift), explicit mentions ("implement in Python"), existing file context, or project configuration files
+  - Invoke appropriate language skill using Skill tool: `developer-python` for Python, `developer-typescript` for TypeScript/JavaScript, `developer-nextjs` for Next.js, `developer-swift` for Swift
+  - If language is ambiguous, use AskUserQuestion tool to confirm language choice
+  - Language skill remains active for entire task execution
+
 - **QA Report Review**
   - Review QA validation reports identifying technical issues and quality concerns
   - Analyze test failures understanding root causes and required fixes

@@ -1,6 +1,6 @@
 # Resin.ai Orchestrator
 
-<!-- Updated: 2025-11-09 03:18:32 UTC -->
+<!-- Updated: 2025-11-11 19:07:45 UTC -->
 
 An autonomous multi-agent orchestration system for software development using Claude Code's plugin architecture. Built on state machine orchestration with deterministic execution, hierarchical planning, and specialized AI agents.
 
@@ -38,7 +38,7 @@ That's it! The orchestrator is ready to use.
 ## System Overview
 
 **Project Type**: Claude Code Plugin System
-**Version**: 2.0.0
+**Version**: 3.1.0
 **Purpose**: Autonomous orchestration of complete software development lifecycle through specialized AI agents
 
 ### Core Architecture
@@ -46,7 +46,8 @@ That's it! The orchestrator is ready to use.
 - **Plugin-Based System**: Seamlessly integrated into Claude Code IDE via marketplace
 - **MCP Server**: Zero-dependency Python implementation using Model Context Protocol
 - **State Machine Orchestration**: Deterministic, repeatable execution through structured phases
-- **Specialized AI Agents**: 9 domain-specific agents with hierarchical expertise
+- **Specialized AI Agents**: 5 domain-specific agents with hierarchical expertise
+- **Language Skills System**: 4 language-specific skills (Python, TypeScript, Next.js, Swift) for developer agent
 - **Resource-Driven**: All knowledge stored as structured Markdown (48 resource files)
 - **Hierarchical Planning**: Project → Epic → Story → Task structure with enriched context
 
@@ -70,29 +71,31 @@ That's it! The orchestrator is ready to use.
 ```
 orchestrator/
 ├── .claude-plugin/
-│   └── plugin.json              # Plugin metadata (v2.0.0)
+│   └── plugin.json              # Plugin metadata (v3.1.0)
 ├── .mcp.json                    # MCP server configuration
 ├── resources.py                 # MCP server implementation (Python)
-├── agents/                      # AI agent definitions (9 agents)
+├── agents/                      # AI agent definitions (5 agents)
 │   ├── product-manager.md       # Strategic project planning
 │   ├── project-manager.md       # Epic-to-story breakdown
 │   ├── feature-manager.md       # Story-to-task breakdown
-│   ├── developer-python.md      # Python implementation specialist
-│   ├── developer-typescript.md  # TypeScript/JavaScript specialist
-│   ├── developer-nextjs.md      # Next.js full-stack specialist
-│   ├── developer-swift.md       # Swift/SwiftUI specialist
+│   ├── developer.md             # Unified multi-language developer agent
 │   └── quality-assurance.md     # Enhanced QA validation
 ├── commands/                    # CLI orchestrators (4 commands)
 │   ├── plan.md                  # Planning state machine
 │   ├── work.md                  # Implementation state machine
 │   ├── dryrun.md                # Planning preview (no execution)
 │   └── docs.md                  # Documentation generation
+├── skills/                      # Language-specific skills (4 skills)
+│   ├── developer-python/        # Python standards and patterns
+│   ├── developer-typescript/    # TypeScript/JavaScript standards
+│   ├── developer-nextjs/        # Next.js full-stack patterns
+│   └── developer-swift/         # Swift/Apple platform standards
 ├── resources/                   # Markdown knowledge base (48 files)
 │   ├── CORE/                    # Core requirements (5 files)
 │   ├── STATE-MACHINE/           # State definitions (14 files)
 │   ├── AGENT/                   # Agent phases (8+ directories)
 │   └── TEMPLATE/                # Output templates (20+ files)
-└── skills/                      # Custom skills (extensible)
+└── hooks/                       # Lifecycle hooks (session monitoring)
 ```
 
 ## Key Features
@@ -104,7 +107,7 @@ Coordinates specialized AI agents through deterministic state machines where eac
 - **Product Manager**: Strategic planning, architecture, technology stack selection
 - **Project Manager**: Epic breakdown into stories with prioritization
 - **Feature Manager**: Story breakdown into tasks with technical specifications
-- **Developer Specialists**: Language-specific TDD implementation (Python, TypeScript, Next.js, Swift)
+- **Developer**: Unified multi-language TDD implementation with automatic language skill activation
 - **Quality Assurance**: Enhanced validation with 95%+ test coverage requirements
 
 ### 2. Hierarchical Planning System
@@ -154,12 +157,26 @@ EPIC_LOOP → STORY_LOOP → TASK_LOOP
 
 **State Transitions**: Controlled by return codes (CONTINUE, EXIT, FAILURE)
 
-### 4. Test-Driven Development (TDD) Enforcement
+### 4. Language Skills System
 
-Developer agents follow strict TDD methodology with 11 phases:
+Developer agent automatically activates language-specific skills based on task requirements:
+
+**Supported Languages**:
+- **Python**: Type hints, testing patterns, Pythonic best practices
+- **TypeScript/JavaScript**: Strict types, generics, utility types, async/await patterns
+- **Next.js**: App Router, Server Components, RSC patterns, server actions
+- **Swift**: SwiftUI, protocol-oriented design, modern concurrency, optionals
+
+**Skill Activation**: Automatic during Phase 03 (Requirements Analysis) via Skill tool
+
+**Skill Contents**: Language standards, best practices, common patterns, testing standards
+
+### 5. Test-Driven Development (TDD) Enforcement
+
+Developer agent follows strict TDD methodology with 11 phases:
 
 1. Initialize Tasks
-2. Requirements Analysis
+2. Requirements Analysis (includes language skill activation)
 3. Project Discovery
 4. Test Design
 5. Test Implementation
@@ -168,7 +185,7 @@ Developer agents follow strict TDD methodology with 11 phases:
 8. Documentation
 9. Validation & Handoff
 
-### 5. Requirements Enrichment
+### 6. Requirements Enrichment
 
 Prevents re-asking questions through enriched context:
 
@@ -177,7 +194,7 @@ Prevents re-asking questions through enriched context:
 - **Parent context inheritance** (Story inherits Epic context, Task inherits Story context)
 - **Scope-specific questions** only
 
-### 6. Enhanced Quality Assurance
+### 7. Enhanced Quality Assurance
 
 Through-the-roof quality standards:
 
@@ -188,7 +205,7 @@ Through-the-roof quality standards:
 - **Regression validation**
 - **Zero tolerance for failures**: Returns to development on any test failure
 
-### 7. Documentation Automation
+### 8. Documentation Automation
 
 Template-driven documentation generation:
 
@@ -197,7 +214,7 @@ Template-driven documentation generation:
 - **Concrete code examples** with file references
 - **Automatic updates** during implementation
 
-### 8. MCP Server Implementation
+### 9. MCP Server Implementation
 
 Two zero-dependency MCP servers power the orchestrator:
 
