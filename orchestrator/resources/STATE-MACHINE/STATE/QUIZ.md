@@ -1,10 +1,11 @@
-<!-- Updated: 2025-10-17 12:14:58 UTC -->
+<!-- Updated: 2025-11-11 18:03:58 UTC -->
 
 ### Phase {PHASE_NUMBER}: {PHASE_NAME}
-Requirements discovery through structured questionnaires
+Requirements discovery through **structured AskUserQuestion tool usage**
 
 #### CRITICAL REQUIREMENTS
 - **MUST** assess context completeness before proceeding
+- **MUST** use AskUserQuestion tool for ALL questions
 - **MUST** execute questionnaires for each level in completion plan
 - **MUST** validate and store enriched context
 - **MUST** be transparent about questioning process
@@ -14,6 +15,7 @@ Requirements discovery through structured questionnaires
 - **NEVER** make assumptions without documenting them
 - **NEVER** re-ask questions if context already complete
 - **NEVER** proceed with incomplete requirements without user consent
+- **NEVER** ask questions in plain text - **ALWAYS use AskUserQuestion tool**
 
 #### EXECUTION FLOW
 
@@ -22,6 +24,7 @@ Requirements discovery through structured questionnaires
 
 - **Assess context completeness**
   - **MUST** read and follow `plugin:orchestrator:resources://AGENT/MANAGER/REQUIREMENTS-DISCOVERY.md` workflow
+  - **MUST** read and follow `plugin:orchestrator:resources://CORE/ASK-USER-QUESTION-TOOL.md` for tool usage guidelines
   - Get `COMPLETION_PLAN` from previous state
   - Evaluate if user description contains sufficient planning detail
   - Check against scope-specific required information checklist
@@ -44,18 +47,20 @@ Requirements discovery through structured questionnaires
       - **MUST** read and follow requirements from `plugin:orchestrator:resources://CORE/TEMPLATE-REQUIREMENTS.md`
       - **MUST** preserve template organization
 
-    - **Present questions with transparency**
+    - **Present questions with AskUserQuestion tool**
       - Announce: "Requirements Discovery for [level] level"
-      - Announce total question count and categories
-      - Group questions by category
-      - Number questions sequentially
-      - Allow user to skip at any time
+      - Formulate structured questions with 2-4 options each
+      - **MUST** use AskUserQuestion tool - NEVER ask in plain text
+      - Group related questions (max 4 questions per tool call)
+      - Provide clear option descriptions with trade-offs
+      - Each option must be concise (1-5 words) with informative description
 
     - **Collect and validate answers**
-      - Ask questions one category at a time
+      - Execute AskUserQuestion tool calls for each category
+      - User can select from options or choose "Other" for custom input
       - Restate understanding after each category
       - Get explicit user confirmation
-      - Allow corrections and refinements
+      - Allow corrections and refinements via follow-up AskUserQuestion calls
 
     - **Handle user skip request**
       - When user types "skip" or requests assumptions:
