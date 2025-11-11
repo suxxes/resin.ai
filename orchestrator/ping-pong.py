@@ -26,7 +26,7 @@ Activity tracking:
 
 Requires Python 3.10+
 
-Updated: 2025-11-09 03:30:54 UTC
+Updated: 2025-11-11 17:59:24 UTC
 """
 
 import json
@@ -76,6 +76,8 @@ class SessionMonitor:
         self.tmux_available = False
         self._lock = threading.Lock()
         self.my_pid = os.getpid()
+        self._is_leader_cached: bool | None = None
+        self._leader_check_time: float = 0.0
 
     def start_monitoring(self) -> None:
         """Start background monitoring thread."""
@@ -133,8 +135,20 @@ class SessionMonitor:
         except (FileNotFoundError, subprocess.TimeoutExpired):
             return False
 
-    def _am_i_leader(self) -> bool:
-        """Check if this is the leader monitor (lowest PID among all ping-pong processes)."""
+    def _am_i_leader(self, force_recheck: bool = False) -> bool:
+        """Check if this is the leader monitor (lowest PID among all ping-pong processes).
+
+        Results are cached for 60 seconds to reduce overhead. Use force_recheck=True to bypass cache.
+        """
+        current_time = time.time()
+        cache_ttl = 60.0  # Cache leader status for 60 seconds
+
+        # Return cached result if still valid
+        if not force_recheck and self._is_leader_cached is not None:
+            if current_time - self._leader_check_time < cache_ttl:
+                logger.debug(f"Using cached leader status: {self._is_leader_cached} (age: {current_time - self._leader_check_time:.1f}s)")
+                return self._is_leader_cached
+
         try:
             logger.debug(f"Leader election starting: my_pid={self.my_pid}")
 
@@ -153,46 +167,54 @@ class SessionMonitor:
             if result.returncode != 0 or not result.stdout.strip():
                 # No processes found, we're the leader
                 logger.debug(f"No ping-pong processes found, assuming leader")
-                return True
+                is_leader = True
+            else:
+                # Parse PIDs
+                pids = []
+                for line in result.stdout.strip().split('\n'):
+                    line = line.strip()
+                    if line:
+                        try:
+                            pid = int(line)
+                            pids.append(pid)
+                            logger.debug(f"Found ping-pong process: PID {pid}")
+                        except ValueError as e:
+                            logger.warning(f"Failed to parse PID from line '{line}': {e}")
+                            continue
 
-            # Parse PIDs
-            pids = []
-            for line in result.stdout.strip().split('\n'):
-                line = line.strip()
-                if line:
-                    try:
-                        pid = int(line)
-                        pids.append(pid)
-                        logger.debug(f"Found ping-pong process: PID {pid}")
-                    except ValueError as e:
-                        logger.warning(f"Failed to parse PID from line '{line}': {e}")
-                        continue
+                if not pids:
+                    # No valid PIDs found, we're the leader
+                    logger.debug(f"No valid PIDs found, assuming leader")
+                    is_leader = True
+                else:
+                    # We're the leader if we have the lowest PID
+                    min_pid = min(pids)
+                    is_leader = self.my_pid == min_pid
 
-            if not pids:
-                # No valid PIDs found, we're the leader
-                logger.debug(f"No valid PIDs found, assuming leader")
-                return True
+                    logger.debug(f"Leader election results:")
+                    logger.debug(f"  - My PID: {self.my_pid}")
+                    logger.debug(f"  - Leader PID: {min_pid}")
+                    logger.debug(f"  - All PIDs: {sorted(pids)}")
+                    logger.debug(f"  - Process count: {len(pids)}")
 
-            # We're the leader if we have the lowest PID
-            min_pid = min(pids)
-            is_leader = self.my_pid == min_pid
+            # Cache the result
+            self._is_leader_cached = is_leader
+            self._leader_check_time = current_time
 
-            logger.debug(f"Leader election results:")
-            logger.debug(f"  - My PID: {self.my_pid} (type: {type(self.my_pid).__name__})")
-            logger.debug(f"  - Leader PID: {min_pid} (type: {type(min_pid).__name__})")
-            logger.debug(f"  - All PIDs: {sorted(pids)}")
-            logger.debug(f"  - Process count: {len(pids)}")
-            logger.debug(f"  - Am I leader? {is_leader}")
-
+            # Only log on status change or first check
             if is_leader:
                 logger.info(f"✓ LEADER monitor elected (PID {self.my_pid})")
             else:
+                min_pid = min(pids) if pids else "unknown"
                 logger.info(f"✗ FOLLOWER monitor (PID {self.my_pid}, leader: {min_pid})")
 
             return is_leader
 
         except (subprocess.SubprocessError, subprocess.TimeoutExpired, ValueError) as e:
             logger.warning(f"Leader election failed: {e}, assuming leader by default")
+            # Cache failure result briefly
+            self._is_leader_cached = True
+            self._leader_check_time = current_time
             return True  # Assume leader if can't determine
 
     def _discover_sessions(self) -> dict[str, dict[str, Any]]:
