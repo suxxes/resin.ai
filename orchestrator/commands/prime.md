@@ -220,7 +220,7 @@ Generate comprehensive project status report
   - Update "Phase X: Generate Report" task as in_progress
 
 - **Generate status report**
-  - **MUST** read and use `plugin:orchestrator:resources://TEMPLATE/DOCUMENTATION/REPORT/PROJECT-OVERVIEW.md` as a template
+  - **MUST** read and use `plugin:orchestrator:resources://TEMPLATE/REPORT/PROJECT-OVERVIEW.md` as a template
   - **MUST** read and follow requirements from `plugin:orchestrator:resources://CORE/TEMPLATE-REQUIREMENTS.md`
   - **MUST** preserve template organization
   - **MUST** preserve template organization
